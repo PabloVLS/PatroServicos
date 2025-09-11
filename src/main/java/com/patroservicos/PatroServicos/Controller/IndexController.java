@@ -25,4 +25,10 @@ public class IndexController {
     public String cadastro() {
         return "HTML/cadastro"; 
     }
+
+    
+    @GetMapping("/sejaProfissional")
+    public String sejaProfissional() {
+        return "HTML/sejaProfissional"; 
+    }
 }
