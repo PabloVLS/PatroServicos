@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PatroServiços - Encontre profissionais em Patrocínio-MG</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/CSS/index.css">
+</head>
+
+<body>
+    <!-- cabeçalho -->
+    <nav class="cabecalho navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="logo navbar-brand" href="/HTML">Patro<span>Serviços</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="menu-link nav-link" href="/HTML">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="menu-link nav-link" href="/profissionais">Profissionais</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="menu-link nav-link" href="#">Seja um profissional</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="#" class="botao-principal btn me-2">Entrar</a>
+                    <a href="#" class="botao-destaque btn">Cadastrar</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Banner Principal -->
+    <section class="banner">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="titulo-banner">Encontre profissionais confiáveis em Patrocínio-MG</h1>
+                    <p class="subtitulo-banner">Serviços rápidos, confiáveis e perto de você</p>
+
+                    <div class="caixa-busca d-flex">
+                        <input type="text" class="campo-busca flex-grow-1"
+                            placeholder="Pesquise por serviço, local ou profissional">
+                        <button class="botao-busca">Buscar</button>
+                    </div>
+
+                    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                        <a href="#" class="botao-claro btn">Contratar um profissional</a>
+                        <a href="/profissionais" class="botao-destaque btn">Sou profissional, quero me cadastrar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Como Funciona -->
+    <section class="container mb-5">
+        <div class="text-center mb-5">
+            <h2 class="titulo-secao mx-auto">Como Funciona</h2>
+            <p class="subtitulo-secao">Encontrar o profissional perfeito para seu serviço nunca foi tão fácil</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-passo">
+                    <div class="icone-passo">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="titulo-passo">1. Encontre</h3>
+                    <p class="texto-passo">Pesquise o serviço que você precisa em nossa plataforma.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-passo">
+                    <div class="icone-passo">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <h3 class="titulo-passo">2. Escolha</h3>
+                    <p class="texto-passo">Veja avaliações e perfis detalhados dos profissionais.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-passo">
+                    <div class="icone-passo">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3 class="titulo-passo">3. Contrate</h3>
+                    <p class="texto-passo">Agende ou entre em contato direto com o profissional.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categorias de Serviços -->
+    <section class="container mb-5">
+        <div class="text-center mb-5">
+            <h2 class="titulo-secao mx-auto">Categorias de Serviços</h2>
+            <p class="subtitulo-secao">Encontre profissionais especializados em diversas áreas</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-categoria">
+                    <div class="imagem-categoria"
+                        style="background-image: url('/IMG/index/pexels-limpeza.jpg');">
+                    </div>
+                    <div class="conteudo-categoria">
+                        <h3 class="titulo-categoria">Limpeza</h3>
+                        <p class="texto-categoria">Diaristas, faxina pós-obra, limpeza comercial</p>
+                        <a href="#" class="link-categoria">Ver profissionais <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-categoria">
+                    <div class="imagem-categoria"
+                        style="background-image: url('/IMG/index/pexels-manutencao.jpg');">
+                    </div>
+                    <div class="conteudo-categoria">
+                        <h3 class="titulo-categoria">Reparos e Manutenção</h3>
+                        <p class="texto-categoria">Encanadores, eletricistas, pintores, pedreiros</p>
+                        <a href="#" class="link-categoria">Ver profissionais <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-categoria">
+                    <div class="imagem-categoria"
+                        style="background-image: url('/IMG/index/pexels-aulas.jpg');">
+                    </div>
+                    <div class="conteudo-categoria">
+                        <h3 class="titulo-categoria">Aulas e Cursos</h3>
+                        <p class="texto-categoria">Aulas particulares, cursos profissionalizantes</p>
+                        <a href="#" class="link-categoria">Ver profissionais <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-categoria">
+                    <div class="imagem-categoria"
+                        style="background-image: url('/IMG/index/pexels-transporte.jpg');">
+                    </div>
+                    <div class="conteudo-categoria">
+                        <h3 class="titulo-categoria">Transporte/Fretes</h3>
+                        <p class="texto-categoria">Entregas, mudanças, transportes diversos</p>
+                        <a href="#" class="link-categoria">Ver profissionais <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-categoria">
+                    <div class="imagem-categoria"
+                        style="background-image: url('/IMG/index/pexels-informatica.jpg');">
+                    </div>
+                    <div class="conteudo-categoria">
+                        <h3 class="titulo-categoria">TI / Informática</h3>
+                        <p class="texto-categoria">Assistência técnica, desenvolvimento, suporte</p>
+                        <a href="#" class="link-categoria">Ver profissionais <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-categoria">
+                    <div class="imagem-categoria"
+                        style="background-image: url('/IMG/index/pexels-muitomais.jpg');">
+                    </div>
+                    <div class="conteudo-categoria">
+                        <h3 class="titulo-categoria">E Muito Mais!</h3>
+                        <p class="texto-categoria">Diversas outras categorias disponíveis</p>
+                        <a href="#" class="link-categoria">Ver todas <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Depoimentos -->
+    <section class="container mb-5">
+        <div class="text-center mb-5">
+            <h2 class="titulo-secao mx-auto">O que nossos clientes dizem</h2>
+            <p class="subtitulo-secao">Avaliações de quem já contratou profissionais pela nossa plataforma</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-depoimento">
+                    <div class="avaliacao">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="texto-depoimento">Encontrei um excelente encanador em menos de 1 hora. Resolveu meu
+                        problema rapidamente e com preço justo. Recomendo muito o PatroServiços!</p>
+                    <div class="autor-depoimento">
+                        <img src="/IMG/index/comentario1.png" alt="Cliente"
+                            class="foto-autor">
+                        <div>
+                            <div class="nome-autor">Deiró Marra</div>
+                            <div class="profissao-autor">Cliente</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-depoimento">
+                    <div class="avaliacao">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="texto-depoimento">Como profissional autônomo, o PatroServiços me ajudou a conseguir mais
+                        clientes na região. Agora tenho uma renda estável fazendo o que gosto!</p>
+                    <div class="autor-depoimento">
+                        <img src="/IMG/index/comentario2.png" alt="Profissional"
+                            class="foto-autor">
+                        <div>
+                            <div class="nome-autor">Silvalino Cantor</div>
+                            <div class="profissao-autor">Cantor</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-depoimento">
+                    <div class="avaliacao">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="texto-depoimento">Precisava de uma diarista com urgência e encontrei várias opções na
+                        plataforma. A escolhida foi perfeita e superou minhas expectativas!</p>
+                    <div class="autor-depoimento">
+                        <img src="/IMG/index/comentario3.png" alt="Cliente"
+                            class="foto-autor">
+                        <div>
+                            <div class="nome-autor">Ademir da Silva</div>
+                            <div class="profissao-autor">Cliente</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="secao-cadastro">
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="titulo-cadastro">Cadastre-se e faça parte</h2>
+                <p class="texto-cadastro">Junte-se a milhares de profissionais e clientes que já utilizam nossa plataforma para conectar talentos e oportunidades.</p>
+
+                <div class="beneficio-item d-flex">
+                    <div class="me-3">
+                        <i class="fas fa-check-circle fa-lg"></i>
+                    </div>
+                    <div>
+                        <h4>Para Profissionais</h4>
+                        <p>Aumente sua renda, encontre clientes na região e mostre seu trabalho para um público amplo.</p>
+                    </div>
+                </div>
+
+                <div class="beneficio-item d-flex">
+                    <div class="me-3">
+                        <i class="fas fa-check-circle fa-lg"></i>
+                    </div>
+                    <div>
+                        <h4>Para Clientes</h4>
+                        <p>Encontre profissionais qualificados de forma rápida, segura e com avaliações transparentes.</p>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="#" class="botao-cadastro btn btn-lg">Cadastrar Agora <i class="fas fa-arrow-right ms-2"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-6 carousel-container">
+                <div id="carouselPatroServicos" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#carouselPatroServicos" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#carouselPatroServicos" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#carouselPatroServicos" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                    </div>
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="/IMG/index/pexels-eletricista.jpg" class="d-block w-100 carousel-img" alt="Profissionais trabalhando">
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>Diversos Profissionais</h5>
+                                <p>Encontre os melhores especialistas para seu projeto</p>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <img src="/IMG/index/pexels-mecanico.jpg" class="d-block w-100 carousel-img" alt="Cliente satisfeito">
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>Clientes Satisfeitos</h5>
+                                <p>Milhares de avaliações positivas em nossa plataforma</p>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <img src="/IMG/index/pexels-professora2.jpg" class="d-block w-100 carousel-img" alt="Ferramentas de trabalho">
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>Serviços de Qualidade</h5>
+                                <p>Profissionais verificados e com experiência</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselPatroServicos" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Anterior</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselPatroServicos" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Próximo</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 ">
+                     <a class="logo navbar-brand" href="#">Patro<span>Serviços</span></a>
+                    <p>Conectando profissionais e clientes em Patrocínio-MG e região.</p>
+                    <div class="redes-sociais">
+                        <a href="#" class="link-social"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="link-social"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="link-social"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" class="link-social"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-4 ">
+                    <h3 class="titulo-rodape">Links</h3>
+                    <ul class="links-rodape">
+                        <li><a href="#">Sobre</a></li>
+                        <li><a href="#">Contato</a></li>
+                        <li><a href="#">Ajuda</a></li>
+                        <li><a href="#">Termos</a></li>
+                        <li><a href="#">Privacidade</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-4 ">
+                    <h3 class="titulo-rodape">Para Profissionais</h3>
+                    <ul class="links-rodape">
+                        <li><a href="#">Cadastrar serviços</a></li>
+                        <li><a href="#">Como funciona</a></li>
+                        <li><a href="#">Dicas</a></li>
+                        <li><a href="#">Planos</a></li>
+                    </ul>
+                </div>
+
+                <!-- <div class="col-lg-3 col-md-4 mb-4">
+                    <h3 class="titulo-rodape">Newsletter</h3>
+                    <p>Receba dicas e ofertas de serviços na sua região.</p>
+                    <form class="form-newsletter">
+                        <input type="email" class="campo-newsletter" placeholder="Seu e-mail">
+                        <button type="submit" class="botao-newsletter"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div> -->
+            </div>
+
+            <div class="copyright">
+                <p>&copy; 2023 PatroServiços - Todos os direitos reservados</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

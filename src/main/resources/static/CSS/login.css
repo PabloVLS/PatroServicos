@@ -1,0 +1,157 @@
+/* From Uiverse.io by jeel-sardhara */ 
+:root {
+    --azul-principal: #2563eb;
+    --azul-escuro: #1d4ed8;
+    --verde: #10b981;
+    --laranja: #f59e0b;
+    --branco: #f8fafc;
+    --preto: #1e293b;
+    --cinza: #64748b;
+    --cinza-claro: #e2e8f0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f1f5f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.384), rgba(0, 0, 0, 0.5)), url('/IMG/foto-patro2.png');
+    background-size: cover;       
+    background-position: center;  
+    background-repeat: no-repeat; 
+}
+
+.logo {
+    font-weight: 700;
+    color: var(--azul-principal);
+    font-size: 1.8rem;
+    text-decoration: none;
+}
+
+.logo span {
+    color: var(--laranja);
+}
+
+a.logo.navbar-brand:hover {
+    color: var(--azul-principal);    
+    background-color: transparent; 
+}
+
+.container {
+    max-width: 350px;
+    background: linear-gradient(
+        0deg,
+        var(--branco) 0%,
+        var(--cinza-claro) 100%
+    );
+    border-radius: 40px;
+    padding: 25px 35px;
+    border: 5px solid var(--branco);
+    box-shadow: rgba(133, 189, 215, 0.88) 0px 30px 30px -20px;
+}
+
+.heading {
+    text-align: center;
+    font-weight: 900;
+    font-size: 30px;
+    color: var(--azul-principal);
+    margin-bottom: 10px;
+}
+
+.form {
+    margin-top: 20px;
+}
+
+.form .input {
+    width: 100%;
+    background: var(--branco);
+    border: none;
+    padding: 15px 20px;
+    border-radius: 20px;
+    margin-top: 15px;
+    box-shadow: rgba(207, 240, 255, 1) 0px 10px 10px -5px;
+    border-inline: 2px solid transparent;
+    box-sizing: border-box;
+}
+
+.form .input::-moz-placeholder {
+    color: var(--cinza);
+}
+
+.form .input::placeholder {
+    color: var(--cinza);
+}
+
+.form .input:focus {
+    outline: none;
+    border-inline: 2px solid var(--azul-principal);
+}
+
+.form .forgot-password {
+    display: block;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.form .forgot-password a {
+    font-size: 13px;
+    color: var(--azul-principal);
+    text-decoration: none;
+}
+
+.form .forgot-password a:hover {
+    text-decoration: underline;
+}
+
+.form .login-button {
+    display: block;
+    width: 100%;
+    font-weight: bold;
+    background: linear-gradient(
+        45deg,
+        var(--azul-principal) 0%,
+        var(--azul-escuro) 100%
+    );
+    color: var(--branco);
+    padding-block: 15px;
+    margin: 20px auto;
+    border-radius: 20px;
+    box-shadow: rgba(133, 189, 215, 0.88) 0px 20px 10px -15px;
+    border: none;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.form .login-button:hover {
+    transform: scale(1.03);
+    box-shadow: rgba(133, 189, 215, 0.88) 0px 23px 10px -20px;
+}
+
+.form .login-button:active {
+    transform: scale(0.95);
+    box-shadow: rgba(133, 189, 215, 0.88) 0px 15px 10px -10px;
+}
+
+.social-account-container {
+    margin-top: 25px;
+    text-align: center;
+}
+
+.social-account-container .title {
+    display: block;
+    font-size: 14px;
+    color: var(--preto);
+}
+
+.social-account-container .title a {
+    color: var(--azul-principal);
+    text-decoration: none;
+}
+
+.social-account-container .title a:hover {
+    text-decoration: underline;
+}

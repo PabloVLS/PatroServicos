@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seja um Profissional - PatroServiços</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark);
+            background-color: #f9fafb;
+        }
+
+        .navbar {
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background-color: white;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .navbar-brand span {
+            color: var(--accent);
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark);
+            margin: 0 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            padding: 0.7rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            padding: 0.7rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-accent:hover {
+            background-color: #e69008;
+            border-color: #e69008;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.2);
+        }
+
+        .hero-section {
+            background: linear-gradient(120deg, rgba(37, 99, 235, 0.9), rgba(245, 158, 11, 0.8)), url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 7rem 0 5rem;
+            border-radius: 0 0 2rem 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .hero-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+        }
+
+        .benefit-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+            height: 100%;
+            border: 1px solid var(--light-gray);
+            text-align: center;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .benefit-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .benefit-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .benefit-text {
+            color: var(--gray);
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+            height: 100%;
+            border: 1px solid var(--light-gray);
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem;
+            color: var(--dark);
+        }
+
+        .step-text {
+            color: var(--gray);
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            height: 100%;
+            border: 1px solid var(--light-gray);
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .testimonial-text:before {
+            content: '"';
+            font-size: 3rem;
+            color: var(--light-gray);
+            position: absolute;
+            top: -1rem;
+            left: -1rem;
+            font-family: Georgia, serif;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+
+        .testimonial-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            object-fit: cover;
+        }
+
+        .testimonial-name {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            color: var(--dark);
+        }
+
+        .testimonial-role {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .rating {
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .form-section {
+            background: linear-gradient(120deg, rgba(37, 99, 235, 0.05), rgba(245, 158, 11, 0.05));
+            padding: 5rem 0;
+            border-radius: 2rem;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--light-gray);
+        }
+
+        .form-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            text-align: center;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .form-control {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .faq-item {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
+            padding-bottom: 1.5rem;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .faq-answer {
+            color: var(--gray);
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 4rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-title {
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            position: relative;
+            padding-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .section-subtitle {
+            color: var(--gray);
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .form-section-title {
+            position: relative;
+        }
+
+        .form-section-title h4 {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .title-divider {
+            height: 2px;
+            background: linear-gradient(to right, var(--primary), transparent);
+            margin-top: 0.5rem;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .form-card {
+            background: rgba(83, 92, 109, 0.39);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--light-gray);
+        }
+
+        .form-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            text-align: center;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .form-control {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .input-group-text {
+            background-color: var(--light);
+            border: 1px solid var(--light-gray);
+        }
+
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.2rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">Patro<span>Serviços</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Profissionais</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Seja um profissional</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="#" class="btn btn-primary me-2">Entrar</a>
+                    <a href="#" class="btn btn-accent">Cadastrar</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="hero-title">Transforme seu talento em renda extra</h1>
+                    <p class="hero-subtitle">Junte-se a milhares de profissionais que estão conquistando mais clientes e
+                        aumentando sua renda com o PatroServiços</p>
+                    <a href="#cadastro" class="btn btn-accent btn-lg">Quero me cadastrar</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vantagens -->
+    <section class="container mb-5">
+        <h2 class="section-title">Por que fazer parte do PatroServiços?</h2>
+        <p class="section-subtitle">Vantagens exclusivas para profissionais cadastrados</p>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="benefit-title">Aumente sua renda</h3>
+                    <p class="benefit-text">Conquiste novos clientes e aumente sua renda trabalhando com o que você sabe
+                        fazer de melhor.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="benefit-title">Mais visibilidade</h3>
+                    <p class="benefit-text">Sua página de perfil será vista por centenas de clientes em busca dos seus
+                        serviços.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3 class="benefit-title">Flexibilidade</h3>
+                    <p class="benefit-text">Escolha seus próprios horários e trabalhe no seu ritmo, sem chefe para te
+                        cobrar.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="benefit-title">Segurança</h3>
+                    <p class="benefit-text">Perfis verificados e sistema de avaliações para garantir segurança para
+                        todos.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <h3 class="benefit-title">Pagamento garantido</h3>
+                    <p class="benefit-text">Receba pelo seu trabalho sem preocupações com inadimplência.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="benefit-title">Reputação</h3>
+                    <p class="benefit-text">Construa uma reputação sólida através das avaliações dos clientes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Como Funciona -->
+    <section class="container mb-5">
+        <h2 class="section-title">Como funciona</h2>
+        <p class="section-subtitle">Em poucos passos você começa a receber propostas</p>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">
+                        <i class="fas fa-user-plus fa-2x"></i>
+                    </div>
+                    <h3 class="step-title">Cadastre-se</h3>
+                    <p class="step-text">Crie seu perfil gratuitamente em poucos minutos.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">
+                        <i class="fas fa-tools fa-2x"></i>
+                    </div>
+                    <h3 class="step-title">Complete seu perfil</h3>
+                    <p class="step-text">Adicione seus serviços, experiência e fotos do seu trabalho.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">
+                        <i class="fas fa-bell fa-2x"></i>
+                    </div>
+                    <h3 class="step-title">Receba propostas</h3>
+                    <p class="step-text">Clientes interessados entrarão em contato com você.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Depoimentos -->
+    <section class="container mb-5">
+        <h2 class="section-title">Profissionais que cresceram conosco</h2>
+        <p class="section-subtitle">Veja o que dizem quem já faz parte da nossa plataforma</p>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">Desde que me cadastrei no PatroServiços, minha renda aumentou 60%. Agora
+                        tenho clientes fixos e sempre aparecem serviços novos.</p>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Carlos Silva"
+                            class="testimonial-avatar">
+                        <div>
+                            <div class="testimonial-name">Carlos Silva</div>
+                            <div class="testimonial-role">Eletricista há 8 anos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="testimonial-text">A plataforma é muito fácil de usar e me trouxe clientes que eu não
+                        conseguiria alcançar sozinha. Recomendo para todos os profissionais!</p>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Ana Costa"
+                            class="testimonial-avatar">
+                        <div>
+                            <div class="testimonial-name">Ana Costa</div>
+                            <div class="testimonial-role">Encanadora há 5 anos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">Como pintor autônomo, o PatroServiços me ajudou a organizar minha agenda
+                        e aumentar meus ganhos em 40% no primeiro mês.</p>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="João Santos"
+                            class="testimonial-avatar">
+                        <div>
+                            <div class="testimonial-name">João Santos</div>
+                            <div class="testimonial-role">Pintor há 12 anos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Formulário de Cadastro -->
+    <section id="cadastro" class="form-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="form-card">
+                        <h2 class="form-title">Cadastre-se como Profissional</h2>
+                        <p class="text-center text-muted mb-4">Preencha todos os campos abaixo para criar seu perfil
+                            completo</p>
+
+                        <form>
+                            <!-- Dados Pessoais -->
+                            <div class="form-section-title mb-4">
+                                <h4><i class="fas fa-user me-2"></i>Dados Pessoais</h4>
+                                <div class="title-divider"></div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="nome" class="form-label">Nome completo <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="nome" placeholder="Seu nome completo"
+                                        required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cpf" class="form-label">CPF <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="cpf" placeholder="000.000.000-00"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="data_nascimento" class="form-label">Data de nascimento <span
+                                            class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="data_nascimento" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="genero" class="form-label">Gênero</label>
+                                    <select class="form-control" id="genero">
+                                        <option selected>Selecione</option>
+                                        <option>Masculino</option>
+                                        <option>Feminino</option>
+                                        <option>Prefiro não informar</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Contato -->
+                            <div class="form-section-title mb-4 mt-4">
+                                <h4><i class="fas fa-phone me-2"></i>Contato</h4>
+                                <div class="title-divider"></div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="telefone" class="form-label">Telefone/Celular <span
+                                            class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" id="telefone" placeholder="(34) 99999-9999"
+                                        required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="whatsapp" class="form-label">WhatsApp <span
+                                            class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fab fa-whatsapp"></i></span>
+                                        <input type="tel" class="form-control" id="whatsapp"
+                                            placeholder="(34) 99999-9999" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label">E-mail <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" placeholder="seu@email.com"
+                                    required>
+                            </div>
+
+                            <!-- Endereço -->
+                            <div class="form-section-title mb-4 mt-4">
+                                <h4><i class="fas fa-map-marker-alt me-2"></i>Endereço</h4>
+                                <div class="title-divider"></div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="cep" class="form-label">CEP <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="cep" placeholder="00000-000" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cidade" class="form-label">Cidade <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="cidade" value="Patrocínio" readonly>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-8">
+                                    <label for="endereco" class="form-label">Endereço <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="endereco"
+                                        placeholder="Rua, Avenida, etc." required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="numero" class="form-label">Número <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="numero" placeholder="Nº" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="bairro" class="form-label">Bairro <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="bairro" placeholder="Seu bairro"
+                                        required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="complemento" class="form-label">Complemento</label>
+                                    <input type="text" class="form-control" id="complemento"
+                                        placeholder="Apto, Bloco, etc.">
+                                </div>
+                            </div>
+
+                            <!-- Dados Profissionais -->
+                            <div class="form-section-title mb-4 mt-4">
+                                <h4><i class="fas fa-briefcase me-2"></i>Dados Profissionais</h4>
+                                <div class="title-divider"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Área de atuação <span class="text-danger">*</span></label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="eletricista">
+                                            <label class="form-check-label" for="eletricista">Eletricista</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="encanador">
+                                            <label class="form-check-label" for="encanador">Encanador</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="pintor">
+                                            <label class="form-check-label" for="pintor">Pintor</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="pedreiro">
+                                            <label class="form-check-label" for="pedreiro">Pedreiro</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="diarista">
+                                            <label class="form-check-label" for="diarista">Diarista</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="montador">
+                                            <label class="form-check-label" for="montador">Montador de Móveis</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="jardineiro">
+                                            <label class="form-check-label" for="jardineiro">Jardineiro</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="outros">
+                                            <label class="form-check-label" for="outros">Outros</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="especialidades" class="form-label">Especialidades</label>
+                                <textarea class="form-control" id="especialidades" rows="2"
+                                    placeholder="Liste suas especialidades dentro da sua área de atuação"></textarea>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="experiencia" class="form-label">Tempo de experiência <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" id="experiencia" required>
+                                        <option value="" selected disabled>Selecione uma opção</option>
+                                        <option>Menos de 1 ano</option>
+                                        <option>1 a 3 anos</option>
+                                        <option>3 a 5 anos</option>
+                                        <option>5 a 10 anos</option>
+                                        <option>Mais de 10 anos</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="regiao" class="form-label">Regiões de atendimento <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" id="regiao" required>
+                                        <option value="" selected disabled>Selecione uma opção</option>
+                                        <option>Patrocínio</option>
+                                        <option>Guimarânia</option>
+                                        <option>Iraí de Minas</option>
+                                        <option>Serra do Salitre</option>
+                                        <option>Coromandel</option>
+                                        <option>Monte Carmelo</option>
+                                        <option>Perdizes</option>
+                                        <option>Lagoa Formosa</option>
+                                        <option>Tiros</option>
+                                        <option>Carmo do Paranaíba</option>
+                                        <option>Patos de Minas</option>
+                                        <option>Araxá</option>
+                                        <option>Uberaba</option>
+                                        <option>Uberlândia</option>
+
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="descricao" class="form-label">Descrição do seu trabalho <span
+                                        class="text-danger">*</span></label>
+                                <textarea class="form-control" id="descricao" rows="3"
+                                    placeholder="Descreva seus serviços, forma de trabalho, etc." required></textarea>
+                            </div>
+
+                            <!-- Disponibilidade -->
+                            <div class="form-section-title mb-4 mt-4">
+                                <h4><i class="fas fa-calendar-alt me-2"></i>Disponibilidade</h4>
+                                <div class="title-divider"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Dias de trabalho <span class="text-danger">*</span></label>
+                                <div class="row">
+                                    <div class="col-md-3 col-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="segunda">
+                                            <label class="form-check-label" for="segunda">Segunda-feira</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="terca">
+                                            <label class="form-check-label" for="terca">Terça-feira</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="quarta">
+                                            <label class="form-check-label" for="quarta">Quarta-feira</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="quinta">
+                                            <label class="form-check-label" for="quinta">Quinta-feira</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="sexta">
+                                            <label class="form-check-label" for="sexta">Sexta-feira</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="sabado">
+                                            <label class="form-check-label" for="sabado">Sábado</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="domingo">
+                                            <label class="form-check-label" for="domingo">Domingo</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="feriados">
+                                            <label class="form-check-label" for="feriados">Feriados</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="horario_inicio" class="form-label">Horário de início <span
+                                            class="text-danger">*</span></label>
+                                    <input type="time" class="form-control" id="horario_inicio" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="horario_fim" class="form-label">Horário de término <span
+                                            class="text-danger">*</span></label>
+                                    <input type="time" class="form-control" id="horario_fim" required>
+                                </div>
+                            </div>
+
+                            <!-- Documentos -->
+                            <div class="form-section-title mb-4 mt-4">
+                                <h4><i class="fas fa-file-alt me-2"></i>Documentos</h4>
+                                <div class="title-divider"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="foto_perfil" class="form-label">Foto de perfil <span
+                                        class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="foto_perfil" accept="image/*" required>
+                                <div class="form-text">Uma foto profissional ajuda a conquistar a confiança dos
+                                    clientes.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="fotos_trabalhos" class="form-label">Fotos dos seus trabalhos</label>
+                                <input type="file" class="form-control" id="fotos_trabalhos" accept="image/*" multiple>
+                                <div class="form-text">Selecione até 5 fotos de trabalhos que já realizou.</div>
+                            </div>
+
+                            <!-- TALVEZ DISPENSAVEL
+                             <div class="mb-3">
+                                <label for="documento_identidade" class="form-label">Documento de identidade (frente e
+                                    verso) <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="documento_identidade" accept="image/*"
+                                    required>
+                            </div> -->
+
+                            <!-- Termos e Condições -->
+                            <div class="form-section-title mb-4 mt-4">
+                                <h4><i class="fas fa-check-circle me-2"></i>Termos e Condições</h4>
+                                <div class="title-divider"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="termos" required>
+                                    <label class="form-check-label" for="termos">Li e concordo com os <a href="#"
+                                            class="text-primary">Termos de Uso</a> <span
+                                            class="text-danger">*</span></label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="privacidade" required>
+                                    <label class="form-check-label" for="privacidade">Li e concordo com a <a href="#"
+                                            class="text-primary">Política de Privacidade</a> <span
+                                            class="text-danger">*</span></label>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="comunicacoes">
+                                    <label class="form-check-label" for="comunicacoes">Aceito receber comunicações e
+                                        novidades por e-mail e WhatsApp</label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-accent w-100 py-3">Finalizar Cadastro</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Perguntas Frequentes -->
+    <section class="container mb-5">
+        <h2 class="section-title">Perguntas frequentes</h2>
+        <p class="section-subtitle">Tire suas dúvidas sobre como funciona para profissionais</p>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="faq-item">
+                    <h4 class="faq-question">Quanto custa para me cadastrar?</h4>
+                    <p class="faq-answer">O cadastro é totalmente gratuito! Você só paga uma pequena comissão quando
+                        fechar um serviço através da plataforma.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4 class="faq-question">Como recebo os pagamentos?</h4>
+                    <p class="faq-answer">O pagamento é feito diretamente pelo cliente, mas intermediado pela plataforma
+                        para garantir sua segurança. Você recebe via transferência bancária ou PIX.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4 class="faq-question">Preciso ter CNPJ?</h4>
+                    <p class="faq-answer">Não, você pode trabalhar como pessoa física (autônomo) normalmente. Apenas
+                        recomendamos que regularize sua situação perante a Receita Federal.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4 class="faq-question">Como os clientes me encontram?</h4>
+                    <p class="faq-answer">Seu perfil aparece nas buscas dos clientes de acordo com sua localização,
+                        serviços oferecidos e avaliações. Quanto mais completo seu perfil, mais visibilidade você terá.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h4 class="faq-question">Posso definir meus próprios preços?</h4>
+                    <p class="faq-answer">Sim, você define seus valores e formas de cobrança (por hora, diária, serviço
+                        fechado, etc.).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h3 class="footer-title">PatroServiços</h3>
+                    <p>Conectando profissionais e clientes em Patrocínio-MG e região.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h5 class="footer-title">Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Sobre</a></li>
+                        <li><a href="#">Contato</a></li>
+                        <li><a href="#">Ajuda</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-4 mb-4">
+                    <h5 class="footer-title">Para Profissionais</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Cadastrar</a></li>
+                        <li><a href="#">Como funciona</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-4 mb-4">
+                    <h5 class="footer-title">Contato</h5>
+                    <ul class="footer-links">
+                        <li><span>contato@patroservicos.com</span></li>
+                        <li><span>(34) 9999-8888</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="copyright">
+                <p>&copy; 2023 PatroServiços - Todos os direitos reservados</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

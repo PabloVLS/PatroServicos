@@ -1,0 +1,183 @@
+        :root {
+            --azul-principal: #2563eb;
+            --azul-escuro: #1d4ed8;
+            --verde: #10b981;
+            --laranja: #f59e0b;
+            --laranja-escuro: #d97706;
+            --branco: #f8fafc;
+            --preto: #1e293b;
+            --cinza: #64748b;
+            --cinza-claro: #e2e8f0;
+        }
+
+
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/IMG/foto-patro1.jpg');
+        }
+
+        .logo {
+            font-weight: 700;
+            color: var(--laranja);
+            font-size: 1.8rem;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--azul-principal);
+        }
+
+        a.logo.navbar-brand:hover {
+            color: var(--laranja);
+            background-color: transparent;
+        }
+
+        .container {
+            max-width: 400px;
+            background: linear-gradient(0deg,
+                    var(--branco) 0%,
+                    var(--cinza-claro) 100%);
+            border-radius: 40px;
+            padding: 25px 35px;
+            border: 5px solid var(--branco);
+            box-shadow: rgba(215, 150, 50, 0.4) 0px 30px 30px -20px;
+        }
+
+        .heading {
+            text-align: center;
+            font-weight: 900;
+            font-size: 30px;
+            color: var(--laranja);
+            margin-bottom: 10px;
+        }
+
+        .subheading {
+            text-align: center;
+            color: var(--cinza);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .form {
+            margin-top: 20px;
+        }
+
+        .form .input {
+            width: 100%;
+            background: var(--branco);
+            border: none;
+            padding: 15px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            box-shadow: rgba(255, 220, 170, 0.8) 0px 10px 10px -5px;
+            border-inline: 2px solid transparent;
+            box-sizing: border-box;
+        }
+
+        .form .input::-moz-placeholder {
+            color: var(--cinza);
+        }
+
+        .form .input::placeholder {
+            color: var(--cinza);
+        }
+
+        .form .input:focus {
+            outline: none;
+            border-inline: 2px solid var(--laranja);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .input {
+            flex: 1;
+        }
+
+        .terms {
+            display: flex;
+            align-items: flex-start;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .terms input {
+            margin-right: 10px;
+            margin-top: 3px;
+        }
+
+        .terms label {
+            font-size: 13px;
+            color: var(--cinza);
+        }
+
+        .terms a {
+            color: var(--laranja);
+            text-decoration: none;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        .register-button {
+            display: block;
+            width: 100%;
+            font-weight: bold;
+            background: linear-gradient(45deg,
+                    var(--laranja) 0%,
+                    var(--laranja-escuro) 100%);
+            color: var(--branco);
+            padding-block: 15px;
+            margin: 20px auto;
+            border-radius: 20px;
+            box-shadow: rgba(215, 150, 50, 0.4) 0px 20px 10px -15px;
+            border: none;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .register-button:hover {
+            transform: scale(1.03);
+            box-shadow: rgba(215, 150, 50, 0.5) 0px 23px 10px -20px;
+        }
+
+        .register-button:active {
+            transform: scale(0.95);
+            box-shadow: rgba(215, 150, 50, 0.4) 0px 15px 10px -10px;
+        }
+
+        .login-container {
+            margin-top: 25px;
+            text-align: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--cinza-claro);
+        }
+
+        .login-container .text {
+            display: block;
+            font-size: 14px;
+            color: var(--preto);
+        }
+
+        .login-container a {
+            color: var(--laranja);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .login-container a:hover {
+            text-decoration: underline;
+        }

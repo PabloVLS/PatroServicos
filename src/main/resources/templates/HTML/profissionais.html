@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profissionais - PatroServiços</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/CSS/profissionais.css">
+
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="cabecalho navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="logo navbar-brand" href="/HTML">Patro<span>Serviços</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="menu-link nav-link" href="/HTML">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="menu-link nav-link" href="/profissionais">Profissionais</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="menu-link nav-link" href="#">Seja um profissional</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="#" class="botao-principal btn me-2">Entrar</a>
+                    <a href="#" class="botao-destaque btn">Cadastrar</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Área de Busca -->
+    <section class="busca-destaque">
+        <div class="container">
+            <div class="container-busca">
+                <h1 class="text-center mb-4">Encontre o profissional perfeito</h1>
+
+                <div class="caixa-busca d-flex">
+                    <input type="text" class="campo-busca flex-grow-1"
+                        placeholder="Busque por serviço, nome ou especialidade">
+                    <button class="botao-busca">Buscar</button>
+                </div>
+
+                <div class="filtros">
+                    <div class="filtro ativo">Todos</div>
+                    <div class="filtro">Encanadores</div>
+                    <div class="filtro">Eletricistas</div>
+                    <div class="filtro">Diaristas</div>
+                    <div class="filtro">Pedreiros</div>
+                    <div class="filtro">Pintores</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lista de Profissionais -->
+    <section class="container mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="contador-profissionais">Mostrando <strong>12</strong> de <strong>86</strong> profissionais</div>
+
+            <div class="opcoes-visualizacao">
+                <button class="botao-visualizacao ativo" id="visualizacaoGrade">
+                    <i class="fas fa-th"></i>
+                </button>
+                <button class="botao-visualizacao" id="visualizacaoLista">
+                    <i class="fas fa-list"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="row" id="gradeProfissionais">
+            <!-- Profissional 1 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card-profissional">
+                    <div class="container-imagem">
+                        <img src="/IMG/profissionais/pexels-encanador.jpg" alt="João Silva" class="imagem-card">
+                        <div class="selo-verificado">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <div class="conteudo-card">
+                        <h3 class="nome-profissional">João Silva</h3>
+                        <span class="categoria-profissional">Encanador • Hidráulica</span>
+
+                        <div class="avaliacao">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                            <span class="contador-avaliacoes">(128 avaliações)</span>
+                        </div>
+
+                        <div class="info-profissional">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Centro</span>
+                        </div>
+
+                        <div class="info-profissional">
+                            <i class="fas fa-briefcase"></i>
+                            <span>+ de 5 anos de experiência</span>
+                        </div>
+
+                        <div class="acoes-card">
+                            <button class="botao-secundario btn">Ver perfil</button>
+                            <!-- <button class="botao-principal btn">Contatar</button> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profissional 2 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card-profissional">
+                    <div class="container-imagem">
+                        <img src="/IMG/profissionais/pexels-eletricista.jpg" alt="Carlos Santos" class="imagem-card">
+                        <div class="selo-verificado">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <div class="conteudo-card">
+                        <h3 class="nome-profissional">Carlos Santos</h3>
+                        <span class="categoria-profissional">Eletricista • Instalações</span>
+
+                        <div class="avaliacao">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <span class="contador-avaliacoes">(245 avaliações)</span>
+                        </div>
+
+                        <div class="info-profissional">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Matinha</span>
+                        </div>
+
+                        <div class="info-profissional">
+                            <i class="fas fa-briefcase"></i>
+                            <span>+ de 1 anos de experiência</span>
+                        </div>
+
+
+                        <div class="acoes-card">
+                            <button class="botao-secundario btn">Ver perfil</button>
+                            <!-- <button class="botao-principal btn">Contatar</button> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profissional 3 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card-profissional">
+                    <div class="container-imagem">
+                        <img src="/IMG/profissionais/pexels-pedreiro.jpg" alt="Pedreiro" class="imagem-card">
+                        <div class="selo-verificado">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <div class="conteudo-card">
+                        <h3 class="nome-profissional">Pedro Costa</h3>
+                        <span class="categoria-profissional">Pedreiro • Reformas</span>
+
+                        <div class="avaliacao">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+
+                            <span class="contador-avaliacoes">(87 avaliações)</span>
+                        </div>
+
+                        <div class="info-profissional">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Jardim Sul</span>
+                        </div>
+
+                        <div class="info-profissional">
+                            <i class="fas fa-briefcase"></i>
+                            <span>+ de 10 anos de experiência</span>
+                        </div>
+
+
+                        <div class="acoes-card">
+                            <button class="botao-secundario btn">Ver perfil</button>
+                            <!-- <button class="botao-principal btn">Contatar</button> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mais profissionais serão carregados via scroll infinito -->
+        </div>
+
+        <div class="carregando" id="indicadorCarregamento">
+            <div class="spinner-carregamento"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 ">
+                    <a class="logo navbar-brand" href="#">Patro<span>Serviços</span></a>
+                    <p>Conectando profissionais e clientes em Patrocínio-MG e região.</p>
+                    <div class="redes-sociais">
+                        <a href="#" class="link-social"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="link-social"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="link-social"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" class="link-social"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-4 ">
+                    <h3 class="titulo-rodape">Links</h3>
+                    <ul class="links-rodape">
+                        <li><a href="#">Sobre</a></li>
+                        <li><a href="#">Contato</a></li>
+                        <li><a href="#">Ajuda</a></li>
+                        <li><a href="#">Termos</a></li>
+                        <li><a href="#">Privacidade</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-4 ">
+                    <h3 class="titulo-rodape">Para Profissionais</h3>
+                    <ul class="links-rodape">
+                        <li><a href="#">Cadastrar serviços</a></li>
+                        <li><a href="#">Como funciona</a></li>
+                        <li><a href="#">Dicas</a></li>
+                        <li><a href="#">Planos</a></li>
+                    </ul>
+                </div>
+
+                <!-- <div class="col-lg-3 col-md-4 mb-4">
+                    <h3 class="titulo-rodape">Newsletter</h3>
+                    <p>Receba dicas e ofertas de serviços na sua região.</p>
+                    <form class="form-newsletter">
+                        <input type="email" class="campo-newsletter" placeholder="Seu e-mail">
+                        <button type="submit" class="botao-newsletter"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div> -->
+            </div>
+
+            <div class="copyright">
+                <p>&copy; 2023 PatroServiços - Todos os direitos reservados</p>
+            </div>
+        </div>
+    </footer>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- <script>
+        // Alternar entre visualização em grid e lista
+        document.getElementById('visualizacaoGrade').addEventListener('click', function () {
+            document.getElementById('visualizacaoGrade').classList.add('ativo');
+            document.getElementById('visualizacaoLista').classList.remove('ativo');
+            document.getElementById('gradeProfissionais').classList.remove('visualizacao-lista');
+        });
+
+        document.getElementById('visualizacaoLista').addEventListener('click', function () {
+            document.getElementById('visualizacaoLista').classList.add('ativo');
+            document.getElementById('visualizacaoGrade').classList.remove('ativo');
+            document.getElementById('gradeProfissionais').classList.add('visualizacao-lista');
+        });
+
+        // Simulação de scroll infinito
+        let carregando = false;
+        let contadorProfissionais = 3;
+
+        window.addEventListener('scroll', function () {
+            if (carregando) return;
+
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                carregando = true;
+                document.getElementById('indicadorCarregamento').style.display = 'flex';
+
+                // Simular carregamento de mais dados
+                setTimeout(() => {
+                    carregarMaisProfissionais();
+                    carregando = false;
+                    document.getElementById('indicadorCarregamento').style.display = 'none';
+                }, 1500);
+            }
+        });
+
+        function carregarMaisProfissionais() {
+            // Em uma implementação real, aqui viriam os dados do servidor
+            contadorProfissionais += 3;
+            document.querySelector('.contador-profissionais').innerHTML =
+                `Mostrando <strong>${contadorProfissionais}</strong> de <strong>86</strong> profissionais`;
+
+            // Adicionaria novos cards aqui
+        }
+
+        // Filtros por tags
+        document.querySelectorAll('.filtro').forEach(filtro => {
+            filtro.addEventListener('click', function () {
+                document.querySelectorAll('.filtro').forEach(f => f.classList.remove('ativo'));
+                this.classList.add('ativo');
+
+                // Em uma implementação real, aqui filtraria os resultados
+            });
+        });
+    </script> -->
+</body>
+
+</html>

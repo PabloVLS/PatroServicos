@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - PatroServicos</title>
+    <link rel="stylesheet" href="/CSS/cadastro.css">
+</head>
+
+<body>
+    <div class="fundo">
+        <div class="container">
+            <div class="heading">
+                <a href="/" class="logo navbar-brand">Patro<span>Serviços</span></a>
+            </div>
+            <p class="subheading">Crie sua conta e comece a usar nossos serviços</p>
+
+            <form class="form" action="/cadastro" method="POST">
+                <div class="form-row">
+                    <input placeholder="Nome" id="firstName" name="firstName" type="text" class="input" required />
+                    <input placeholder="Sobrenome" id="lastName" name="lastName" type="text" class="input" required />
+                </div>
+
+                <input placeholder="Email" id="email" name="email" type="email" class="input" required />
+                <input placeholder="Senha" id="password" name="password" type="password" class="input" required />
+                <input placeholder="Confirmar senha" id="confirmPassword" name="confirmPassword" type="password"
+                    class="input" required />
+
+                <div class="terms">
+                    <input type="checkbox" id="terms" name="terms" required />
+                    <label for="terms">Concordo com os <a href="/termos">Termos de Serviço</a> e <a
+                            href="/privacidade">Política de Privacidade</a></label>
+                </div>
+
+                <input value="Criar Conta" type="submit" class="register-button" />
+            </form>
+
+            <div class="login-container">
+                <span class="text">Já tem uma conta? <a href="/login"><b>Fazer login</b></a></span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - PatroServicos</title>
+    <link rel="stylesheet" href="/CSS/login.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="heading">
+            <a href="/" class="logo navbar-brand">Patro<span>Serviços</span></a>
+        </div>
+        <form class="form" action="/login" method="POST">
+            <input placeholder="Email" id="email" name="email" type="email" class="input" required />
+            <input placeholder="Senha" id="password" name="password" type="password" class="input" required />
+            <span class="forgot-password"><a href="/recuperar-senha"><b>Esqueceu a senha?</b></a></span>
+            <input value="Entrar" type="submit" class="login-button" />
+        </form>
+        <div class="social-account-container">
+            <span class="title">Não tem uma conta? <a href="/cadastro"><b>Criar uma conta</b></a></span>
+        </div>
+    </div>
+</body>
+
+</html>
