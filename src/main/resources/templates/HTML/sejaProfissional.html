@@ -494,6 +494,63 @@
             border: 1px solid var(--cinza-claro);
         }
 
+        /* NOVOS ESTILOS PARA O AUTOCOMPLETAR */
+        .sugestoes-profissao {
+            border: 1px solid var(--cinza-claro);
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sugestao-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--cinza-claro);
+            transition: all 0.2s;
+        }
+
+        .sugestao-item:hover,
+        .sugestao-item.destaque {
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--azul-principal);
+        }
+
+        .sugestao-item:last-child {
+            border-bottom: none;
+        }
+
+        .tag-profissao {
+            background: linear-gradient(135deg, var(--azul-principal), var(--azul-escuro));
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-remover {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .btn-remover:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
         @media (max-width: 768px) {
             .titulo-hero {
                 font-size: 2.2rem;
@@ -551,7 +608,7 @@
     </section>
 
     <!-- Vantagens -->
-    <section class="container mb-5">
+    <section class="container mb-7">
         <h2 class="titulo-secao">Por que fazer parte do PatroServiços?</h2>
         <p class="subtitulo-secao">Vantagens exclusivas para profissionais cadastrados</p>
 
@@ -577,38 +634,6 @@
                     <p class="texto-beneficio">Sua página de perfil será vista por centenas de clientes em busca dos
                         seus
                         serviços.</p>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="cartao-beneficio">
-                    <div class="icone-beneficio">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <h3 class="titulo-beneficio">Flexibilidade</h3>
-                    <p class="texto-beneficio">Escolha seus próprios horários e trabalhe no seu ritmo, sem chefe para te
-                        cobrar.</p>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="cartao-beneficio">
-                    <div class="icone-beneficio">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3 class="titulo-beneficio">Segurança</h3>
-                    <p class="texto-beneficio">Perfis verificados e sistema de avaliações para garantir segurança para
-                        todos.</p>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="cartao-beneficio">
-                    <div class="icone-beneficio">
-                        <i class="fas fa-credit-card"></i>
-                    </div>
-                    <h3 class="titulo-beneficio">Pagamento garantido</h3>
-                    <p class="texto-beneficio">Receba pelo seu trabalho sem preocupações com inadimplência.</p>
                 </div>
             </div>
 
@@ -877,49 +902,35 @@
                                 <div class="divisor-titulo"></div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="rotulo-formulario">Área de atuação <span
-                                        class="text-danger">*</span></label>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox"
-                                                id="eletricista">
-                                            <label class="form-check-label" for="eletricista">Eletricista</label>
-                                        </div>
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox"
-                                                id="encanador">
-                                            <label class="form-check-label" for="encanador">Encanador</label>
-                                        </div>
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="pintor">
-                                            <label class="form-check-label" for="pintor">Pintor</label>
-                                        </div>
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="pedreiro">
-                                            <label class="form-check-label" for="pedreiro">Pedreiro</label>
-                                        </div>
+                            <!-- NOVA SEÇÃO DE ÁREA DE ATUAÇÃO COM AUTOCOMPLETAR -->
+                            <div class="mb-4">
+                                <label for="area-atuacao" class="rotulo-formulario">Área de atuação <span class="text-danger">*</span></label>
+                                
+                                <div class="position-relative">
+                                    <input type="text" 
+                                           class="controle-formulario form-control" 
+                                           id="area-atuacao"
+                                           placeholder="Digite sua profissão (ex: advogado, eletricista, professor...)"
+                                           required
+                                           autocomplete="off">
+                                    
+                                    <!-- Sugestões que aparecem ao digitar -->
+                                    <div class="sugestoes-profissao position-absolute w-100 bg-white rounded shadow mt-1 d-none">
+                                        <!-- As sugestões serão preenchidas via JavaScript -->
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="diarista">
-                                            <label class="form-check-label" for="diarista">Diarista</label>
-                                        </div>
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="montador">
-                                            <label class="form-check-label" for="montador">Montador de Móveis</label>
-                                        </div>
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox"
-                                                id="jardineiro">
-                                            <label class="form-check-label" for="jardineiro">Jardineiro</label>
-                                        </div>
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="outros">
-                                            <label class="form-check-label" for="outros">Outros</label>
-                                        </div>
-                                    </div>
+                                </div>
+                                
+                                <div class="texto-formulario form-text mt-2">
+                                    <i class="fas fa-lightbulb text-warning me-1"></i>
+                                    Comece a digitar e selecione sua profissão na lista ou digite uma profissão personalizada
+                                </div>
+                            </div>
+
+                            <!-- Container para mostrar as profissões selecionadas -->
+                            <div id="profissoes-selecionadas" class="mb-3 d-none">
+                                <label class="rotulo-formulario">Profissões selecionadas:</label>
+                                <div class="d-flex flex-wrap gap-2" id="tags-profissoes">
+                                    <!-- Tags das profissões serão adicionadas aqui -->
                                 </div>
                             </div>
 

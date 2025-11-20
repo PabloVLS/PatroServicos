@@ -1,4 +1,4 @@
-package com.patroservicos.PatroServicos.Controller;
+package com.patroservicos.PatroServicos.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.stereotype.Controller;
