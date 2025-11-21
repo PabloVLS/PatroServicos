@@ -1,31 +1,44 @@
 package com.patroservicos.PatroServicos.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.patroservicos.PatroServicos.model.User;
+import com.patroservicos.PatroServicos.model.Professional;
+import com.patroservicos.PatroServicos.model.PortfolioPhoto;
 import com.patroservicos.PatroServicos.repository.UserRepository;
+import com.patroservicos.PatroServicos.service.IPhotoService;
+import com.patroservicos.PatroServicos.service.IProfessionalService;
+import com.patroservicos.PatroServicos.service.IPortfolioPhotoService;
 
 import java.util.Base64;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * Controlador para gerenciamento de perfil de usuário.
- * Responsável por carregar, editar e salvar dados do perfil e foto do usuário.
- */
 @Controller
 public class ProfileController {
 
     @Autowired
     private UserRepository repositorioUsuario;
+
+    @Autowired
+    private IPhotoService servicoFoto;
+
+    @Autowired
+    private IProfessionalService servicoProfissional;
+
+    @Autowired
+    private IPortfolioPhotoService servicoPortfolioFoto;
 
     @GetMapping("/perfil")
     public String visualizarPerfil(Authentication autenticacao, Model modelo) {
@@ -41,19 +54,34 @@ public class ProfileController {
                 return "redirect:/login";
             }
 
-            modelo.addAttribute("usuario", opcaoUsuario.get());
+            User usuario = opcaoUsuario.get();
+            modelo.addAttribute("usuario", usuario);
+
+            // Se for profissional, carrega dados profissionais
+            if (usuario.getTipoConta() != null && 
+                (usuario.getTipoConta().equals("profissional") || usuario.getTipoConta().equals("profissional_pendente"))) {
+                Optional<Professional> opcaoProfissional = servicoProfissional.getProfessionalByUserId(usuario.getId());
+                if (opcaoProfissional.isPresent()) {
+                    modelo.addAttribute("profissional", opcaoProfissional.get());
+                }
+                modelo.addAttribute("isProfissional", true);
+            } else {
+                modelo.addAttribute("isProfissional", false);
+            }
+
             return "meuPerfil";
         } catch (Exception excecao) {
             // Em caso de erro inesperado, exibe mensagem simples
             modelo.addAttribute("erro", "Erro ao carregar perfil: " + excecao.getMessage());
             modelo.addAttribute("usuario", null);
+            modelo.addAttribute("isProfissional", false);
             return "meuPerfil";
         }
     }
 
     /**
      * Edita as informações do perfil do usuário autenticado.
-     * Aceita nome, telefone, endereço, cidade e opcionalmente uma foto.
+     * Aceita nome, telefone, endereço, cidade, e opcionalmente dados profissionais e foto.
      */
     @PostMapping("/perfil/edit")
     public String editarPerfil(
@@ -63,6 +91,21 @@ public class ProfileController {
         @RequestParam("endereco") String endereco,
         @RequestParam("cidade") String cidade,
         @RequestParam(value = "fotoArquivo", required = false) MultipartFile fotoArquivo,
+        // Dados profissionais
+        @RequestParam(value = "area-atuacao", required = false) String areaAtuacao,
+        @RequestParam(value = "descricao", required = false) String descricao,
+        @RequestParam(value = "experiencia", required = false) String experiencia,
+        @RequestParam(value = "whatsapp-prof", required = false) String whatsappProf,
+        @RequestParam(value = "tipo-servico", required = false) String tipoServico,
+        @RequestParam(value = "preco-base", required = false) String precoBase,
+        @RequestParam(value = "tempo-resposta", required = false) String tempoResposta,
+        @RequestParam(value = "area-atuacao-detalhes", required = false) String areaAtuacaoDetalhes,
+        // Documentos (opcionais)
+        @RequestParam(value = "rgcnhFile", required = false) MultipartFile rgcnhFile,
+        @RequestParam(value = "comprovanteFile", required = false) MultipartFile comprovanteFile,
+        @RequestParam(value = "certificadosFiles", required = false) MultipartFile[] certificadosFiles,
+        @RequestParam(value = "verifFoto", required = false) MultipartFile verifFoto,
+        @RequestParam(value = "verifSelfie", required = false) MultipartFile verifSelfie,
         RedirectAttributes atributosRedirecionamento) {
 
         if (autenticacao == null || !autenticacao.isAuthenticated()) {
@@ -90,9 +133,9 @@ public class ProfileController {
                 String base64 = Base64.getEncoder().encodeToString(bytes);
                 String tipoMime = fotoArquivo.getContentType() != null ? fotoArquivo.getContentType() : "image/jpeg";
 
-                // Armazena a foto como data URI no campo photo do usuário
+                // Armazena a foto via serviço
                 String dataUri = "data:" + tipoMime + ";base64," + base64;
-                usuario.setPhoto(dataUri);
+                servicoFoto.savePhoto(usuario.getId(), dataUri, tipoMime);
 
             } catch (IOException excecao) {
                 atributosRedirecionamento.addFlashAttribute("erro", "Erro ao enviar foto: " + excecao.getMessage());
@@ -100,8 +143,183 @@ public class ProfileController {
             }
         }
 
+        // Se for profissional, atualiza dados profissionais
+        if (usuario.getTipoConta() != null && 
+            (usuario.getTipoConta().equals("profissional") || usuario.getTipoConta().equals("profissional_pendente"))) {
+            
+            if (areaAtuacao != null && !areaAtuacao.isBlank()) {
+                try {
+                    servicoProfissional.saveProfessional(usuario.getId(), areaAtuacao, descricao, experiencia, whatsappProf);
+                } catch (Exception e) {
+                    atributosRedirecionamento.addFlashAttribute("erro", "Erro ao atualizar dados profissionais: " + e.getMessage());
+                    return "redirect:/perfil";
+                }
+            }
+        }
+
         repositorioUsuario.save(usuario);
         atributosRedirecionamento.addFlashAttribute("sucesso", "Perfil atualizado com sucesso.");
         return "redirect:/perfil";
+    }
+
+    /**
+     * API REST: Upload de foto ao portfólio
+     */
+    @PostMapping("/api/portfolio/upload")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> uploadPortfolioPhoto(
+        Authentication autenticacao,
+        @RequestParam("file") MultipartFile arquivo) {
+
+        Map<String, Object> resposta = new HashMap<>();
+
+        if (autenticacao == null || !autenticacao.isAuthenticated()) {
+            resposta.put("sucesso", false);
+            resposta.put("mensagem", "Usuário não autenticado");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resposta);
+        }
+
+        String email = autenticacao.getName();
+        Optional<User> opcaoUsuario = repositorioUsuario.findUserByEmail(email);
+
+        if (opcaoUsuario.isEmpty()) {
+            resposta.put("sucesso", false);
+            resposta.put("mensagem", "Usuário não encontrado");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
+        }
+
+        User usuario = opcaoUsuario.get();
+
+        if (arquivo == null || arquivo.isEmpty()) {
+            resposta.put("sucesso", false);
+            resposta.put("mensagem", "Nenhum arquivo foi enviado");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resposta);
+        }
+
+        try {
+            // Valida tipo de arquivo
+            String tipoMime = arquivo.getContentType();
+            if (tipoMime == null || !tipoMime.startsWith("image/")) {
+                resposta.put("sucesso", false);
+                resposta.put("mensagem", "O arquivo deve ser uma imagem (JPG, PNG, etc.)");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resposta);
+            }
+
+            // Valida tamanho (máximo 5MB)
+            if (arquivo.getSize() > 5 * 1024 * 1024) {
+                resposta.put("sucesso", false);
+                resposta.put("mensagem", "O arquivo não pode ultrapassar 5MB");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resposta);
+            }
+
+            // Converte para base64
+            byte[] bytes = arquivo.getBytes();
+            String base64 = Base64.getEncoder().encodeToString(bytes);
+            String dataUri = "data:" + tipoMime + ";base64," + base64;
+
+            // Salva no banco
+            PortfolioPhoto foto = servicoPortfolioFoto.savePortfolioPhoto(
+                usuario.getId(),
+                dataUri,
+                tipoMime,
+                arquivo.getOriginalFilename()
+            );
+
+            resposta.put("sucesso", true);
+            resposta.put("mensagem", "Foto enviada com sucesso");
+            resposta.put("fotoId", foto.getId());
+            resposta.put("fotoUrl", dataUri);
+            resposta.put("fileName", arquivo.getOriginalFilename());
+
+            return ResponseEntity.ok(resposta);
+
+        } catch (IOException excecao) {
+            resposta.put("sucesso", false);
+            resposta.put("mensagem", "Erro ao processar arquivo: " + excecao.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resposta);
+        }
+    }
+
+    /**
+     * API REST: Obter todas as fotos de portfólio do usuário
+     */
+    @GetMapping("/api/portfolio/photos")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getPortfolioPhotos(Authentication autenticacao) {
+        Map<String, Object> resposta = new HashMap<>();
+
+        if (autenticacao == null || !autenticacao.isAuthenticated()) {
+            resposta.put("sucesso", false);
+            resposta.put("mensagem", "Usuário não autenticado");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resposta);
+        }
+
+        String email = autenticacao.getName();
+        Optional<User> opcaoUsuario = repositorioUsuario.findUserByEmail(email);
+
+        if (opcaoUsuario.isEmpty()) {
+            resposta.put("sucesso", false);
+            resposta.put("mensagem", "Usuário não encontrado");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
+        }
+
+        User usuario = opcaoUsuario.get();
+        List<PortfolioPhoto> fotos = servicoPortfolioFoto.getPhotosByUserId(usuario.getId());
+
+        resposta.put("sucesso", true);
+        resposta.put("fotos", fotos);
+
+        return ResponseEntity.ok(resposta);
+    }
+
+    /**
+     * API REST: Deletar foto do portfólio
+     */
+    @DeleteMapping("/api/portfolio/photos/{fotoId}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deletePortfolioPhoto(
+        Authentication autenticacao,
+        @PathVariable Integer fotoId) {
+
+        Map<String, Object> resposta = new HashMap<>();
+
+        if (autenticacao == null || !autenticacao.isAuthenticated()) {
+            resposta.put("sucesso", false);
+            resposta.put("mensagem", "Usuário não autenticado");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resposta);
+        }
+
+        String email = autenticacao.getName();
+        Optional<User> opcaoUsuario = repositorioUsuario.findUserByEmail(email);
+
+        if (opcaoUsuario.isEmpty()) {
+            resposta.put("sucesso", false);
+            resposta.put("mensagem", "Usuário não encontrado");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
+        }
+
+        User usuario = opcaoUsuario.get();
+
+        try {
+            // Verifica se a foto pertence ao usuário
+            Optional<PortfolioPhoto> fotoOpt = servicoPortfolioFoto.getPhotoById(fotoId, usuario.getId());
+            if (fotoOpt.isEmpty()) {
+                resposta.put("sucesso", false);
+                resposta.put("mensagem", "Foto não encontrada ou não pertence ao usuário");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
+            }
+
+            servicoPortfolioFoto.deletePortfolioPhoto(fotoId, usuario.getId());
+
+            resposta.put("sucesso", true);
+            resposta.put("mensagem", "Foto deletada com sucesso");
+
+            return ResponseEntity.ok(resposta);
+
+        } catch (Exception excecao) {
+            resposta.put("sucesso", false);
+            resposta.put("mensagem", "Erro ao deletar foto: " + excecao.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resposta);
+        }
     }
 }

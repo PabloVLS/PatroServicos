@@ -1,6 +1,7 @@
 package com.patroservicos.PatroServicos.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,17 +9,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.patroservicos.PatroServicos.model.User;
+import com.patroservicos.PatroServicos.repository.UserRepository;
 import com.patroservicos.PatroServicos.service.IUserService;
 
-/**
- * Controlador para rotas gerais da aplicação.
- * Responsável pelas páginas de index, login, cadastro e profissionais.
- */
+import java.util.Optional;
+
 @Controller
 public class IndexController {
 
     @Autowired
     private IUserService servicoUsuario;
+
+    @Autowired
+    private UserRepository repositorioUsuario;
 
     @GetMapping("/")
     public String index() {
@@ -76,5 +79,46 @@ public class IndexController {
     @GetMapping("/sejaProfissional")
     public String sejaProfissional() {
         return "sejaProfissional"; 
+    }
+
+    /**
+     * Processa o cadastro de um novo profissional.
+     * Atualiza o tipo_conta do usuário para 'profissional' e armazena dados profissionais.
+     */
+    @PostMapping("/sejaProfissional/apply")
+    public String processarCadastroProfissional(
+            Authentication autenticacao,
+            @RequestParam("area-atuacao") String areaAtuacao,
+            @RequestParam("descricao") String descricao,
+            @RequestParam("experiencia") String experiencia,
+            @RequestParam(value = "whatsapp", required = false) String whatsapp,
+            RedirectAttributes atributosRedirecionamento) {
+
+        // Verifica se usuário está autenticado
+        if (autenticacao == null || !autenticacao.isAuthenticated()) {
+            atributosRedirecionamento.addFlashAttribute("erro", "Você precisa estar logado para se cadastrar como profissional.");
+            return "redirect:/sejaProfissional";
+        }
+
+        String email = autenticacao.getName();
+        Optional<User> usuarioOpt = repositorioUsuario.findUserByEmail(email);
+
+        if (usuarioOpt.isEmpty()) {
+            atributosRedirecionamento.addFlashAttribute("erro", "Usuário não encontrado.");
+            return "redirect:/sejaProfissional";
+        }
+
+        User usuario = usuarioOpt.get();
+        
+        // Atualiza tipo_conta para profissional
+        usuario.setTipoConta("profissional");
+        usuario.setProfissionalSolicitado(true);
+        
+        // Aqui você pode armazenar os dados profissionais em uma entidade separada (ex: ProfessionalProfile)
+        // Por enquanto, estamos apenas marcando como profissional
+        
+        repositorioUsuario.save(usuario);
+        atributosRedirecionamento.addFlashAttribute("sucesso", "Sua solicitação de cadastro como profissional foi recebida. Aguarde aprovação.");
+        return "redirect:/perfil";
     }
 }

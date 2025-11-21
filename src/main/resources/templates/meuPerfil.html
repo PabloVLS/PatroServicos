@@ -7,6 +7,7 @@
     <title>Meu Perfil - PatroServiços</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/footer.css">
     <link rel="stylesheet" href="/css/meuPerfil.css">
@@ -14,18 +15,28 @@
 
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
-
-    <div class="profile-container" style="margin-top:80px;">
+    <div class="profile-container">
+        <!-- Header do Perfil -->
         <div class="profile-header">
-            <!-- Foto do perfil será carregada via JavaScript -->
-            <div class="avatar" id="avatarPerfil" style="width: 100px; height: 100px; border-radius: 50%; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; margin: 0 auto;">
-                <span id="inicialPerfilPagina">U</span>
-                <img id="fotoPerfil" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />
+            <div class="avatar-wrapper">
+                <div class="avatar"
+                    style="width: 300px; height: 300px; font-size: 7rem; border: 8px solid rgba(255, 255, 255, 0.6); background: transparent;">
+                    <span id="inicialPerfilPagina">U</span>
+                    <img id="fotoPerfil" alt="Foto do perfil"
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+                </div>
             </div>
-            <h2 th:text="${usuario != null ? usuario.name : 'Usuário'}"></h2>
-            <p class="text-muted-small" th:text="${usuario != null ? usuario.email : ''}"></p>
+            <h1 th:text="${usuario != null ? usuario.name : 'Usuário'}">Usuário</h1>
+            <div class="email" th:text="${usuario != null ? usuario.email : ''}">usuario@email.com</div>
+            <div th:if="${isProfissional}">
+                <div class="professional-badge">
+                    <i class="fas fa-briefcase"></i>
+                    Profissional Verificado
+                </div>
+            </div>
         </div>
 
+        <!-- Alertas -->
         <div th:if="${sucesso}" class="alert alert-success" role="alert">
             <i class="fas fa-check-circle me-2"></i>
             <span th:text="${sucesso}"></span>
@@ -35,65 +46,426 @@
             <span th:text="${erro}"></span>
         </div>
 
-        <h3 style="margin-bottom:1rem;">Editar Perfil</h3>
-        <form method="POST" action="/perfil/edit" enctype="multipart/form-data" class="profile-form" style="border:2px solid #ff8c00; padding:16px; background:#fff; border-radius:10px;">
-            <div class="form-group">
-                <label for="nome" class="form-label">Nome Completo</label>
-                <input type="text" id="nome" name="nome" class="form-control" th:value="${usuario != null ? usuario.name : ''}" required>
+        <!-- Abas de Navegação -->
+        <ul class="nav nav-tabs" id="perfilTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button"
+                    role="tab" aria-controls="info" aria-selected="true">
+                    <i class="fas fa-user me-2"></i>Informações Pessoais
+                </button>
+            </li>
+            <li class="nav-item" role="presentation" th:if="${isProfissional}">
+                <button class="nav-link" id="prof-tab" data-bs-toggle="tab" data-bs-target="#profissional" type="button"
+                    role="tab" aria-controls="profissional" aria-selected="false">
+                    <i class="fas fa-briefcase me-2"></i>Perfil Profissional
+                </button>
+            </li>
+            <li class="nav-item" role="presentation" th:if="${isProfissional}">
+                <button class="nav-link" id="portfolio-tab" data-bs-toggle="tab" data-bs-target="#portfolio" type="button"
+                    role="tab" aria-controls="portfolio" aria-selected="false">
+                    <i class="fas fa-images me-2"></i>Portfólio
+                </button>
+            </li>
+            <li class="nav-item" role="presentation" th:if="${isProfissional}">
+                <button class="nav-link" id="doc-tab" data-bs-toggle="tab" data-bs-target="#documentacao" type="button"
+                    role="tab" aria-controls="documentacao" aria-selected="false">
+                    <i class="fas fa-file-alt me-2"></i>Documentação
+                </button>
+            </li>
+        </ul>
+
+        <!-- Conteúdo das Abas -->
+        <div class="tab-content" id="perfilTabContent">
+            <!-- Aba: Informações Pessoais -->
+            <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+                <h3>Informações Pessoais</h3>
+                <form method="POST" action="/perfil/edit" enctype="multipart/form-data" class="profile-form">
+                    <div class="form-group">
+                        <label for="nome" class="form-label">Nome Completo</label>
+                        <input type="text" id="nome" name="nome" class="form-control"
+                            th:value="${usuario != null ? usuario.name : ''}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Foto de Perfil</label>
+                        <div class="file-upload-area" onclick="document.getElementById('fotoArquivo').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p class="mb-2">Clique para selecionar uma foto</p>
+                            <small class="text-muted">JPG, PNG • Máx. 5MB</small>
+                            <input type="file" id="fotoArquivo" name="fotoArquivo" class="file-input" accept="image/*"
+                                onchange="handleFileSelect(this)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefone" class="form-label">Telefone</label>
+                        <input type="tel" id="telefone" name="telefone" class="form-control"
+                            th:value="${usuario != null ? usuario.phone : ''}" oninput="formatarTelefone(this)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input type="text" id="endereco" name="endereco" class="form-control"
+                            th:value="${usuario != null ? usuario.address : ''}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cidade" class="form-label">Cidade</label>
+                        <input type="text" id="cidade" name="cidade" class="form-control"
+                            th:value="${usuario != null ? usuario.city : ''}">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Salvar Alterações
+                    </button>
+                </form>
             </div>
 
-            <div class="form-group">
-                <label for="fotoArquivo" class="form-label">Foto de Perfil</label>
-                <input type="file" id="fotoArquivo" name="fotoArquivo" class="form-control" accept="image/*">
-                <small class="text-muted-small">Selecione um arquivo de imagem (jpg, png). Será enviado para o servidor.</small>
+            <!-- Aba: Perfil Profissional -->
+            <div class="tab-pane fade" id="profissional" role="tabpanel" aria-labelledby="prof-tab" th:if="${isProfissional}">
+                <h3>Perfil Profissional</h3>
+                <form method="POST" action="/perfil/edit" class="profile-form">
+                    <div class="form-group">
+                        <label for="area-atuacao-edit2" class="form-label">Área de Atuação (categoria)</label>
+                        <input type="text" id="area-atuacao-edit2" name="area-atuacao" class="form-control"
+                            th:value="${profissional != null ? profissional.areaAtuacao : ''}"
+                            placeholder="Ex: Eletricista, Encanador">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Descrição do profissional</label>
+                        <textarea id="descricao-edit" name="descricao" class="form-control" rows="4"
+                            placeholder="Fale sobre seu trabalho, experiência e diferenciais..." maxlength="500"
+                            th:text="${profissional != null ? profissional.descricao : ''}"></textarea>
+                        <div class="char-counter" id="descricao-counter">0/500 caracteres</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="experiencia-edit" class="form-label">Experiência</label>
+                        <select id="experiencia-edit" name="experiencia" class="form-control">
+                            <option value="" selected disabled>Selecione uma opção</option>
+                            <option value="menos-1-ano" th:selected="${profissional != null && profissional.experiencia == 'menos-1-ano'}">Menos de 1 ano</option>
+                            <option value="1-3-anos" th:selected="${profissional != null && profissional.experiencia == '1-3-anos'}">1–3 anos</option>
+                            <option value="3-5-anos" th:selected="${profissional != null && profissional.experiencia == '3-5-anos'}">3–5 anos</option>
+                            <option value="mais-5-anos" th:selected="${profissional != null && profissional.experiencia == 'mais-5-anos'}">5+ anos</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="whatsapp-prof-edit" class="form-label">WhatsApp Profissional</label>
+                        <input type="tel" id="whatsapp-prof-edit" name="whatsapp-prof" class="form-control"
+                            th:value="${profissional != null ? profissional.whatsapp : ''}"
+                            placeholder="(34) 99999-9999" oninput="formatarTelefone(this)">
+                        <small class="text-muted">Deixe em branco para usar o telefone da sua conta</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Atualizar Perfil Profissional
+                    </button>
+                </form>
             </div>
 
-            <div class="form-group">
-                <label for="telefone" class="form-label">Telefone</label>
-                <input type="tel" id="telefone" name="telefone" class="form-control" th:value="${usuario != null ? usuario.phone : ''}">
+            <!-- NOVA ABA: Portfólio -->
+            <div class="tab-pane fade" id="portfolio" role="tabpanel" aria-labelledby="portfolio-tab" th:if="${isProfissional}">
+                <h3>Portfólio</h3>
+                <div class="portfolio-container">
+                    <!-- Upload de Fotos -->
+                    <div class="form-group">
+                        <label class="form-label">Adicionar Fotos ao Portfólio</label>
+                        <div class="file-upload-area portfolio-upload" onclick="document.getElementById('portfolioFiles').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p class="mb-2">Clique para adicionar fotos dos seus trabalhos</p>
+                            <small class="text-muted">JPG, PNG • Máx. 5MB por imagem</small>
+                            <input type="file" id="portfolioFiles" name="portfolioFiles" class="file-input" 
+                                   accept="image/*" multiple onchange="handlePortfolioUpload(this)">
+                        </div>
+                    </div>
+
+                    <!-- Galeria de Fotos -->
+                    <div class="portfolio-gallery">
+                        <h4 class="mb-3">Suas Fotos</h4>
+                        <div class="row" id="portfolioGrid">
+                            <!-- Fotos serão adicionadas dinamicamente aqui -->
+                            <div class="col-12">
+                                <p class="text-muted text-center" id="emptyPortfolioMessage">
+                                    Nenhuma foto adicionada ao portfólio ainda.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="endereco" class="form-label">Endereço</label>
-                <input type="text" id="endereco" name="endereco" class="form-control" th:value="${usuario != null ? usuario.address : ''}">
+            <!-- Aba: Documentação -->
+            <div class="tab-pane fade" id="documentacao" role="tabpanel" aria-labelledby="doc-tab"
+                th:if="${isProfissional}">
+                <h3>Documentação</h3>
+                <form method="POST" action="/perfil/edit" enctype="multipart/form-data" class="profile-form">
+                    <!-- hidden personal/professional fields to avoid losing data -->
+                    <input type="hidden" name="nome" th:value="${usuario != null ? usuario.name : ''}">
+                    <input type="hidden" name="telefone" th:value="${usuario != null ? usuario.phone : ''}">
+                    <input type="hidden" name="endereco" th:value="${usuario != null ? usuario.address : ''}">
+                    <input type="hidden" name="cidade" th:value="${usuario != null ? usuario.city : ''}">
+
+                    <div class="form-group">
+                        <label class="form-label">RG / CNH (opcional)</label>
+                        <input type="file" name="rgcnhFile" class="form-control" accept="image/*,application/pdf">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Comprovante de Endereço</label>
+                        <input type="file" name="comprovanteFile" class="form-control" accept="image/*,application/pdf">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Certificados (upload opcional)</label>
+                        <input type="file" name="certificadosFiles" class="form-control"
+                            accept="image/*,application/pdf" multiple>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Verificação de identidade</label>
+                        <p class="text-muted">Envie uma foto do documento e uma selfie segurando o documento</p>
+                        <div class="mb-2">
+                            <label class="form-label">Foto do documento</label>
+                            <input type="file" name="verifFoto" class="form-control" accept="image/*">
+                        </div>
+                        <div>
+                            <label class="form-label">Selfie segurando o documento</label>
+                            <input type="file" name="verifSelfie" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Enviar Documentos
+                    </button>
+                </form>
             </div>
-
-            <div class="form-group">
-                <label for="cidade" class="form-label">Cidade</label>
-                <input type="text" id="cidade" name="cidade" class="form-control" th:value="${usuario != null ? usuario.city : ''}">
-            </div>
-
-            <button type="submit" class="btn-save">
-                <i class="fas fa-save me-2"></i>Salvar Alterações
-            </button>
-        </form>
-
-        <script>
-            // Carregar avatar e foto do perfil
-            fetch('/api/usuario-atual', {
-                credentials: 'include'
-            })
-                .then(response => response.json())
-                .then(dados => {
-                    if (dados && dados.autenticado) {
-                        if (dados.urlFoto) {
-                            document.getElementById('fotoPerfil').src = dados.urlFoto;
-                            document.getElementById('fotoPerfil').style.display = 'block';
-                            document.getElementById('inicialPerfilPagina').style.display = 'none';
-                        } else {
-                            const inicial = (dados.nome || 'U').charAt(0).toUpperCase();
-                            document.getElementById('inicialPerfilPagina').textContent = inicial;
-                        }
-                    }
-                })
-                .catch(erro => console.error('Erro ao carregar foto:', erro));
-        </script>
+        </div>
     </div>
 
     <div th:replace="~{fragments/footer :: footer}"></div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
 
+    <script>
+        // Carregar foto do perfil
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/api/usuario-atual')
+                .then(response => response.json())
+                .then(dados => {
+                    if (dados && dados.autenticado) {
+                        const avatar = document.getElementById('fotoPerfil');
+                        const inicial = document.getElementById('inicialPerfilPagina');
+
+                        if (dados.urlFoto) {
+                            avatar.src = dados.urlFoto;
+                            avatar.style.display = 'block';
+                            inicial.style.display = 'none';
+                        } else {
+                            inicial.textContent = (dados.nome || 'U').charAt(0).toUpperCase();
+                            avatar.style.display = 'none';
+                            inicial.style.display = 'flex';
+                        }
+                    }
+                })
+                .catch(erro => console.error('Erro:', erro));
+
+            // Contador de caracteres
+            const descricao = document.getElementById('descricao-edit');
+            const contador = document.getElementById('descricao-counter');
+
+            if (descricao && contador) {
+                descricao.addEventListener('input', function () {
+                    const chars = this.value.length;
+                    contador.textContent = `${chars}/500 caracteres`;
+
+                    if (chars > 450) {
+                        contador.className = 'char-counter danger';
+                    } else if (chars > 400) {
+                        contador.className = 'char-counter warning';
+                    } else {
+                        contador.className = 'char-counter';
+                    }
+                });
+
+                // Inicializar
+                descricao.dispatchEvent(new Event('input'));
+            }
+
+            // Carregar portfólio salvo
+            loadPortfolio();
+        });
+
+        // Formatar telefone
+        function formatarTelefone(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = value.substring(0, 11);
+
+            if (value.length > 0) value = '(' + value;
+            if (value.length > 3) value = value.substring(0, 3) + ') ' + value.substring(3);
+            if (value.length > 10) value = value.substring(0, 10) + '-' + value.substring(10);
+
+            input.value = value;
+        }
+
+        // Upload de arquivo
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                console.log('Arquivo selecionado:', file.name);
+            }
+        }
+
+        // PORTFÓLIO - Upload de múltiplas fotos
+        function handlePortfolioUpload(input) {
+            if (input.files && input.files.length > 0) {
+                const files = Array.from(input.files);
+                
+                files.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        uploadPortfolioPhotoToServer(file);
+                    }
+                });
+
+                // Limpar input
+                input.value = '';
+            }
+        }
+
+        // PORTFÓLIO - Upload da foto para o servidor
+        function uploadPortfolioPhotoToServer(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/api/portfolio/upload', {
+                method: 'POST',
+                credentials: 'include',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso) {
+                    // Adicionar imagem à galeria
+                    addImageToPortfolio(data.fotoId, data.fotoUrl, file.name);
+                    console.log('Foto enviada com sucesso:', data.fotoId);
+                } else {
+                    alert('Erro ao enviar foto: ' + data.mensagem);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao enviar foto. Tente novamente.');
+            });
+        }
+
+        // PORTFÓLIO - Adicionar imagem à galeria (versão atualizada para DB)
+        function addImageToPortfolio(fotoId, imageUrl, fileName) {
+            const imageCard = `
+                <div class="col-md-4 col-sm-6 mb-4 portfolio-item" data-id="${fotoId}">
+                    <div class="portfolio-card">
+                        <div class="portfolio-image-container">
+                            <img src="${imageUrl}" class="portfolio-image" alt="Trabalho do portfólio">
+                            <div class="portfolio-overlay">
+                                <button class="btn btn-danger btn-sm" onclick="removePortfolioImage(${fotoId}, '${fileName}')">
+                                    <i class="fas fa-trash"></i> Remover
+                                </button>
+                            </div>
+                        </div>
+                        <div class="portfolio-actions mt-2">
+                            <small class="text-muted">${fileName}</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Esconder mensagem de vazio se for a primeira imagem
+            const emptyMessage = document.getElementById('emptyPortfolioMessage');
+            if (emptyMessage && emptyMessage.style.display !== 'none') {
+                emptyMessage.style.display = 'none';
+            }
+
+            // Adicionar à galeria
+            document.getElementById('portfolioGrid').insertAdjacentHTML('afterbegin', imageCard);
+        }
+
+        // PORTFÓLIO - Remover imagem (versão atualizada para DB)
+        function removePortfolioImage(fotoId, fileName) {
+            if (!confirm('Tem certeza que deseja remover esta foto?')) {
+                return;
+            }
+
+            fetch(`/api/portfolio/photos/${fotoId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso) {
+                    // Remover elemento visual
+                    const imageElement = document.querySelector(`[data-id="${fotoId}"]`);
+                    if (imageElement) {
+                        imageElement.remove();
+                        console.log('Foto removida com sucesso');
+                    }
+
+                    // Mostrar mensagem de vazio se não houver mais imagens
+                    const portfolioGrid = document.getElementById('portfolioGrid');
+                    const emptyMessage = document.getElementById('emptyPortfolioMessage');
+                    const items = portfolioGrid.querySelectorAll('.portfolio-item');
+                    if (items.length === 0 && emptyMessage) {
+                        emptyMessage.style.display = 'block';
+                    }
+                } else {
+                    alert('Erro ao remover foto: ' + data.mensagem);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao remover foto. Tente novamente.');
+            });
+        }
+
+        // PORTFÓLIO - Carregar fotos do servidor no carregamento da página
+        function loadPortfolio() {
+            fetch('/api/portfolio/photos', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso && data.fotos && data.fotos.length > 0) {
+                    const portfolioGrid = document.getElementById('portfolioGrid');
+                    const emptyMessage = document.getElementById('emptyPortfolioMessage');
+
+                    if (emptyMessage) {
+                        emptyMessage.style.display = 'none';
+                    }
+
+                    data.fotos.forEach(foto => {
+                        const imageCard = `
+                            <div class="col-md-4 col-sm-6 mb-4 portfolio-item" data-id="${foto.id}">
+                                <div class="portfolio-card">
+                                    <div class="portfolio-image-container">
+                                        <img src="${foto.photoData}" class="portfolio-image" alt="Trabalho do portfólio">
+                                        <div class="portfolio-overlay">
+                                            <button class="btn btn-danger btn-sm" onclick="removePortfolioImage(${foto.id}, '${foto.fileName}')">
+                                                <i class="fas fa-trash"></i> Remover
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="portfolio-actions mt-2">
+                                        <small class="text-muted">${foto.fileName}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        portfolioGrid.insertAdjacentHTML('afterbegin', imageCard);
+                    });
+                }
+            })
+            .catch(error => console.error('Erro ao carregar portfólio:', error));
+        }
+    </script>
+</body>
 </html>

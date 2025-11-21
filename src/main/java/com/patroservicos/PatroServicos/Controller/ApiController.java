@@ -8,22 +8,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.patroservicos.PatroServicos.model.User;
+import com.patroservicos.PatroServicos.model.Photo;
 import com.patroservicos.PatroServicos.repository.UserRepository;
+import com.patroservicos.PatroServicos.service.IPhotoService;
 
 import java.util.Optional;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Controlador REST para endpoints de API.
- * Responsável por fornecer dados do usuário autenticado para o frontend.
- */
 @RestController
 @RequestMapping("/api")
 public class ApiController {
 
     @Autowired
     private UserRepository repositorioUsuario;
+
+    @Autowired
+    private IPhotoService servicoFoto;
 
     /**
      * Retorna os dados do usuário autenticado atualmente.
@@ -65,9 +66,10 @@ public class ApiController {
         resposta.put("funcoes", usuario.getRoles());
 
         // Busca a foto do usuário se existir
-        if (usuario.getPhoto() != null && !usuario.getPhoto().isEmpty()) {
-            // Presume que a foto já está em formato data URI ou base64
-            resposta.put("urlFoto", usuario.getPhoto());
+        Optional<Photo> fotoOpt = servicoFoto.getPhotoByUserId(usuario.getId());
+        if (fotoOpt.isPresent()) {
+            Photo foto = fotoOpt.get();
+            resposta.put("urlFoto", foto.getPhotoData());
         } else {
             resposta.put("urlFoto", null);
         }

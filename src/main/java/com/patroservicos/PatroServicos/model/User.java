@@ -51,8 +51,5 @@ public class User {
 
     @Column(name = "cidade")
     private String city;
-    
-    @Column(name = "foto_usuario", length = 10000000)
-    private String photo; // base64 encoded photo as data URI
 
 }

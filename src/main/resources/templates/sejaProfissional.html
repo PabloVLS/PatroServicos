@@ -192,347 +192,114 @@
     <section id="cadastro" class="secao-formulario">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-lg-10">
+                <div class="col-lg-8">
                     <div class="cartao-formulario">
                         <h2 class="titulo-formulario">Cadastre-se como Profissional</h2>
-                        <p class="text-center text-muted mb-4">Preencha todos os campos abaixo para criar seu perfil
-                            completo</p>
+                        <p class="text-center text-muted mb-4">Preencha os campos abaixo para criar seu perfil
+                            profissional</p>
 
-                        <form method="get" action="/sejaProfissional/apply">
-                            <!-- Dados Pessoais -->
-                            <div class="titulo-secao-formulario mb-4">
-                                <h4><i class="fas fa-user me-2"></i>Dados Pessoais</h4>
-                                <div class="divisor-titulo"></div>
+                        <!-- Overlay shown when user is not authenticated -->
+                        <div id="cadastro-block" class="blocked-overlay">
+                            <div>
+                                <p style="font-size:1.1rem;margin-bottom:1rem;">Precisa logar para preencher esse
+                                    formulário</p>
+                                <a class="btn btn-primary" href="/login">Fazer login</a>
                             </div>
+                        </div>
 
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="nome" class="rotulo-formulario">Nome completo <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" class="controle-formulario form-control" id="nome"
-                                        placeholder="Seu nome completo" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="cpf" class="rotulo-formulario">CPF <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" class="controle-formulario form-control" id="cpf"
-                                        placeholder="000.000.000-00" required>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="data_nascimento" class="rotulo-formulario">Data de nascimento <span
-                                            class="text-danger">*</span></label>
-                                    <input type="date" class="controle-formulario form-control" id="data_nascimento"
-                                        required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="genero" class="rotulo-formulario">Gênero</label>
-                                    <select class="controle-formulario form-control" id="genero">
-                                        <option selected>Selecione</option>
-                                        <option>Masculino</option>
-                                        <option>Feminino</option>
-                                        <option>Prefiro não informar</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Contato -->
-                            <div class="titulo-secao-formulario mb-4 mt-4">
-                                <h4><i class="fas fa-phone me-2"></i>Contato</h4>
-                                <div class="divisor-titulo"></div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="telefone" class="rotulo-formulario">Telefone/Celular <span
-                                            class="text-danger">*</span></label>
-                                    <input type="tel" class="controle-formulario form-control" id="telefone"
-                                        placeholder="(34) 99999-9999" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="whatsapp" class="rotulo-formulario">WhatsApp <span
-                                            class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <span class="texto-grupo input-group-text"><i
-                                                class="fab fa-whatsapp"></i></span>
-                                        <input type="tel" class="controle-formulario form-control" id="whatsapp"
-                                            placeholder="(34) 99999-9999" required>
-                                    </div>
-                                </div>
-                            </div>
-
-                                <div class="mb-3">
-                                <label for="email" class="rotulo-formulario">E-mail <span
-                                    class="text-danger">*</span></label>
-                                <input name="email" type="email" class="controle-formulario form-control" id="email"
-                                    placeholder="seu@email.com" required>
-                                </div>
-
-                            <!-- Endereço -->
-                            <div class="titulo-secao-formulario mb-4 mt-4">
-                                <h4><i class="fas fa-map-marker-alt me-2"></i>Endereço</h4>
-                                <div class="divisor-titulo"></div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="cep" class="rotulo-formulario">CEP <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" class="controle-formulario form-control" id="cep"
-                                        placeholder="00000-000" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="cidade" class="rotulo-formulario">Cidade <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" class="controle-formulario form-control" id="cidade"
-                                        value="Patrocínio" readonly>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-8">
-                                    <label for="endereco" class="rotulo-formulario">Endereço <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" class="controle-formulario form-control" id="endereco"
-                                        placeholder="Rua, Avenida, etc." required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="numero" class="rotulo-formulario">Número <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" class="controle-formulario form-control" id="numero"
-                                        placeholder="Nº" required>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="bairro" class="rotulo-formulario">Bairro <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" class="controle-formulario form-control" id="bairro"
-                                        placeholder="Seu bairro" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="complemento" class="rotulo-formulario">Complemento</label>
-                                    <input type="text" class="controle-formulario form-control" id="complemento"
-                                        placeholder="Apto, Bloco, etc.">
-                                </div>
-                            </div>
-
+                        <form method="get" action="/sejaProfissional/apply" id="formProfissional">
+                            <!-- Hidden field for email - will be populated by JavaScript -->
+                            <input type="hidden" name="email" id="emailField" value="">
+                            
                             <!-- Dados Profissionais -->
-                            <div class="titulo-secao-formulario mb-4 mt-4">
+                            <div class="titulo-secao-formulario mb-4">
                                 <h4><i class="fas fa-briefcase me-2"></i>Dados Profissionais</h4>
                                 <div class="divisor-titulo"></div>
                             </div>
 
-                            <!-- NOVA SEÇÃO DE ÁREA DE ATUAÇÃO COM AUTOCOMPLETAR -->
+                            <!-- 1. Profissão (Autocomplete) -->
                             <div class="mb-4">
-                                <label for="area-atuacao" class="rotulo-formulario">Área de atuação <span class="text-danger">*</span></label>
-                                
+                                <label for="area-atuacao" class="rotulo-formulario">Profissão <span
+                                        class="text-danger">*</span></label>
+
                                 <div class="position-relative">
-                                    <input type="text" 
-                                           class="controle-formulario form-control" 
-                                           id="area-atuacao"
-                                           placeholder="Digite sua profissão (ex: advogado, eletricista, professor...)"
-                                           required
-                                           autocomplete="off">
-                                    
+                                    <input type="text" name="area-atuacao" class="controle-formulario form-control" id="area-atuacao"
+                                        placeholder="Digite sua principal área de atuação" required autocomplete="off">
+
                                     <!-- Sugestões que aparecem ao digitar -->
-                                    <div class="sugestoes-profissao position-absolute w-100 bg-white rounded shadow mt-1 d-none">
+                                    <div
+                                        class="sugestoes-profissao position-absolute w-100 bg-white rounded shadow mt-1 d-none">
                                         <!-- As sugestões serão preenchidas via JavaScript -->
                                     </div>
                                 </div>
-                                
+
                                 <div class="texto-formulario form-text mt-2">
                                     <i class="fas fa-lightbulb text-warning me-1"></i>
-                                    Comece a digitar e selecione sua profissão na lista ou digite uma profissão personalizada
+                                    Exemplo: "Encanador", "Eletricista", "Diarista"
                                 </div>
                             </div>
 
-                            <!-- Container para mostrar as profissões selecionadas -->
-                            <div id="profissoes-selecionadas" class="mb-3 d-none">
-                                <label class="rotulo-formulario">Profissões selecionadas:</label>
-                                <div class="d-flex flex-wrap gap-2" id="tags-profissoes">
-                                    <!-- Tags das profissões serão adicionadas aqui -->
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="especialidades" class="rotulo-formulario">Especialidades</label>
-                                <textarea class="controle-formulario form-control" id="especialidades" rows="2"
-                                    placeholder="Liste suas especialidades dentro da sua área de atuação"></textarea>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="experiencia" class="rotulo-formulario">Tempo de experiência <span
-                                            class="text-danger">*</span></label>
-                                    <select class="controle-formulario form-control" id="experiencia" required>
-                                        <option value="" selected disabled>Selecione uma opção</option>
-                                        <option>Menos de 1 ano</option>
-                                        <option>1 a 3 anos</option>
-                                        <option>3 a 5 anos</option>
-                                        <option>5 a 10 anos</option>
-                                        <option>Mais de 10 anos</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="regiao" class="rotulo-formulario">Regiões de atendimento <span
-                                            class="text-danger">*</span></label>
-                                    <select class="controle-formulario form-control" id="regiao" required>
-                                        <option value="" selected disabled>Selecione uma opção</option>
-                                        <option>Patrocínio</option>
-                                        <option>Guimarânia</option>
-                                        <option>Iraí de Minas</option>
-                                        <option>Serra do Salitre</option>
-                                        <option>Coromandel</option>
-                                        <option>Monte Carmelo</option>
-                                        <option>Perdizes</option>
-                                        <option>Lagoa Formosa</option>
-                                        <option>Tiros</option>
-                                        <option>Carmo do Paranaíba</option>
-                                        <option>Patos de Minas</option>
-                                        <option>Araxá</option>
-                                        <option>Uberaba</option>
-                                        <option>Uberlândia</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="descricao" class="rotulo-formulario">Descrição do seu trabalho <span
+                            <!-- 2. Descrição profissional -->
+                            <div class="mb-4">
+                                <label for="descricao" class="rotulo-formulario">Descrição profissional <span
                                         class="text-danger">*</span></label>
-                                <textarea class="controle-formulario form-control" id="descricao" rows="3"
-                                    placeholder="Descreva seus serviços, forma de trabalho, etc." required></textarea>
+                                <textarea name="descricao" class="controle-formulario form-control" id="descricao" rows="3"
+                                    placeholder="Fale um pouco sobre seu trabalho, experiência e diferenciais."
+                                    maxlength="100" required></textarea>
+                                <div class="texto-formulario form-text">
+                                    <span id="contador-caracteres">0</span>/100 caracteres (máximo)
+                                </div>
                             </div>
 
-                            <!-- Disponibilidade -->
-                            <div class="titulo-secao-formulario mb-4 mt-4">
-                                <h4><i class="fas fa-calendar-alt me-2"></i>Disponibilidade</h4>
-                                <div class="divisor-titulo"></div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="rotulo-formulario">Dias de trabalho <span
+                            <!-- 3. Tempo de experiência -->
+                            <div class="mb-4">
+                                <label for="experiencia" class="rotulo-formulario">Tempo de experiência <span
                                         class="text-danger">*</span></label>
-                                <div class="row">
-                                    <div class="col-md-3 col-6">
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="segunda">
-                                            <label class="form-check-label" for="segunda">Segunda-feira</label>
-                                        </div>
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="terca">
-                                            <label class="form-check-label" for="terca">Terça-feira</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 col-6">
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="quarta">
-                                            <label class="form-check-label" for="quarta">Quarta-feira</label>
-                                        </div>
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="quinta">
-                                            <label class="form-check-label" for="quinta">Quinta-feira</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 col-6">
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="sexta">
-                                            <label class="form-check-label" for="sexta">Sexta-feira</label>
-                                        </div>
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="sabado">
-                                            <label class="form-check-label" for="sabado">Sábado</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 col-6">
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="domingo">
-                                            <label class="form-check-label" for="domingo">Domingo</label>
-                                        </div>
-                                        <div class="form-check mb-2">
-                                            <input class="entrada-check form-check-input" type="checkbox" id="feriados">
-                                            <label class="form-check-label" for="feriados">Feriados</label>
-                                        </div>
-                                    </div>
+                                <select name="experiencia" class="controle-formulario form-control" id="experiencia" required>
+                                    <option value="" selected disabled>Selecione uma opção</option>
+                                    <option value="menos-1-ano">Menos de 1 ano</option>
+                                    <option value="1-3-anos">1–3 anos</option>
+                                    <option value="3-5-anos">3–5 anos</option>
+                                    <option value="mais-5-anos">5+ anos</option>
+                                </select>
+                            </div>
+
+                           
+                            <!-- 5. WhatsApp profissional -->
+                            <div class="mb-4">
+                                <label for="whatsapp" class="rotulo-formulario">WhatsApp profissional</label>
+                                <div class="input-group">
+                                    <span class="texto-grupo input-group-text"><i class="fab fa-whatsapp"></i></span>
+                                    <input type="tel" name="whatsapp" class="controle-formulario form-control" id="whatsapp"
+                                        placeholder="(34) 99999-9999" oninput="formatarTelefone(this)">
+                                </div>
+                                <div class="texto-formulario form-text">
+                                    <i class="fas fa-info-circle text-primary me-1"></i>
+                                    Opcional - se não preencher, usaremos o telefone da sua conta
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="horario_inicio" class="rotulo-formulario">Horário de início <span
-                                            class="text-danger">*</span></label>
-                                    <input type="time" class="controle-formulario form-control" id="horario_inicio"
-                                        required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="horario_fim" class="rotulo-formulario">Horário de término <span
-                                            class="text-danger">*</span></label>
-                                    <input type="time" class="controle-formulario form-control" id="horario_fim"
-                                        required>
-                                </div>
-                            </div>
-
-                            <!-- Documentos -->
-                            <div class="titulo-secao-formulario mb-4 mt-4">
-                                <h4><i class="fas fa-file-alt me-2"></i>Documentos</h4>
-                                <div class="divisor-titulo"></div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="foto_perfil" class="rotulo-formulario">Foto de perfil <span
-                                        class="text-danger">*</span></label>
-                                <input type="file" class="controle-formulario form-control" id="foto_perfil"
-                                    accept="image/*" required>
-                                <div class="texto-formulario form-text">Uma foto profissional ajuda a conquistar a
-                                    confiança dos
-                                    clientes.</div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="fotos_trabalhos" class="rotulo-formulario">Fotos dos seus trabalhos</label>
-                                <input type="file" class="controle-formulario form-control" id="fotos_trabalhos"
-                                    accept="image/*" multiple>
-                                <div class="texto-formulario form-text">Selecione até 5 fotos de trabalhos que já
-                                    realizou.</div>
-                            </div>
-
-                            <!-- Termos e Condições -->
+                            <!-- 6. Termos e Condições -->
                             <div class="titulo-secao-formulario mb-4 mt-4">
                                 <h4><i class="fas fa-check-circle me-2"></i>Termos e Condições</h4>
                                 <div class="divisor-titulo"></div>
                             </div>
 
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="entrada-check form-check-input" type="checkbox" id="termos" required>
-                                    <label class="form-check-label" for="termos">Li e concordo com os <a href="#"
-                                            class="text-primary">Termos de Uso</a> <span
-                                            class="text-danger">*</span></label>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="entrada-check form-check-input" type="checkbox" id="privacidade"
-                                        required>
-                                    <label class="form-check-label" for="privacidade">Li e concordo com a <a href="#"
-                                            class="text-primary">Política de Privacidade</a> <span
-                                            class="text-danger">*</span></label>
-                                </div>
-                            </div>
-
                             <div class="mb-4">
                                 <div class="form-check">
-                                    <input class="entrada-check form-check-input" type="checkbox" id="comunicacoes">
-                                    <label class="form-check-label" for="comunicacoes">Aceito receber comunicações e
-                                        novidades por e-mail e WhatsApp</label>
+                                    <input class="entrada-check form-check-input" type="checkbox" id="termos" required>
+                                    <label class="form-check-label" for="termos">
+                                        Li e concordo com os <a href="/termos" class="text-primary"
+                                            target="_blank">Termos de Uso</a> e <a href="/privacidade"
+                                            class="text-primary" target="_blank">Política de Privacidade</a> <span
+                                            class="text-danger">*</span>
+                                    </label>
                                 </div>
                             </div>
 
-                            <button type="submit" class="botao-destaque btn w-100 py-3">Finalizar Cadastro</button>
+                            <button type="submit" class="botao-destaque btn w-100 py-3">
+                                <i class="fas fa-user-plus me-2"></i>Criar Perfil Profissional
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -586,6 +353,96 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Check authentication and toggle the cadastro overlay
+        (function () {
+            fetch('/api/usuario-atual', { credentials: 'include' })
+                .then(function (r) {
+                    return r.json();
+                })
+                .then(function (data) {
+                    var overlay = document.getElementById('cadastro-block');
+                    var formCard = document.querySelector('.cartao-formulario');
+                    var emailField = document.getElementById('emailField');
+
+                    // Segurança: se não houver overlay, aborta
+                    if (!overlay) return;
+
+                    // Se a API indicar autenticado true, libera o formulário
+                    if (data && data.autenticado === true) {
+                        overlay.classList.add('hidden');
+                        formCard?.classList.remove('blocked');
+                        
+                        // Populate email field if user is authenticated
+                        if (data.email && emailField) {
+                            emailField.value = data.email;
+                        }
+                    } else {
+                        overlay.classList.remove('hidden');
+                        formCard?.classList.add('blocked');
+                    }
+                })
+                .catch(function (err) {
+                    console.error('Erro ao verificar autenticacao (sejaProfissional):', err);
+                    var overlay = document.getElementById('cadastro-block');
+                    var formCard = document.querySelector('.cartao-formulario');
+
+                    if (overlay) {
+                        overlay.classList.remove('hidden');
+                        formCard?.classList.add('blocked');
+                    }
+                });
+        })();
+
+        // Contador de caracteres para a descrição
+        document.addEventListener('DOMContentLoaded', function () {
+            const descricaoTextarea = document.getElementById('descricao');
+            const contadorCaracteres = document.getElementById('contador-caracteres');
+
+            if (descricaoTextarea && contadorCaracteres) {
+                descricaoTextarea.addEventListener('input', function () {
+                    const caracteres = this.value.length;
+                    contadorCaracteres.textContent = caracteres;
+
+                    // Altera a cor do contador baseado no máximo
+                    if (caracteres > 100) {
+                        this.value = this.value.substring(0, 100);
+                        contadorCaracteres.textContent = 100;
+                    }
+                    
+                    if (caracteres >= 90) {
+                        contadorCaracteres.classList.add('text-danger');
+                        contadorCaracteres.classList.remove('text-success');
+                    } else {
+                        contadorCaracteres.classList.remove('text-danger');
+                        contadorCaracteres.classList.add('text-success');
+                    }
+                });
+            }
+        });
+
+        // Formatação do telefone
+        function formatarTelefone(input) {
+            // Remove tudo que não é número
+            let value = input.value.replace(/\D/g, '');
+            
+            // Limita a 11 caracteres
+            value = value.substring(0, 11);
+            
+            // Aplica a formatação
+            if (value.length > 0) {
+                value = '(' + value;
+            }
+            if (value.length > 3) {
+                value = value.substring(0, 3) + ') ' + value.substring(3);
+            }
+            if (value.length > 10) {
+                value = value.substring(0, 10) + '-' + value.substring(10);
+            }
+            
+            input.value = value;
+        }
+    </script>
 </body>
 
 </html>

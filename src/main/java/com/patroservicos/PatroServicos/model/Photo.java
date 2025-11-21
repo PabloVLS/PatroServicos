@@ -37,5 +37,23 @@ public class Photo {
 
     @Column(name = "criada_em")
     private Long createdAt; // timestamp em milissegundos
+    
+    // Explicit setters to ensure IDEs and static analyzers (without Lombok processing)
+    // recognize these methods during compilation and code analysis.
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public void setCreatedAt(Long createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setPhotoData(String photoData) {
+        this.photoData = photoData;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+    }
 
 }
