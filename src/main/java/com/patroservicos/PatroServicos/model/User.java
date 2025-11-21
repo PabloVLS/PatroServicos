@@ -15,26 +15,44 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "users")
+@Table(name = "usuarios")
 public class User {
 
     @Id
     @GeneratedValue
-    @Column(name = "user_id")
+    @Column(name = "usuario_id")
     private Integer id;
 
-    @Column(name = "user_name")
+    @Column(name = "nome_usuario")
     private String name;
 
-    @Column(name = "user_passwd")
+    @Column(name = "senha_usuario")
     private String password;
 
-    @Column(name = "user_email")
+    @Column(name = "email_usuario")
     private String email;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "roles", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "user_role")
+    @CollectionTable(name = "funcoes", joinColumns = @JoinColumn(name = "usuario_id"))
+    @Column(name = "funcao_usuario")
     private List<String> roles;
+
+    @Column(name = "tipo_conta")
+    private String tipoConta; // valores: "cliente", "profissional_pendente", "cliente_profissional"
+
+    @Column(name = "profissional_solicitado")
+    private Boolean profissionalSolicitado = false;
+
+    @Column(name = "telefone")
+    private String phone;
+
+    @Column(name = "endereco")
+    private String address;
+
+    @Column(name = "cidade")
+    private String city;
+    
+    @Column(name = "foto_usuario", length = 10000000)
+    private String photo; // base64 encoded photo as data URI
 
 }

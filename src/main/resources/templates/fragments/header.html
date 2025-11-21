@@ -1,0 +1,107 @@
+<div th:fragment="header">
+    <link rel="stylesheet" href="/css/header.css" />
+
+    <nav class="cabecalho navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="logo navbar-brand" href="/">Patro<span>Serviços</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="menu-link nav-link" href="/">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="menu-link nav-link" href="/profissionais">Profissionais</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="menu-link nav-link" href="/sejaProfissional">Seja um profissional</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <!-- Botões de login/cadastro para usuários não autenticados -->
+                    <div id="botoesSemAutenticacao" style="display: none;">
+                        <a href="/login" class="botao-principal btn me-2">Entrar</a>
+                        <a href="/cadastro" class="botao-destaque btn">Cadastrar</a>
+                    </div>
+
+                    <!-- Menu de perfil para usuários autenticados -->
+                    <div id="perfilAutenticado" style="display: none;" class="profile-dropdown">
+                        <div class="avatar" id="alternarAvatar">
+                            <span id="inicialAvatar">U</span>
+                            <img id="fotoAvatar" style="display: none;" />
+                        </div>
+                        <div class="dropdown-menu-custom" id="menuPerfil">
+                            <span style="display: block; padding: 12px 16px; font-weight: bold; color: #333;" id="nomePerfil"></span>
+                            <a href="/perfil" class="dropdown-item-custom">
+                                <i class="fas fa-user me-2"></i>Editar Perfil
+                            </a>
+                            <form method="POST" action="/logout" style="margin: 0;">
+                                <button type="submit" class="dropdown-item-custom logout-btn w-100 text-start" style="border: none; background: none; cursor: pointer;">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        // Detectar se o usuário está autenticado
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/usuario-atual', {
+                credentials: 'include' // Importante: envia cookies de sessão
+            })
+                .then(response => response.json())
+                .then(dados => {
+                    console.log('Resposta da API:', dados);
+                    if (dados && dados.autenticado) {
+                        console.log('Usuário autenticado:', dados.nome);
+                        // Usuário autenticado
+                        document.getElementById('botoesSemAutenticacao').style.display = 'none';
+                        document.getElementById('perfilAutenticado').style.display = 'block';
+                        document.getElementById('nomePerfil').textContent = dados.nome || 'Usuário';
+                        
+                        if (dados.urlFoto) {
+                            document.getElementById('fotoAvatar').src = dados.urlFoto;
+                            document.getElementById('fotoAvatar').style.display = 'block';
+                            document.getElementById('inicialAvatar').style.display = 'none';
+                        } else {
+                            document.getElementById('inicialAvatar').textContent = (dados.nome || 'U').charAt(0).toUpperCase();
+                            document.getElementById('fotoAvatar').style.display = 'none';
+                        }
+                    } else {
+                        console.log('Usuário não autenticado');
+                        // Usuário não autenticado
+                        document.getElementById('botoesSemAutenticacao').style.display = 'flex';
+                        document.getElementById('perfilAutenticado').style.display = 'none';
+                    }
+                })
+                .catch(erro => {
+                    console.error('Erro ao buscar usuário:', erro);
+                    // Se der erro, assume não autenticado
+                    document.getElementById('botoesSemAutenticacao').style.display = 'flex';
+                    document.getElementById('perfilAutenticado').style.display = 'none';
+                });
+
+            // Toggle do dropdown de perfil
+            document.getElementById('alternarAvatar')?.addEventListener('click', function() {
+                const menu = document.getElementById('menuPerfil');
+                menu.classList.toggle('active');
+            });
+
+            // Fechar dropdown ao clicar fora
+            document.addEventListener('click', function(event) {
+                const profile = document.getElementById('perfilAutenticado');
+                const menu = document.getElementById('menuPerfil');
+                const avatar = document.getElementById('alternarAvatar');
+                
+                if (profile && menu && avatar && !profile.contains(event.target)) {
+                    menu.classList.remove('active');
+                }
+            });
+        });
+    </script>

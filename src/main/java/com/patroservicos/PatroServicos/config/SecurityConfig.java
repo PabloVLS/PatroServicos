@@ -1,51 +1,56 @@
 package com.patroservicos.PatroServicos.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
-    private UserDetailsService uds;
-
-    @Autowired
-    private BCryptPasswordEncoder encoder;
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // Desativa CSRF e libera tudo (sem tela de login)
+    public SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService userDetailsService, BCryptPasswordEncoder encoder) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()
-            );
-        // Tela de login desativada temporariamente
-        // .formLogin(login -> login.defaultSuccessUrl("/", true))
-        // .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout")))
-        // .exceptionHandling(handling -> handling.accessDeniedPage("/accessDenied"))
-        // .authenticationProvider(authenticationProvider());
+                .requestMatchers("/css/**", "/js/**", "/img/**", "/login", "/cadastro", "/sejaProfissional", "/profissionais", "/", "/api/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/", true)
+                .failureUrl("/login?erro")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+                .permitAll()
+            )
+            .authenticationProvider(authenticationProvider(userDetailsService, encoder));
 
         return http.build();
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(uds);
-        authenticationProvider.setPasswordEncoder(encoder);
-        return authenticationProvider;
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, BCryptPasswordEncoder encoder) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(encoder);
+        return provider;
+    }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

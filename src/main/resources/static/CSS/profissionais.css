@@ -16,7 +16,7 @@ body {
     background-color: #f9fafb;
 }
 
-.cabecalho {
+/* .cabecalho {
     padding: 1rem 0;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     background-color: white;
@@ -80,7 +80,7 @@ a.logo.navbar-brand:hover {
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(245, 158, 11, 0.2);
-}
+} */
 
 
 .busca-destaque {

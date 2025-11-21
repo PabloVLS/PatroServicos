@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - PatroServiços</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/meuPerfil.css">
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="profile-container" style="margin-top:80px;">
+        <div class="profile-header">
+            <!-- Foto do perfil será carregada via JavaScript -->
+            <div class="avatar" id="avatarPerfil" style="width: 100px; height: 100px; border-radius: 50%; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; margin: 0 auto;">
+                <span id="inicialPerfilPagina">U</span>
+                <img id="fotoPerfil" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />
+            </div>
+            <h2 th:text="${usuario != null ? usuario.name : 'Usuário'}"></h2>
+            <p class="text-muted-small" th:text="${usuario != null ? usuario.email : ''}"></p>
+        </div>
+
+        <div th:if="${sucesso}" class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${sucesso}"></span>
+        </div>
+        <div th:if="${erro}" class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${erro}"></span>
+        </div>
+
+        <h3 style="margin-bottom:1rem;">Editar Perfil</h3>
+        <form method="POST" action="/perfil/edit" enctype="multipart/form-data" class="profile-form" style="border:2px solid #ff8c00; padding:16px; background:#fff; border-radius:10px;">
+            <div class="form-group">
+                <label for="nome" class="form-label">Nome Completo</label>
+                <input type="text" id="nome" name="nome" class="form-control" th:value="${usuario != null ? usuario.name : ''}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fotoArquivo" class="form-label">Foto de Perfil</label>
+                <input type="file" id="fotoArquivo" name="fotoArquivo" class="form-control" accept="image/*">
+                <small class="text-muted-small">Selecione um arquivo de imagem (jpg, png). Será enviado para o servidor.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="telefone" class="form-label">Telefone</label>
+                <input type="tel" id="telefone" name="telefone" class="form-control" th:value="${usuario != null ? usuario.phone : ''}">
+            </div>
+
+            <div class="form-group">
+                <label for="endereco" class="form-label">Endereço</label>
+                <input type="text" id="endereco" name="endereco" class="form-control" th:value="${usuario != null ? usuario.address : ''}">
+            </div>
+
+            <div class="form-group">
+                <label for="cidade" class="form-label">Cidade</label>
+                <input type="text" id="cidade" name="cidade" class="form-control" th:value="${usuario != null ? usuario.city : ''}">
+            </div>
+
+            <button type="submit" class="btn-save">
+                <i class="fas fa-save me-2"></i>Salvar Alterações
+            </button>
+        </form>
+
+        <script>
+            // Carregar avatar e foto do perfil
+            fetch('/api/usuario-atual', {
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(dados => {
+                    if (dados && dados.autenticado) {
+                        if (dados.urlFoto) {
+                            document.getElementById('fotoPerfil').src = dados.urlFoto;
+                            document.getElementById('fotoPerfil').style.display = 'block';
+                            document.getElementById('inicialPerfilPagina').style.display = 'none';
+                        } else {
+                            const inicial = (dados.nome || 'U').charAt(0).toUpperCase();
+                            document.getElementById('inicialPerfilPagina').textContent = inicial;
+                        }
+                    }
+                })
+                .catch(erro => console.error('Erro ao carregar foto:', erro));
+        </script>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

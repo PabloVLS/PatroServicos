@@ -1,14 +1,12 @@
 package com.patroservicos.PatroServicos.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+/**
+ * Configuração da aplicação.
+ * Pode ser expandida conforme necessário.
+ */
 @Configuration
 public class AppConfig {
-
-	@Bean
-	public BCryptPasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    // Configurações adicionais podem ser adicionadas aqui
 }

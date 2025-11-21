@@ -1,10 +1,177 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil do Profissional - PatroServiços</title>
+    <title>Meu Perfil - PatroServiços</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --azul-principal: #2563eb;
+            --laranja: #f59e0b;
+            --branco: #ffffff;
+            --preto: #000000;
+        }
+
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .profile-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 1.5rem;
+        }
+
+        .profile-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--azul-principal);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+            object-fit: cover;
+            overflow: hidden;
+        }
+
+        .profile-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--azul-principal);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-save {
+            background-color: var(--azul-principal);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-save:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+            color: white;
+        }
+
+        .alert {
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .text-muted-small {
+            font-size: 0.875rem;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-photo" th:if="${user.photoUrl}">
+                <img th:src="${user.photoUrl}" alt="Foto de perfil">
+            </div>
+            <div class="profile-photo" th:unless="${user.photoUrl}">
+                <span th:text="${user.name.charAt(0).toUpperCase()}"></span>
+            </div>
+            <h2 th:text="${user.name}"></h2>
+            <p class="text-muted-small" th:text="${user.email}"></p>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <form method="POST" action="/perfil/edit">
+            <div class="form-group">
+                <label for="name" class="form-label">Nome Completo</label>
+                <input type="text" id="name" name="name" class="form-control" th:value="${user.name}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="photoUrl" class="form-label">URL da Foto de Perfil</label>
+                <input type="url" id="photoUrl" name="photoUrl" class="form-control" th:value="${user.photoUrl}">
+                <small class="text-muted-small">Cole a URL de uma imagem (ex: https://...)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="phone" class="form-label">Telefone</label>
+                <input type="tel" id="phone" name="phone" class="form-control" th:value="${user.phone}">
+            </div>
+
+            <div class="form-group">
+                <label for="address" class="form-label">Endereço</label>
+                <input type="text" id="address" name="address" class="form-control" th:value="${user.address}">
+            </div>
+
+            <div class="form-group">
+                <label for="city" class="form-label">Cidade</label>
+                <input type="text" id="city" name="city" class="form-control" th:value="${user.city}">
+            </div>
+
+            <button type="submit" class="btn-save">
+                <i class="fas fa-save me-2"></i>Salvar Alterações
+            </button>
+        </form>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -362,32 +529,8 @@
 </head>
 
 <body>
-    <!-- Navbar -->
-    <nav class="cabecalho navbar navbar-expand-lg sticky-top">
-        <div class="container">
-            <a class="logo navbar-brand" href="/HTML">Patro<span>Serviços</span></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="menu-link nav-link" href="/HTML">Início</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="menu-link nav-link" href="/profissionais">Profissionais</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="menu-link nav-link" href="/sejaProfissional">Seja um profissional</a>
-                    </li>
-                </ul>
-                <div class="d-flex">
-                    <a href="#" class="botao-principal btn me-2">Entrar</a>
-                    <a href="#" class="botao-destaque btn">Cadastrar</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <!-- navbar substituído pelo fragment -->
+    <div th:replace="~{fragments/header :: header}"></div>
 
     <!-- Conteúdo do Perfil -->
     <div class="container mt-4">
@@ -589,51 +732,10 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="rodape">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6">
-                    <a class="logo navbar-brand" href="#">Patro<span>Serviços</span></a>
-                    <p>Conectando profissionais e clientes em Patrocínio-MG e região.</p>
-                    <div class="redes-sociais">
-                        <a href="#" class="link-social"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="link-social"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="link-social"><i class="fab fa-whatsapp"></i></a>
-                        <a href="#" class="link-social"><i class="fab fa-linkedin-in"></i></a>
-                    </div>
-                </div>
-
-                <div class="col-lg-3 col-md-4">
-                    <h3 class="titulo-rodape">Links</h3>
-                    <ul class="links-rodape">
-                        <li><a href="#">Sobre</a></li>
-                        <li><a href="#">Contato</a></li>
-                        <li><a href="#">Ajuda</a></li>
-                        <li><a href="#">Termos</a></li>
-                        <li><a href="#">Privacidade</a></li>
-                    </ul>
-                </div>
-
-                <div class="col-lg-3 col-md-4">
-                    <h3 class="titulo-rodape">Para Profissionais</h3>
-                    <ul class="links-rodape">
-                        <li><a href="#">Cadastrar serviços</a></li>
-                        <li><a href="#">Como funciona</a></li>
-                        <li><a href="#">Dicas</a></li>
-                        <li><a href="#">Planos</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="copyright">
-                <p>&copy; 2023 PatroServiços - Todos os direitos reservados</p>
-            </div>
-        </div>
-    </footer>
+    <!-- footer substituído pelo fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
