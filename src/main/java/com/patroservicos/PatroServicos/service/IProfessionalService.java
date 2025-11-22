@@ -1,7 +1,9 @@
 package com.patroservicos.PatroServicos.service;
 
 import com.patroservicos.PatroServicos.model.Professional;
+import com.patroservicos.PatroServicos.dto.ProfessionalDTO;
 import java.util.Optional;
+import java.util.List;
 
 /**
  * Interface de serviço para gerenciar dados profissionais.
@@ -36,4 +38,18 @@ public interface IProfessionalService {
      * @param userId ID do usuário
      */
     void requestProfessionalStatus(Integer userId);
+
+    /**
+     * Busca todos os profissionais aprovados.
+     * 
+     * @return Lista de DTOs com dados dos profissionais
+     */
+    List<ProfessionalDTO> getAllProfessionals();
+
+    /**
+     * Busca profissionais filtrando por nome do usuário ou área de atuação (case-insensitive).
+     * @param query texto de busca
+     * @return lista de DTOs que combinam com a busca
+     */
+    List<ProfessionalDTO> searchProfessionals(String query);
 }

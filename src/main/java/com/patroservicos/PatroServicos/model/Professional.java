@@ -21,7 +21,7 @@ public class Professional {
     @Column(name = "area_atuacao", nullable = false, length = 255)
     private String areaAtuacao;
 
-    @Column(name = "descricao", length = 500)
+    @Column(name = "descricao", length = 50000)
     private String descricao;
 
     @Column(name = "experiencia", length = 50)

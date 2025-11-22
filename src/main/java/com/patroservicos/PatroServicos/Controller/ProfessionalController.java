@@ -1,6 +1,7 @@
 package com.patroservicos.PatroServicos.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,10 +9,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.patroservicos.PatroServicos.model.User;
+import com.patroservicos.PatroServicos.dto.ProfessionalDTO;
 import com.patroservicos.PatroServicos.repository.UserRepository;
 import com.patroservicos.PatroServicos.service.IUserService;
 import com.patroservicos.PatroServicos.service.IProfessionalService;
 import java.util.Optional;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Controlador para gerenciar requisições de registro como profissional.
@@ -103,6 +108,35 @@ public class ProfessionalController {
         servicoUsuario.approveProfessional(usuarioId);
         atributosRedirecionamento.addFlashAttribute("sucesso", "Usuário aprovado como profissional.");
         return "redirect:/";
+    }
+
+    /**
+     * API REST para buscar todos os profissionais aprovados com seus dados.
+     * Retorna uma lista de profissionais em JSON.
+     */
+    @GetMapping("/api/profissionais")
+    public ResponseEntity<Map<String, Object>> buscarProfissionais(
+            @RequestParam(value = "q", required = false) String q) {
+        try {
+            List<ProfessionalDTO> profissionais;
+            if (q == null || q.isBlank()) {
+                profissionais = servicoProfissional.getAllProfessionals();
+            } else {
+                profissionais = servicoProfissional.searchProfessionals(q.trim());
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("sucesso", true);
+            response.put("profissionais", profissionais);
+            response.put("total", profissionais.size());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> erro = new HashMap<>();
+            erro.put("sucesso", false);
+            erro.put("mensagem", "Erro ao buscar profissionais: " + e.getMessage());
+            return ResponseEntity.status(500).body(erro);
+        }
     }
 
 }

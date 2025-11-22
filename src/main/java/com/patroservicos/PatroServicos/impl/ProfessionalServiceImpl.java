@@ -3,9 +3,12 @@ package com.patroservicos.PatroServicos.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.patroservicos.PatroServicos.model.Professional;
 import com.patroservicos.PatroServicos.model.User;
+import com.patroservicos.PatroServicos.dto.ProfessionalDTO;
 import com.patroservicos.PatroServicos.repository.ProfessionalRepository;
 import com.patroservicos.PatroServicos.repository.UserRepository;
 import com.patroservicos.PatroServicos.service.IProfessionalService;
@@ -58,5 +61,57 @@ public class ProfessionalServiceImpl implements IProfessionalService {
             usuario.setProfissionalSolicitado(true);
             userRepository.save(usuario);
         }
+    }
+
+    @Override
+    public List<ProfessionalDTO> getAllProfessionals() {
+        List<Professional> profissionais = profissionalRepository.findAll();
+        
+        return profissionais.stream()
+            .map(prof -> {
+                Optional<User> usuarioOpt = userRepository.findById(prof.getUserId());
+                User usuario = usuarioOpt.orElse(null);
+                
+                return new ProfessionalDTO(
+                    prof.getId(),
+                    prof.getUserId(),
+                    usuario != null ? usuario.getName() : "Profissional",
+                    prof.getAreaAtuacao(),
+                    prof.getDescricao(),
+                    prof.getExperiencia(),
+                    prof.getWhatsapp(),
+                    usuario != null ? usuario.getEmail() : null
+                );
+            })
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProfessionalDTO> searchProfessionals(String query) {
+        if (query == null || query.isBlank()) {
+            return getAllProfessionals();
+        }
+        String q = query.trim().toLowerCase();
+
+        // Use repository JPQL to perform search in the database for better performance
+        List<Professional> profissionais = profissionalRepository.searchByQuery(q);
+
+        return profissionais.stream()
+            .map(prof -> {
+                Optional<User> usuarioOpt = userRepository.findById(prof.getUserId());
+                User usuario = usuarioOpt.orElse(null);
+
+                return new ProfessionalDTO(
+                    prof.getId(),
+                    prof.getUserId(),
+                    usuario != null ? usuario.getName() : "Profissional",
+                    prof.getAreaAtuacao(),
+                    prof.getDescricao(),
+                    prof.getExperiencia(),
+                    prof.getWhatsapp(),
+                    usuario != null ? usuario.getEmail() : null
+                );
+            })
+            .collect(Collectors.toList());
     }
 }

@@ -13,10 +13,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.patroservicos.PatroServicos.model.User;
 import com.patroservicos.PatroServicos.model.Professional;
 import com.patroservicos.PatroServicos.model.PortfolioPhoto;
+import com.patroservicos.PatroServicos.model.Foto;
 import com.patroservicos.PatroServicos.repository.UserRepository;
 import com.patroservicos.PatroServicos.service.IPhotoService;
 import com.patroservicos.PatroServicos.service.IProfessionalService;
 import com.patroservicos.PatroServicos.service.IPortfolioPhotoService;
+import com.patroservicos.PatroServicos.service.IFotoService;
 
 import java.util.Base64;
 import java.io.IOException;
@@ -39,6 +41,9 @@ public class ProfileController {
 
     @Autowired
     private IPortfolioPhotoService servicoPortfolioFoto;
+
+    @Autowired
+    private IFotoService servicoFotoPerfil;
 
     @GetMapping("/perfil")
     public String visualizarPerfil(Authentication autenticacao, Model modelo) {
@@ -320,6 +325,96 @@ public class ProfileController {
             resposta.put("sucesso", false);
             resposta.put("mensagem", "Erro ao deletar foto: " + excecao.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resposta);
+        }
+    }
+
+    /**
+     * Visualiza o perfil de um profissional específico por userId.
+     * Endpoint público para vizualizar perfil de um profissional.
+     */
+    @GetMapping("/profissional/{userId}")
+    public String visualizarPerfilProfissional(@PathVariable Integer userId, Model modelo) {
+        try {
+            Optional<User> opcaoUsuario = repositorioUsuario.findById(userId);
+            
+            if (opcaoUsuario.isEmpty()) {
+                return "redirect:/profissionais";
+            }
+
+            User usuario = opcaoUsuario.get();
+            
+            // Verificar se o usuário é profissional (pode ser "profissional", "profissional_pendente", etc)
+            if (usuario.getTipoConta() == null || 
+                (!usuario.getTipoConta().equals("profissional") && 
+                 !usuario.getTipoConta().equals("profissional_pendente") &&
+                 !usuario.getTipoConta().equals("cliente_profissional"))) {
+                return "redirect:/profissionais";
+            }
+
+            Optional<Professional> opcaoProfissional = servicoProfissional.getProfessionalByUserId(userId);
+            if (opcaoProfissional.isEmpty()) {
+                return "redirect:/profissionais";
+            }
+
+            modelo.addAttribute("usuario", usuario);
+            modelo.addAttribute("profissional", opcaoProfissional.get());
+            modelo.addAttribute("isProfissional", true);
+            modelo.addAttribute("isOwner", false); // Indica que é visualização de outro perfil
+
+            return "perfil"; // Usa o template perfil.html
+        } catch (Exception e) {
+            return "redirect:/profissionais";
+        }
+    }
+
+    /**
+     * API para buscar fotos do portfólio de um profissional específico.
+     */
+    @GetMapping("/api/portfolio/fotos/{userId}")
+    public ResponseEntity<Map<String, Object>> buscarFotosPortfolio(@PathVariable Integer userId) {
+        try {
+            // Buscar todas as fotos do portfólio do usuário
+            List<PortfolioPhoto> fotos = servicoPortfolioFoto.getPhotosByUserId(userId);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("sucesso", true);
+            response.put("fotos", fotos);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> erro = new HashMap<>();
+            erro.put("sucesso", false);
+            erro.put("mensagem", "Erro ao buscar fotos: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
+        }
+    }
+
+    /**
+     * API para buscar a foto de perfil de um usuário específico.
+     */
+    @GetMapping("/api/usuario/{userId}/foto")
+    public ResponseEntity<Map<String, Object>> buscarFotoPerfil(@PathVariable Integer userId) {
+        try {
+            Optional<Foto> fotoOpt = servicoFotoPerfil.getFotoPerfilByUserId(userId);
+            
+            Map<String, Object> response = new HashMap<>();
+            
+            if (fotoOpt.isPresent()) {
+                Foto foto = fotoOpt.get();
+                response.put("sucesso", true);
+                response.put("fotoUrl", foto.getDadosFoto());
+                response.put("tipoMime", foto.getTipoMime());
+            } else {
+                response.put("sucesso", false);
+                response.put("fotoUrl", null);
+            }
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> erro = new HashMap<>();
+            erro.put("sucesso", false);
+            erro.put("mensagem", "Erro ao buscar foto: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
         }
     }
 }

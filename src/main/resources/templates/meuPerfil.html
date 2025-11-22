@@ -97,11 +97,11 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="telefone" class="form-label">Telefone</label>
                         <input type="tel" id="telefone" name="telefone" class="form-control"
                             th:value="${usuario != null ? usuario.phone : ''}" oninput="formatarTelefone(this)">
-                    </div>
+                    </div> -->
 
                     <div class="form-group">
                         <label for="endereco" class="form-label">Endereço</label>
@@ -125,6 +125,12 @@
             <div class="tab-pane fade" id="profissional" role="tabpanel" aria-labelledby="prof-tab" th:if="${isProfissional}">
                 <h3>Perfil Profissional</h3>
                 <form method="POST" action="/perfil/edit" class="profile-form">
+                    <!-- Hidden fields to preserve personal data on professional form update -->
+                    <input type="hidden" name="nome" th:value="${usuario != null ? usuario.name : ''}">
+                    <input type="hidden" name="telefone" th:value="${usuario != null ? usuario.phone : ''}">
+                    <input type="hidden" name="endereco" th:value="${usuario != null ? usuario.address : ''}">
+                    <input type="hidden" name="cidade" th:value="${usuario != null ? usuario.city : ''}">
+
                     <div class="form-group">
                         <label for="area-atuacao-edit2" class="form-label">Área de Atuação (categoria)</label>
                         <input type="text" id="area-atuacao-edit2" name="area-atuacao" class="form-control"
@@ -135,9 +141,8 @@
                     <div class="form-group">
                         <label class="form-label">Descrição do profissional</label>
                         <textarea id="descricao-edit" name="descricao" class="form-control" rows="4"
-                            placeholder="Fale sobre seu trabalho, experiência e diferenciais..." maxlength="500"
+                            placeholder="Fale sobre seu trabalho, experiência e diferenciais..." maxlength="50000"
                             th:text="${profissional != null ? profissional.descricao : ''}"></textarea>
-                        <div class="char-counter" id="descricao-counter">0/500 caracteres</div>
                     </div>
 
                     <div class="form-group">
