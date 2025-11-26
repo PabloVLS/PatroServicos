@@ -13,6 +13,7 @@ import com.patroservicos.PatroServicos.dto.ProfessionalDTO;
 import com.patroservicos.PatroServicos.repository.UserRepository;
 import com.patroservicos.PatroServicos.service.IUserService;
 import com.patroservicos.PatroServicos.service.IProfessionalService;
+import com.patroservicos.PatroServicos.impl.ProfessionalServiceImpl;
 import java.util.Optional;
 import java.util.List;
 import java.util.Map;
@@ -139,4 +140,72 @@ public class ProfessionalController {
         }
     }
 
+    /**
+     * API REST para buscar profissionais com filtros e ordenação
+     * Parâmetros:
+     * - categoria: filtro por área de atuação
+     * - cidade: filtro por cidade
+     * - minRating: avaliação mínima (0-5)
+     * - nome: busca por nome
+     * - sortBy: "rating" (melhor avaliados) ou "newest" (mais recentes)
+     */
+    @GetMapping("/api/profissionais/filtrados")
+    public ResponseEntity<Map<String, Object>> buscarProfissionaisFiltrados(
+            @RequestParam(value = "categoria", required = false) String categoria,
+            @RequestParam(value = "cidade", required = false) String cidade,
+            @RequestParam(value = "minRating", required = false) Double minRating,
+            @RequestParam(value = "nome", required = false) String nome,
+            @RequestParam(value = "sortBy", required = false) String sortBy) {
+        try {
+            ProfessionalServiceImpl servicoImpl = (ProfessionalServiceImpl) servicoProfissional;
+            List<ProfessionalDTO> profissionais = servicoImpl.getAllProfessionals();
+
+            // Aplicar filtro por categoria
+            if (categoria != null && !categoria.isBlank()) {
+                profissionais = servicoImpl.filterByCategory(categoria);
+            }
+
+            // Aplicar filtro por cidade
+            if (cidade != null && !cidade.isBlank()) {
+                profissionais = profissionais.stream()
+                    .filter(p -> p.getCidade() != null && p.getCidade().toLowerCase().contains(cidade.toLowerCase()))
+                    .collect(java.util.stream.Collectors.toList());
+            }
+
+            // Aplicar filtro por nome
+            if (nome != null && !nome.isBlank()) {
+                profissionais = profissionais.stream()
+                    .filter(p -> p.getNomeUsuario().toLowerCase().contains(nome.toLowerCase()))
+                    .collect(java.util.stream.Collectors.toList());
+            }
+
+            // Aplicar filtro por avaliação mínima
+            if (minRating != null && minRating >= 0) {
+                profissionais = profissionais.stream()
+                    .filter(p -> p.getMediaAvaliacao() != null && p.getMediaAvaliacao() >= minRating)
+                    .collect(java.util.stream.Collectors.toList());
+            }
+
+            // Aplicar ordenação
+            if (sortBy != null && !sortBy.isBlank()) {
+                if ("rating".equalsIgnoreCase(sortBy)) {
+                    profissionais = servicoImpl.sortByRating(profissionais);
+                } else if ("newest".equalsIgnoreCase(sortBy)) {
+                    profissionais = servicoImpl.sortByNewest(profissionais);
+                }
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("sucesso", true);
+            response.put("profissionais", profissionais);
+            response.put("total", profissionais.size());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> erro = new HashMap<>();
+            erro.put("sucesso", false);
+            erro.put("mensagem", "Erro ao buscar profissionais: " + e.getMessage());
+            return ResponseEntity.status(500).body(erro);
+        }
+    }
 }

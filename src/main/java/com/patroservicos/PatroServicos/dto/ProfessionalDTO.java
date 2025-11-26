@@ -14,6 +14,8 @@ public class ProfessionalDTO {
     private String whatsapp;
     private String email;
     private String cidade;
+    private Double mediaAvaliacao;
+    private Integer totalAvaliacoes;
 
     // Construtores
     public ProfessionalDTO() {
@@ -42,6 +44,22 @@ public class ProfessionalDTO {
         this.whatsapp = whatsapp;
         this.email = email;
         this.cidade = cidade;
+    }
+
+    public ProfessionalDTO(Integer id, Integer userId, String nomeUsuario, String areaAtuacao, 
+                          String descricao, String experiencia, String whatsapp, String email, 
+                          String cidade, Double mediaAvaliacao, Integer totalAvaliacoes) {
+        this.id = id;
+        this.userId = userId;
+        this.nomeUsuario = nomeUsuario;
+        this.areaAtuacao = areaAtuacao;
+        this.descricao = descricao;
+        this.experiencia = experiencia;
+        this.whatsapp = whatsapp;
+        this.email = email;
+        this.cidade = cidade;
+        this.mediaAvaliacao = mediaAvaliacao;
+        this.totalAvaliacoes = totalAvaliacoes;
     }
 
     // Getters e Setters
@@ -115,5 +133,21 @@ public class ProfessionalDTO {
 
     public void setCidade(String cidade) {
         this.cidade = cidade;
+    }
+
+    public Double getMediaAvaliacao() {
+        return mediaAvaliacao;
+    }
+
+    public void setMediaAvaliacao(Double mediaAvaliacao) {
+        this.mediaAvaliacao = mediaAvaliacao;
+    }
+
+    public Integer getTotalAvaliacoes() {
+        return totalAvaliacoes;
+    }
+
+    public void setTotalAvaliacoes(Integer totalAvaliacoes) {
+        this.totalAvaliacoes = totalAvaliacoes;
     }
 }

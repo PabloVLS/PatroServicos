@@ -29,16 +29,54 @@
                     <button id="botaoBusca" class="botao-busca">Buscar</button>
                 </div>
 
-                <div class="filtros">
-                    <div class="filtro ativo">Todos</div>
-                    <div class="filtro">Encanadores</div>
-                    <div class="filtro">Eletricistas</div>
-                    <div class="filtro">Diaristas</div>
-                    <div class="filtro">Pedreiros</div>
-                    <div class="filtro">Pintores</div>
+                <!-- <div class="filtros">
+                    <div class="filtro ativo" data-tipo="todos">Todos</div>
+                    <div class="filtro" data-tipo="categoria" data-valor="Encanador">Encanadores</div>
+                    <div class="filtro" data-tipo="categoria" data-valor="Eletricista">Eletricistas</div>
+                    <div class="filtro" data-tipo="categoria" data-valor="Diarista">Diaristas</div>
+                    <div class="filtro" data-tipo="categoria" data-valor="Pedreiro">Pedreiros</div>
+                    <div class="filtro" data-tipo="categoria" data-valor="Pintor">Pintores</div>
+                </div> -->
+                <div class="filtros-avancados card p-4">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Avaliação Mínima</label>
+                            <select id="filtroAvaliacao" class="form-select">
+                                <option value="">Qualquer avaliação</option>
+                                <option value="1">1+ estrelas</option>
+                                <option value="2">2+ estrelas</option>
+                                <option value="3">3+ estrelas</option>
+                                <option value="4">4+ estrelas</option>
+                                <option value="5">5 estrelas</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Cidade</label>
+                            <input type="text" id="filtroCidade" class="form-control" placeholder="Digite a cidade">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Ordenar Por</label>
+                            <select id="filtroOrdenacao" class="form-select">
+                                <option value="">Padrão</option>
+                                <option value="rating">Melhor Avaliados</option>
+                                <option value="newest">Mais Recentes</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button id="botaoAplicarFiltros" class="btn btn-primary w-100">Aplicar Filtros</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+    </section>
+
+    <!-- Seção de Filtros Avançados -->
+    <section class="container mb-5">
+
     </section>
 
     <!-- Lista de Profissionais -->
@@ -72,7 +110,7 @@
 
     <script>
         // Carregar profissionais do servidor ao iniciar a página
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             carregarProfissionaisDoBanco();
 
             // Ligação do botão de busca e tecla Enter
@@ -93,7 +131,86 @@
                     }
                 });
             }
+
+            // Botão Aplicar Filtros
+            const botaoAplicarFiltros = document.getElementById('botaoAplicarFiltros');
+            if (botaoAplicarFiltros) {
+                botaoAplicarFiltros.addEventListener('click', aplicarFiltros);
+            }
+
+            // Filtros por categoria rápida (Todos, Encanadores, etc)
+            document.querySelectorAll('.filtro').forEach(filtro => {
+                filtro.addEventListener('click', function () {
+                    document.querySelectorAll('.filtro').forEach(f => f.classList.remove('ativo'));
+                    this.classList.add('ativo');
+
+                    // Se for "todos", carregar tudo
+                    if (this.dataset.tipo === 'todos') {
+                        carregarProfissionaisDoBanco();
+                    } else if (this.dataset.tipo === 'categoria') {
+                        // Aplicar filtro por categoria
+                        carregarProfissionaisComFiltros({
+                            categoria: this.dataset.valor,
+                            cidade: '',
+                            minRating: '',
+                            nome: '',
+                            sortBy: ''
+                        });
+                    }
+                });
+            });
         });
+
+        // Função para aplicar filtros avançados
+        function aplicarFiltros() {
+            const filtros = {
+                categoria: '',
+                cidade: document.getElementById('filtroCidade').value,
+                minRating: document.getElementById('filtroAvaliacao').value,
+                nome: document.getElementById('campoBusca').value,
+                sortBy: document.getElementById('filtroOrdenacao').value
+            };
+
+            carregarProfissionaisComFiltros(filtros);
+        }
+
+        // Buscar profissionais com filtros
+        function carregarProfissionaisComFiltros(filtros) {
+            let url = '/api/profissionais/filtrados?';
+
+            if (filtros.categoria && filtros.categoria.trim()) {
+                url += `categoria=${encodeURIComponent(filtros.categoria)}&`;
+            }
+            if (filtros.cidade && filtros.cidade.trim()) {
+                url += `cidade=${encodeURIComponent(filtros.cidade)}&`;
+            }
+            if (filtros.minRating && filtros.minRating.trim()) {
+                url += `minRating=${encodeURIComponent(filtros.minRating)}&`;
+            }
+            if (filtros.nome && filtros.nome.trim()) {
+                url += `nome=${encodeURIComponent(filtros.nome)}&`;
+            }
+            if (filtros.sortBy && filtros.sortBy.trim()) {
+                url += `sortBy=${encodeURIComponent(filtros.sortBy)}&`;
+            }
+
+            // Remove a última & se existir
+            url = url.replace(/&$/, '');
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sucesso && data.profissionais && data.profissionais.length > 0) {
+                        renderizarProfissionais(data.profissionais);
+                        atualizarContador(data.total);
+                        carregarFotosPerfis(data.profissionais);
+                    } else {
+                        document.getElementById('gradeProfissionais').innerHTML = '<div class="col-12 text-center py-4">Nenhum profissional encontrado com os filtros selecionados.</div>';
+                        atualizarContador(0);
+                    }
+                })
+                .catch(error => console.error('Erro ao carregar profissionais:', error));
+        }
 
         // Buscar profissionais aprovados da API
         function carregarProfissionaisDoBanco() {
@@ -120,14 +237,14 @@
         // Renderizar cards dos profissionais
         function renderizarProfissionais(profissionais) {
             const container = document.getElementById('gradeProfissionais');
-            
+
             // Limpar todos os cards existentes
             container.innerHTML = '';
 
             profissionais.forEach(profissional => {
                 const cardHtml = criarCardProfissional(profissional);
                 container.insertAdjacentHTML('beforeend', cardHtml);
-                
+
                 // Carregar avaliações após criar o card
                 carregarAvaliacoesProfissional(profissional.userId);
             });
@@ -227,7 +344,7 @@
 
             for (let i = 1; i <= 5; i++) {
                 const star = document.createElement('i');
-                
+
                 if (i <= notaInteira) {
                     // Estrela cheia
                     star.className = 'fas fa-star';
@@ -238,7 +355,7 @@
                     // Estrela vazia
                     star.className = 'far fa-star';
                 }
-                
+
                 container.appendChild(star);
             }
 
@@ -258,7 +375,7 @@
         }
 
         // Alternar entre visualização em grid e lista
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('visualizacaoGrade').addEventListener('click', function () {
                 document.getElementById('visualizacaoGrade').classList.add('ativo');
                 document.getElementById('visualizacaoLista').classList.remove('ativo');
@@ -269,16 +386,6 @@
                 document.getElementById('visualizacaoLista').classList.add('ativo');
                 document.getElementById('visualizacaoGrade').classList.remove('ativo');
                 document.getElementById('gradeProfissionais').classList.add('visualizacao-lista');
-            });
-
-            // Filtros por tags
-            document.querySelectorAll('.filtro').forEach(filtro => {
-                filtro.addEventListener('click', function () {
-                    document.querySelectorAll('.filtro').forEach(f => f.classList.remove('ativo'));
-                    this.classList.add('ativo');
-                    
-                    // Em uma implementação real, aqui filtraria os resultados
-                });
             });
         });
 

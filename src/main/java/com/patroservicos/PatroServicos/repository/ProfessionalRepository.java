@@ -23,4 +23,22 @@ public interface ProfessionalRepository extends JpaRepository<Professional, Inte
      */
     @Query("SELECT p FROM Professional p, User u WHERE u.id = p.userId AND (LOWER(p.areaAtuacao) LIKE %:q% OR LOWER(u.name) LIKE %:q%)")
     List<Professional> searchByQuery(@Param("q") String q);
+
+    /**
+     * Busca profissionais por área de atuação
+     */
+    @Query("SELECT p FROM Professional p WHERE LOWER(p.areaAtuacao) LIKE %:areaAtuacao%")
+    List<Professional> findByAreaAtuacao(@Param("areaAtuacao") String areaAtuacao);
+
+    /**
+     * Busca profissionais por cidade
+     */
+    @Query("SELECT p FROM Professional p, User u WHERE u.id = p.userId AND LOWER(u.city) LIKE %:cidade%")
+    List<Professional> findByCity(@Param("cidade") String cidade);
+
+    /**
+     * Busca profissionais por nome do usuário
+     */
+    @Query("SELECT p FROM Professional p, User u WHERE u.id = p.userId AND LOWER(u.name) LIKE %:nome%")
+    List<Professional> findByUserName(@Param("nome") String nome);
 }
