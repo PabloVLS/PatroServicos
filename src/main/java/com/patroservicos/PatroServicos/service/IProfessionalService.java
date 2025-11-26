@@ -33,6 +33,14 @@ public interface IProfessionalService {
     Optional<Professional> getProfessionalByUserId(Integer userId);
 
     /**
+     * Busca profissional por ID.
+     * 
+     * @param professionalId ID do profissional
+     * @return Optional contendo Professional se existir
+     */
+    Optional<Professional> getProfessionalById(Integer professionalId);
+
+    /**
      * Atualiza o status do usuário para "profissional_pendente" e marca como solicitante.
      * 
      * @param userId ID do usuário

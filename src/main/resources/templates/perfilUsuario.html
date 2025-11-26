@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${usuario != null ? usuario.name + ' - PatroServiços' : 'Perfil - PatroServiços'}">Perfil
+        do Usuário - PatroServiços</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/perfil.css">
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="container" th:data-user-id="${usuario != null ? usuario.id : null}">
+        <div class="profile-wrapper">
+            <!-- Sidebar Esquerda -->
+            <aside class="profile-sidebar">
+                <div id="profilePictureContainer" style="display: none;">
+                    <img id="profilePicture" 
+                         th:alt="${usuario != null ? usuario.name : 'Usuário'}"
+                         class="profile-picture">
+                </div>
+                
+                <div id="noPictureContainer" style="display: flex; justify-content: center; align-items: center; width: 150px; height: 150px; background: #f0f0f0; border-radius: 50%; margin: 0 auto 20px;">
+                    <i class="fas fa-user" style="font-size: 60px; color: #999;"></i>
+                </div>
+                
+                <h1 class="profile-name" th:text="${usuario != null ? usuario.name : 'Usuário'}">Nome</h1>
+                
+                <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; margin-bottom: 20px; text-align: center;">
+                    <i class="fas fa-info-circle" style="color: #856404;"></i>
+                    <span style="color: #856404; font-weight: 500;">Usuário Regular</span>
+                </div>
+                
+                <div class="profile-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span th:text="${usuario != null && usuario.city != null ? usuario.city : 'Localização não informada'}">Localização não informada</span>
+                </div>
+                
+                <div class="profile-actions">
+                    <a href="/profissionais" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i>
+                        Voltar aos Profissionais
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Conteúdo Principal -->
+            <main class="profile-content">
+                <!-- Sobre -->
+                <section class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Sobre
+                    </h2>
+                    <div class="bio-text">
+                        <p th:if="${usuario != null && usuario.name != null}">
+                            <strong>Nome:</strong> <span th:text="${usuario.name}">Nome</span>
+                        </p>
+                        <p th:if="${usuario != null && usuario.email != null}">
+                            <strong>Email:</strong> <span th:text="${usuario.email}">email@exemplo.com</span>
+                        </p>
+                        <p th:if="${usuario != null && usuario.city != null}">
+                            <strong>Cidade:</strong> <span th:text="${usuario.city}">Não informada</span>
+                        </p>
+                        <p th:if="${usuario == null}">Informações do usuário não disponíveis.</p>
+                    </div>
+                </section>
+
+                <!-- Avaliações -->
+                <section class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-star"></i>
+                        Avaliações Dadas
+                    </h2>
+                    
+                    <div class="reviews-container">
+                        <div class="review-stats">
+                            <div class="stat-item">
+                                <span class="stat-value" id="totalFeedbacks">0</span>
+                                <span class="stat-label">Feedbacks Enviados</span>
+                            </div>
+                        </div>
+
+                        <!-- Lista de feedbacks dados por este usuário -->
+                        <h3>Profissionais Avaliados</h3>
+                        <div id="feedbacksContainer" class="feedbacks-list">
+                            <!-- Preenchido dinamicamente via JavaScript -->
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let usuarioIdGlobal = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obter userId do atributo data
+            const container = document.querySelector('[data-user-id]');
+            const usuarioId = container?.getAttribute('data-user-id');
+            
+            usuarioIdGlobal = usuarioId;
+            
+            console.log('Página de usuário carregada. User ID:', usuarioId);
+
+            // Carregar foto de perfil
+            if (usuarioId) {
+                carregarFotoPerfil(usuarioId);
+                carregarFeedbacksDoUsuario(usuarioId);
+            }
+        });
+
+        // Carregar foto de perfil do usuário
+        function carregarFotoPerfil(userId) {
+            fetch(`/api/usuario/${userId}/foto`)
+                .then(response => {
+                    if (!response.ok) {
+                        console.warn('Foto não encontrada (status ' + response.status + ')');
+                        // Mostrar ícone quando não houver foto
+                        document.getElementById('noPictureContainer').style.display = 'flex';
+                        document.getElementById('profilePictureContainer').style.display = 'none';
+                        return null;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.sucesso && data.fotoUrl) {
+                        const imgElement = document.getElementById('profilePicture');
+                        if (imgElement) {
+                            imgElement.src = data.fotoUrl;
+                            document.getElementById('profilePictureContainer').style.display = 'block';
+                            document.getElementById('noPictureContainer').style.display = 'none';
+                            console.log('Foto de perfil atualizada');
+                        }
+                    } else {
+                        // Nenhuma foto disponível
+                        document.getElementById('noPictureContainer').style.display = 'flex';
+                        document.getElementById('profilePictureContainer').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.warn('Erro ao carregar foto de perfil:', error);
+                    // Mostrar ícone em caso de erro
+                    document.getElementById('noPictureContainer').style.display = 'flex';
+                    document.getElementById('profilePictureContainer').style.display = 'none';
+                });
+        }
+
+        // Carregar feedbacks dados por este usuário
+        function carregarFeedbacksDoUsuario(userId) {
+            console.log('Carregando feedbacks dados pelo usuário:', userId);
+            
+            fetch(`/api/feedbacks/usuario/${userId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        console.warn('Erro ao carregar feedbacks (status ' + response.status + ')');
+                        return null;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.sucesso) {
+                        console.log('Resposta feedbacks do usuário:', data);
+                        document.getElementById('totalFeedbacks').textContent = data.totalFeedbacks;
+                        renderizarFeedbacksUsuario(data.feedbacks);
+                    } else {
+                        console.warn('Erro ao carregar feedbacks');
+                        document.getElementById('feedbacksContainer').innerHTML = '<p class="text-muted">Não foi possível carregar as avaliações.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.warn('Erro ao carregar feedbacks do usuário:', error);
+                    document.getElementById('feedbacksContainer').innerHTML = '<p class="text-muted">Não foi possível carregar as avaliações.</p>';
+                });
+        }
+
+        // Renderizar feedbacks dados pelo usuário
+        function renderizarFeedbacksUsuario(feedbacks) {
+            const container = document.getElementById('feedbacksContainer');
+            container.innerHTML = '';
+
+            if (feedbacks.length === 0) {
+                container.innerHTML = '<p class="text-muted">Este usuário ainda não enviou avaliações.</p>';
+                return;
+            }
+
+            feedbacks.forEach(feedback => {
+                const stars = '★'.repeat(feedback.avaliacao) + '☆'.repeat(5 - feedback.avaliacao);
+                const item = document.createElement('div');
+                item.className = 'review-item';
+                
+                // Construir a seção de foto e nome
+                let fotoHtml = '';
+                if (feedback.professionalPhoto) {
+                    fotoHtml = `<img src="${feedback.professionalPhoto}" alt="${escapeHtml(feedback.professionalName)}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px;">`;
+                } else {
+                    fotoHtml = `<div style="width: 40px; height: 40px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                        <i class="fas fa-user" style="color: #999; font-size: 18px;"></i>
+                    </div>`;
+                }
+                
+                item.innerHTML = `
+                    <div class="review-header">
+                        <div class="reviewer-info" style="display: flex; align-items: center;">
+                            ${fotoHtml}
+                            <div class="reviewer-details">
+                                <div style="font-weight: 600; color: #333; margin-bottom: 8px; font-size: 16px;">
+                                    ${escapeHtml(feedback.professionalName)}
+                                </div>
+                                <div class="review-rating">${stars}</div>
+                            </div>
+                        </div>
+                        <span class="review-date">${formatarData(feedback.criadoEm)}</span>
+                    </div>
+                    ${feedback.comentario ? `<p class="review-text">${escapeHtml(feedback.comentario)}</p>` : ''}
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Função auxiliar para formatar data
+        function formatarData(dataString) {
+            const data = new Date(dataString);
+            const hoje = new Date();
+            const diferenca = hoje - data;
+            const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
+
+            if (dias === 0) {
+                return 'Hoje';
+            } else if (dias === 1) {
+                return 'Ontem';
+            } else if (dias < 30) {
+                return `${dias} dias atrás`;
+            } else if (dias < 365) {
+                const meses = Math.floor(dias / 30);
+                return `${meses} ${meses === 1 ? 'mês' : 'meses'} atrás`;
+            } else {
+                return data.toLocaleDateString('pt-BR');
+            }
+        }
+
+        // Função auxiliar para escapar HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>

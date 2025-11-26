@@ -127,6 +127,9 @@
             profissionais.forEach(profissional => {
                 const cardHtml = criarCardProfissional(profissional);
                 container.insertAdjacentHTML('beforeend', cardHtml);
+                
+                // Carregar avaliações após criar o card
+                carregarAvaliacoesProfissional(profissional.userId);
             });
         }
 
@@ -145,7 +148,7 @@
                             <h3 class="nome-profissional">${profissional.nomeUsuario || 'Profissional'}</h3>
                             <span class="categoria-profissional">${profissional.areaAtuacao || 'Serviço'}</span>
 
-                            <div class="avaliacao">
+                            <div class="avaliacao" id="avaliacao-${profissional.userId}">
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
@@ -156,7 +159,7 @@
 
                             <div class="info-profissional">
                                 <i class="fas fa-map-marker-alt"></i>
-                                <span>Localização não informada</span>
+                                <span id="cidade-${profissional.userId}">${profissional.cidade || 'Localização não informada'}</span>
                             </div>
 
                             <div class="info-profissional">
@@ -196,6 +199,54 @@
                     })
                     .catch(error => console.error('Erro ao carregar foto de perfil:', error));
             });
+        }
+
+        // Carregar avaliações e média de um profissional
+        function carregarAvaliacoesProfissional(userId) {
+            fetch(`/api/profissional/${userId}/avaliacoes`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        renderizarAvaliacoes(userId, data.mediaAvaliacao, data.totalAvaliacoes);
+                    }
+                })
+                .catch(error => console.error('Erro ao carregar avaliações:', error));
+        }
+
+        // Renderizar as estrelas e quantidade de avaliações
+        function renderizarAvaliacoes(userId, mediaAvaliacao, totalAvaliacoes) {
+            const container = document.getElementById(`avaliacao-${userId}`);
+            if (!container) return;
+
+            // Limpar conteúdo anterior
+            container.innerHTML = '';
+
+            // Renderizar estrelas cheias e vazias
+            const notaInteira = Math.floor(mediaAvaliacao);
+            const temMeia = mediaAvaliacao % 1 >= 0.5;
+
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('i');
+                
+                if (i <= notaInteira) {
+                    // Estrela cheia
+                    star.className = 'fas fa-star';
+                } else if (i === notaInteira + 1 && temMeia) {
+                    // Meia estrela
+                    star.className = 'fas fa-star-half-alt';
+                } else {
+                    // Estrela vazia
+                    star.className = 'far fa-star';
+                }
+                
+                container.appendChild(star);
+            }
+
+            // Adicionar contador de avaliações
+            const contador = document.createElement('span');
+            contador.className = 'contador-avaliacoes';
+            contador.textContent = `(${totalAvaliacoes} ${totalAvaliacoes === 1 ? 'avaliação' : 'avaliações'})`;
+            container.appendChild(contador);
         }
 
         // Atualizar contador de profissionais

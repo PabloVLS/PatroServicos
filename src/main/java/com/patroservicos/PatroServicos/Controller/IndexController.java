@@ -3,6 +3,7 @@ package com.patroservicos.PatroServicos.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,6 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.patroservicos.PatroServicos.model.User;
 import com.patroservicos.PatroServicos.repository.UserRepository;
 import com.patroservicos.PatroServicos.service.IUserService;
+import com.patroservicos.PatroServicos.service.IProfessionalService;
 
 import java.util.Optional;
 
@@ -22,6 +24,9 @@ public class IndexController {
 
     @Autowired
     private UserRepository repositorioUsuario;
+
+    @Autowired
+    private IProfessionalService servicoProfissional;
 
     @GetMapping("/")
     public String index() {
@@ -79,6 +84,41 @@ public class IndexController {
     @GetMapping("/sejaProfissional")
     public String sejaProfissional() {
         return "sejaProfissional"; 
+    }
+
+    /**
+     * Acessa a página do perfil do usuário autenticado (edição)
+     */
+    @GetMapping("/meuPerfil")
+    public String meuPerfil(Authentication autenticacao, Model modelo) {
+        if (autenticacao == null || !autenticacao.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        String email = autenticacao.getName();
+        Optional<User> usuarioOpt = repositorioUsuario.findUserByEmail(email);
+
+        if (usuarioOpt.isEmpty()) {
+            return "redirect:/login";
+        }
+
+        User usuario = usuarioOpt.get();
+        modelo.addAttribute("usuario", usuario);
+
+        // Verifica se é profissional
+        boolean isProfissional = servicoProfissional.getProfessionalByUserId(usuario.getId()).isPresent();
+        modelo.addAttribute("isProfissional", isProfissional);
+
+        return "meuPerfil";
+    }
+
+    /**
+     * Rota alternativa para /perfil (redireciona para /meuPerfil)
+     * Mantém compatibilidade com redirecionamentos antigos
+     */
+    @GetMapping("/perfil")
+    public String perfilRedirect() {
+        return "redirect:/meuPerfil";
     }
 
     /**

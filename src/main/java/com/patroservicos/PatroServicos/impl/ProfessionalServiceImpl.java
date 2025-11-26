@@ -53,6 +53,11 @@ public class ProfessionalServiceImpl implements IProfessionalService {
     }
 
     @Override
+    public Optional<Professional> getProfessionalById(Integer professionalId) {
+        return profissionalRepository.findById(professionalId);
+    }
+
+    @Override
     public void requestProfessionalStatus(Integer userId) {
         Optional<User> usuarioOpt = userRepository.findById(userId);
         if (usuarioOpt.isPresent()) {
@@ -80,7 +85,8 @@ public class ProfessionalServiceImpl implements IProfessionalService {
                     prof.getDescricao(),
                     prof.getExperiencia(),
                     prof.getWhatsapp(),
-                    usuario != null ? usuario.getEmail() : null
+                    usuario != null ? usuario.getEmail() : null,
+                    usuario != null ? usuario.getCity() : null
                 );
             })
             .collect(Collectors.toList());
@@ -109,7 +115,8 @@ public class ProfessionalServiceImpl implements IProfessionalService {
                     prof.getDescricao(),
                     prof.getExperiencia(),
                     prof.getWhatsapp(),
-                    usuario != null ? usuario.getEmail() : null
+                    usuario != null ? usuario.getEmail() : null,
+                    usuario != null ? usuario.getCity() : null
                 );
             })
             .collect(Collectors.toList());

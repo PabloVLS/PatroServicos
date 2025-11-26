@@ -38,7 +38,7 @@
                         <span class="stat-label">Experiência</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-number">0</span>
+                        <span id="sidebarTotalReviews" class="stat-number">0</span>
                         <span class="stat-label">Avaliação</span>
                     </div>
                 </div>
@@ -114,11 +114,67 @@
                     </h2>
                     
                     <div class="reviews-container">
-                        <div class="review-item">
-                            <div class="review-header">
-                                <div class="reviewer-name">Sem avaliações</div>
+                        <div class="review-stats">
+                            <div class="stat-item">
+                                <span class="stat-value" id="averageRating">0.0</span>
+                                <span class="stat-label">Média de avaliação</span>
                             </div>
-                            <p class="review-text">Este profissional ainda não possui avaliações.</p>
+                            <div class="stat-item">
+                                <span class="stat-value" id="totalReviews">0</span>
+                                <span class="stat-label">Total de avaliações</span>
+                            </div>
+                        </div>
+
+                        <!-- Formulário de Feedback para usuário logado -->
+                        <div id="feedbackFormContainer" style="display: none;" class="feedback-form-section">
+                            <h3>Dar Feedback</h3>
+                            <form id="feedbackForm">
+                                <div class="form-group">
+                                    <label for="avaliacaoInput">Avaliação:</label>
+                                    <div class="rating-input">
+                                        <input type="radio" id="star5" name="avaliacao" value="5">
+                                        <label for="star5" class="star">★</label>
+                                        <input type="radio" id="star4" name="avaliacao" value="4">
+                                        <label for="star4" class="star">★</label>
+                                        <input type="radio" id="star3" name="avaliacao" value="3">
+                                        <label for="star3" class="star">★</label>
+                                        <input type="radio" id="star2" name="avaliacao" value="2">
+                                        <label for="star2" class="star">★</label>
+                                        <input type="radio" id="star1" name="avaliacao" value="1">
+                                        <label for="star1" class="star">★</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="comentarioInput">Comentário (opcional):</label>
+                                    <textarea id="comentarioInput" name="comentario" class="form-control" rows="3" placeholder="Compartilhe sua experiência..."></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Enviar Feedback</button>
+                                <button type="button" class="btn btn-outline" onclick="cancelarFeedback()">Cancelar</button>
+                            </form>
+                        </div>
+
+                        <!-- Exibição de feedback do usuário atual -->
+                        <div id="userFeedbackContainer" style="display: none;" class="my-feedback-section">
+                            <h3>Seu Feedback</h3>
+                            <div id="userFeedback" class="review-item">
+                                <!-- Preenchido dinamicamente -->
+                            </div>
+                            <button class="btn btn-outline" id="editFeedbackBtn" onclick="editarFeedback()">
+                                <i class="fas fa-edit"></i> Editar Feedback
+                            </button>
+                        </div>
+
+                        <!-- Botão para adicionar feedback -->
+                        <button id="addFeedbackBtn" class="btn btn-primary" onclick="mostrarFormFeedback()" style="display: none; margin-bottom: 20px;">
+                            <i class="fas fa-plus"></i> Dar Feedback
+                        </button>
+
+                        <!-- Lista de feedbacks de outros usuários -->
+                        <h3>Avaliações de Clientes</h3>
+                        <div id="otherFeedbacksContainer" class="feedbacks-list">
+                            <!-- Preenchido dinamicamente -->
                         </div>
                     </div>
                 </section>
@@ -129,18 +185,78 @@
     <!-- <div th:replace="~{fragments/footer :: footer}"></div> -->
 
     <script>
+        let profesionalIdGlobal = null;
+        let usuarioAtualIdGlobal = null;
+        let usuarioAtualData = null; // Novo: armazenar dados completos do usuário
+        let temFeedbackAtual = false;
+
         document.addEventListener('DOMContentLoaded', function() {
             // Obter userId do atributo data
-            const usuarioId = document.querySelector('[data-user-id]')?.getAttribute('data-user-id');
+            const container = document.querySelector('[data-user-id]');
+            const usuarioId = container?.getAttribute('data-user-id');
             
-            console.log('UserId obtido:', usuarioId);
+            profesionalIdGlobal = usuarioId;
+            
+            console.log('Página carregada. Professional ID:', usuarioId);
 
             // Carregar foto de perfil
             if (usuarioId) {
                 carregarFotoPerfil(usuarioId);
                 carregarPortfolio(usuarioId);
+                // Carregar feedbacks primeiro (sem filtro de usuário)
+                carregarFeedbacks(usuarioId);
+                // Depois verificar se usuário está logado (para mostrar seu próprio feedback e formulário)
+                verificarUsuarioLogado();
             }
         });
+
+        // Verificar se há usuário logado
+        function verificarUsuarioLogado() {
+            fetch('/api/usuario', {
+                headers: {
+                    'Accept': 'application/json'
+                },
+                credentials: 'include'
+            })
+            .then(response => {
+                console.log('Status da resposta /api/usuario:', response.status);
+                if (response.status === 401) {
+                    console.log('Usuário não autenticado');
+                    document.getElementById('feedbackFormContainer').style.display = 'none';
+                    document.getElementById('addFeedbackBtn').style.display = 'none';
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.id) {
+                    usuarioAtualIdGlobal = data.id;
+                    usuarioAtualData = data; // Armazenar dados completos
+                    console.log('Usuário logado com ID:', usuarioAtualIdGlobal);
+                    console.log('Dados do usuário:', usuarioAtualData);
+                    
+                    // Se é o próprio usuário visualizando, não mostra feedback
+                    if (data.id === parseInt(profesionalIdGlobal)) {
+                        console.log('Usuário está visualizando seu próprio perfil');
+                        document.getElementById('feedbackFormContainer').style.display = 'none';
+                        document.getElementById('addFeedbackBtn').style.display = 'none';
+                        return;
+                    }
+
+                    document.getElementById('addFeedbackBtn').style.display = 'block';
+                    obterFeedbackUsuario(profesionalIdGlobal);
+                } else {
+                    console.log('Nenhum usuário retornado ou resposta nula');
+                    usuarioAtualIdGlobal = null;
+                    usuarioAtualData = null;
+                }
+            })
+            .catch(error => {
+                console.log('Usuário não autenticado ou erro ao verificar:', error);
+                usuarioAtualIdGlobal = null;
+                usuarioAtualData = null;
+            });
+        }
 
         // Carregar foto de perfil do usuário
         function carregarFotoPerfil(userId) {
@@ -192,6 +308,284 @@
             });
         }
 
+        // Carregar feedbacks do profissional
+        function carregarFeedbacks(professionalId) {
+            console.log('Carregando feedbacks para professional ID:', professionalId);
+            
+            fetch(`/api/feedback/profissional/${professionalId}`)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Resposta feedbacks completa:', data);
+                        if (data.sucesso) {
+                        // Atualizar estatísticas
+                        document.getElementById('averageRating').textContent = data.mediaAvaliacao.toFixed(1);
+                        document.getElementById('totalReviews').textContent = data.totalAvaliacoes;
+
+                        // Atualizar contador de avaliações na sidebar, se presente
+                        const sidebarTotalEl = document.getElementById('sidebarTotalReviews');
+                        if (sidebarTotalEl) {
+                            sidebarTotalEl.textContent = data.totalAvaliacoes;
+                        }
+
+                        console.log('Total de avaliacoes:', data.totalAvaliacoes);
+                        console.log('Feedbacks recebidos:', data.feedbacks);
+
+                        // Renderizar feedbacks
+                        renderizarFeedbacks(data.feedbacks);
+                    } else {
+                        console.error('Resposta sem sucesso:', data.mensagem);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar feedbacks:', error);
+                });
+        }
+
+        // Renderizar lista de feedbacks
+        function renderizarFeedbacks(feedbacks) {
+            const container = document.getElementById('otherFeedbacksContainer');
+            container.innerHTML = '';
+
+            console.log('Renderizando feedbacks. Total:', feedbacks.length);
+            console.log('ID do usuário atual:', usuarioAtualIdGlobal);
+            console.log('Feedbacks:', feedbacks);
+
+            if (feedbacks.length === 0) {
+                container.innerHTML = '<p class="text-muted">Este profissional ainda não possui avaliações.</p>';
+                return;
+            }
+
+            let feedbacksRenderizados = 0;
+            feedbacks.forEach(feedback => {
+                console.log(`Analisando feedback de usuário ${feedback.userId}, atual: ${usuarioAtualIdGlobal}`);
+                
+                // Não mostrar o feedback do usuário atual aqui (será mostrado separadamente)
+                // Se o usuário atual ainda não foi carregado, mostra todos
+                if (!usuarioAtualIdGlobal || feedback.userId !== usuarioAtualIdGlobal) {
+                    const stars = '★'.repeat(feedback.avaliacao) + '☆'.repeat(5 - feedback.avaliacao);
+                    const item = document.createElement('div');
+                    item.className = 'review-item';
+                    
+                    // Construir HTML da foto ou ícone
+                    let fotoHtml = '';
+                    if (feedback.userPhoto && feedback.userPhoto !== '') {
+                        fotoHtml = `<img src="${feedback.userPhoto}" alt="${feedback.userName}" class="avatar-img">`;
+                    } else {
+                        fotoHtml = `<div style="width: 40px; height: 40px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user" style="color: #999; font-size: 18px;"></i>
+                        </div>`;
+                    }
+                    
+                    console.log(`Renderizando feedback de: ${feedback.userName}, tem foto: ${feedback.userPhoto ? 'sim' : 'não'}`);
+                    
+                    item.innerHTML = `
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-avatar" style="cursor: pointer;" onclick="navegarParaPerfil(${feedback.userId})" title="Ver perfil de ${escapeHtml(feedback.userName)}">
+                                    ${fotoHtml}
+                                </div>
+                                <div class="reviewer-details">
+                                    <div class="reviewer-name" style="cursor: pointer; text-decoration: underline;" onclick="navegarParaPerfil(${feedback.userId})" title="Ver perfil">${escapeHtml(feedback.userName)}</div>
+                                    <div class="review-rating">${stars}</div>
+                                </div>
+                            </div>
+                            <span class="review-date">${formatarData(feedback.criadoEm)}</span>
+                        </div>
+                        ${feedback.comentario ? `<p class="review-text">${escapeHtml(feedback.comentario)}</p>` : ''}
+                    `;
+                    container.appendChild(item);
+                    feedbacksRenderizados++;
+                }
+            });
+
+            console.log(`Total de feedbacks renderizados: ${feedbacksRenderizados}`);
+            
+            if (feedbacksRenderizados === 0) {
+                container.innerHTML = '<p class="text-muted">Este profissional ainda não possui avaliações.</p>';
+            }
+        }
+
+        // Obter feedback do usuário atual para este profissional
+        function obterFeedbackUsuario(professionalId) {
+            console.log('Obtendo feedback do usuário para professional:', professionalId);
+            console.log('Usuario atual ID:', usuarioAtualIdGlobal);
+            
+            if (!usuarioAtualIdGlobal) {
+                console.log('Usuário atual não carregado ainda');
+                return;
+            }
+            
+            fetch(`/api/feedback/${professionalId}`, {
+                credentials: 'include'
+            })
+            .then(response => {
+                console.log('Response status para /api/feedback:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Resposta feedback do usuário:', data);
+                
+                if (data.sucesso && data.temFeedback) {
+                    const feedback = data.feedback;
+                    temFeedbackAtual = true;
+
+                    const container = document.getElementById('userFeedback');
+                    const stars = '★'.repeat(feedback.avaliacao) + '☆'.repeat(5 - feedback.avaliacao);
+                    
+                    // Buscar foto do usuário logado
+                    let fotoDoUsuario = null;
+                    if (usuarioAtualData && usuarioAtualData.id) {
+                        // Buscar foto do usuário logado
+                        fetch(`/api/usuario/${usuarioAtualData.id}/foto`, {
+                            credentials: 'include'
+                        })
+                        .then(response => response.json())
+                        .then(fotoData => {
+                            console.log('Foto do usuário logado:', fotoData);
+                            // Se tem foto, usa; senão, passa null (ícone será mostrado)
+                            fotoDoUsuario = (fotoData.sucesso && fotoData.fotoUrl) ? fotoData.fotoUrl : null;
+                            
+                            // Renderizar com a foto correta
+                            renderizarFeedbackUsuario(container, feedback, stars, fotoDoUsuario);
+                        })
+                        .catch(error => {
+                            console.error('Erro ao buscar foto do usuário:', error);
+                            // Em caso de erro, passa null (ícone será mostrado)
+                            fotoDoUsuario = null;
+                            renderizarFeedbackUsuario(container, feedback, stars, fotoDoUsuario);
+                        });
+                    }
+
+                    document.getElementById('userFeedbackContainer').style.display = 'block';
+                    document.getElementById('addFeedbackBtn').style.display = 'none';
+                    
+                    // Após adicionar o feedback do usuário, renderizar os outros
+                    carregarFeedbacks(professionalId);
+                } else {
+                    console.log('Usuário não tem feedback para este profissional');
+                    document.getElementById('userFeedbackContainer').style.display = 'none';
+                    document.getElementById('addFeedbackBtn').style.display = 'block';
+                    temFeedbackAtual = false;
+                    
+                    // Carregar feedbacks mesmo sem ter feedback pessoal
+                    carregarFeedbacks(professionalId);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao obter feedback do usuário:', error);
+                document.getElementById('addFeedbackBtn').style.display = 'block';
+                // Ainda carregar os feedbacks
+                carregarFeedbacks(professionalId);
+            });
+        }
+
+        // Renderizar o feedback do usuário com sua foto
+        function renderizarFeedbackUsuario(container, feedback, stars, fotoUrl) {
+            // Construir HTML da foto ou ícone
+            let fotoHtml = '';
+            if (fotoUrl && fotoUrl.trim() !== '') {
+                fotoHtml = `<img src="${fotoUrl}" alt="Seu feedback" class="avatar-img">`;
+            } else {
+                fotoHtml = `<div style="width: 40px; height: 40px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-user" style="color: #999; font-size: 18px;"></i>
+                </div>`;
+            }
+            
+            container.innerHTML = `
+                <div class="review-header">
+                    <div class="reviewer-info">
+                        <div class="reviewer-avatar" style="cursor: pointer;" onclick="navegarParaPerfil(${usuarioAtualIdGlobal})" title="Ver meu perfil">
+                            ${fotoHtml}
+                        </div>
+                        <div class="reviewer-details">
+                            <div class="reviewer-name" style="cursor: pointer; text-decoration: underline;" onclick="navegarParaPerfil(${usuarioAtualIdGlobal})" title="Ver meu perfil">Seu Feedback</div>
+                            <div class="review-rating">${stars}</div>
+                        </div>
+                    </div>
+                    <span class="review-date">${formatarData(feedback.criadoEm)}</span>
+                </div>
+                ${feedback.comentario ? `<p class="review-text">${escapeHtml(feedback.comentario)}</p>` : '<p class="text-muted">Sem comentário</p>'}
+            `;
+        }
+
+        // Mostrar formulário de feedback
+        function mostrarFormFeedback() {
+            document.getElementById('feedbackFormContainer').style.display = 'block';
+            document.getElementById('addFeedbackBtn').style.display = 'none';
+            document.getElementById('feedbackForm').reset();
+        }
+
+        // Cancelar feedback
+        function cancelarFeedback() {
+            document.getElementById('feedbackFormContainer').style.display = 'none';
+            document.getElementById('addFeedbackBtn').style.display = 'block';
+            document.getElementById('feedbackForm').reset();
+        }
+
+        // Editar feedback
+        function editarFeedback() {
+            document.getElementById('feedbackFormContainer').style.display = 'block';
+            document.getElementById('userFeedbackContainer').style.display = 'none';
+
+            // Preencher formulário com feedback atual
+            fetch(`/api/feedback/${profesionalIdGlobal}`, {
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso && data.feedback) {
+                    const feedback = data.feedback;
+                    document.querySelector(`input[name="avaliacao"][value="${feedback.avaliacao}"]`).checked = true;
+                    document.getElementById('comentarioInput').value = feedback.comentario || '';
+                }
+            })
+            .catch(error => console.error('Erro ao carregar feedback para edição:', error));
+        }
+
+        // Enviar formulário de feedback
+        document.getElementById('feedbackForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const avaliacao = document.querySelector('input[name="avaliacao"]:checked')?.value;
+            const comentario = document.getElementById('comentarioInput').value;
+
+            if (!avaliacao) {
+                alert('Por favor, selecione uma avaliação.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('professionalId', profesionalIdGlobal);
+            formData.append('avaliacao', avaliacao);
+            if (comentario) {
+                formData.append('comentario', comentario);
+            }
+
+            fetch('/api/feedback', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso) {
+                    alert('Feedback enviado com sucesso!');
+                    cancelarFeedback();
+                    carregarFeedbacks(profesionalIdGlobal);
+                    obterFeedbackUsuario(profesionalIdGlobal);
+                } else {
+                    alert('Erro: ' + data.mensagem);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar feedback:', error);
+                alert('Erro ao enviar feedback.');
+            });
+        });
+
         // Funcionalidade do botão favoritar
         document.getElementById('favorite-btn').addEventListener('click', function() {
             const isActive = this.classList.contains('active');
@@ -239,6 +633,51 @@
             // Abrir em nova aba
             window.open(whatsappLink, '_blank');
         });
+
+        // Função auxiliar para formatar data
+        function formatarData(dataString) {
+            const data = new Date(dataString);
+            const hoje = new Date();
+            const diferenca = hoje - data;
+            const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
+
+            if (dias === 0) {
+                return 'Hoje';
+            } else if (dias === 1) {
+                return 'Ontem';
+            } else if (dias < 30) {
+                return `${dias} dias atrás`;
+            } else if (dias < 365) {
+                const meses = Math.floor(dias / 30);
+                return `${meses} ${meses === 1 ? 'mês' : 'meses'} atrás`;
+            } else {
+                return data.toLocaleDateString('pt-BR');
+            }
+        }
+
+        // Função auxiliar para escapar HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Navegar para o perfil do usuário que comentou
+        function navegarParaPerfil(userId) {
+            if (!userId) {
+                console.error('userId não fornecido');
+                return;
+            }
+
+            // Redirecionar diretamente para o perfil
+            // O servidor irá rotar para a página correta (profissional ou usuário comum)
+            window.location.href = `/perfil/${userId}`;
+        }
     </script>
 </body>
 </html>

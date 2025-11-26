@@ -13,6 +13,7 @@ public class ProfessionalDTO {
     private String experiencia;
     private String whatsapp;
     private String email;
+    private String cidade;
 
     // Construtores
     public ProfessionalDTO() {
@@ -28,6 +29,19 @@ public class ProfessionalDTO {
         this.experiencia = experiencia;
         this.whatsapp = whatsapp;
         this.email = email;
+    }
+
+    public ProfessionalDTO(Integer id, Integer userId, String nomeUsuario, String areaAtuacao, 
+                          String descricao, String experiencia, String whatsapp, String email, String cidade) {
+        this.id = id;
+        this.userId = userId;
+        this.nomeUsuario = nomeUsuario;
+        this.areaAtuacao = areaAtuacao;
+        this.descricao = descricao;
+        this.experiencia = experiencia;
+        this.whatsapp = whatsapp;
+        this.email = email;
+        this.cidade = cidade;
     }
 
     // Getters e Setters
@@ -93,5 +107,13 @@ public class ProfessionalDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getCidade() {
+        return cidade;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
     }
 }

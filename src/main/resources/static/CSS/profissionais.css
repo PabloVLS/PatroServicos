@@ -237,11 +237,19 @@ a.logo.navbar-brand:hover {
 .avaliacao {
     color: var(--laranja);
     margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.avaliacao i {
+    font-size: 0.9rem;
 }
 
 .contador-avaliacoes {
     color: var(--cinza);
     font-size: 0.9rem;
+    margin-left: 0.5rem;
 }
 
 .info-profissional {
