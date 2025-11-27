@@ -1,12 +1,15 @@
+/*
 package com.patroservicos.PatroServicos.model;
 
 import jakarta.persistence.*;
 
-/**
- * Entidade que armazena fotos de perfil dos usuários.
- */
+*//**
+ * DEPRECATED: Use Photo.java instead
+ * Esta classe foi substituída por Photo.java para consolidação
+ * Classe comentada para evitar conflitos de mapeamento JPA
+ *//*
 @Entity
-@Table(name = "fotos")
+@Table(name = "fotos_deprecated")
 public class Foto {
 
     @Id
@@ -17,7 +20,7 @@ public class Foto {
     @Column(name = "usuario_id", nullable = false)
     private Integer userId;
 
-    @Column(name = "dados_foto", columnDefinition = "LONGTEXT")
+    @Column(name = "dados_foto", columnDefinition = "TEXT")
     private String dadosFoto; // Base64 encoded image
 
     @Column(name = "tipo_mime", length = 50)
@@ -88,3 +91,4 @@ public class Foto {
                 '}';
     }
 }
+*/

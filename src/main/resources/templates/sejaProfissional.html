@@ -367,14 +367,31 @@
 
                     // Se a API indicar autenticado true, libera o formulário
                     if (data && data.autenticado === true) {
-                        overlay.classList.add('hidden');
-                        formCard?.classList.remove('blocked');
-                        
-                        // Populate email field if user is authenticated
-                        if (data.email && emailField) {
-                            emailField.value = data.email;
+                        // Se o usuário já é profissional, bloqueia o formulário
+                        if (data.isProfissional === true) {
+                            overlay.classList.remove('hidden');
+                            formCard?.classList.add('blocked');
+                            
+                            // Altera a mensagem do overlay
+                            overlay.innerHTML = `
+                                <div>
+                                    <p style="font-size:1.1rem;margin-bottom:1rem;">Você já é um profissional cadastrado!</p>
+                                    <p style="font-size:0.95rem;margin-bottom:1rem;color:#666;">Para atualizar seu perfil profissional, acesse <strong>Meu Perfil</strong> e edite a aba "Perfil Profissional".</p>
+                                    <a class="btn btn-primary" href="/meuPerfil">Ir para Meu Perfil</a>
+                                </div>
+                            `;
+                        } else {
+                            // Não é profissional, libera o formulário
+                            overlay.classList.add('hidden');
+                            formCard?.classList.remove('blocked');
+                            
+                            // Populate email field if user is authenticated
+                            if (data.email && emailField) {
+                                emailField.value = data.email;
+                            }
                         }
                     } else {
+                        // Não autenticado
                         overlay.classList.remove('hidden');
                         formCard?.classList.add('blocked');
                     }

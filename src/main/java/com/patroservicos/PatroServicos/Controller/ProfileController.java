@@ -13,7 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.patroservicos.PatroServicos.model.User;
 import com.patroservicos.PatroServicos.model.Professional;
 import com.patroservicos.PatroServicos.model.PortfolioPhoto;
-import com.patroservicos.PatroServicos.model.Foto;
+import com.patroservicos.PatroServicos.model.Photo;
 import com.patroservicos.PatroServicos.model.Feedback;
 import com.patroservicos.PatroServicos.dto.FeedbackDTO;
 import com.patroservicos.PatroServicos.repository.UserRepository;
@@ -408,15 +408,15 @@ public class ProfileController {
     @GetMapping("/api/usuario/{userId}/foto")
     public ResponseEntity<Map<String, Object>> buscarFotoPerfil(@PathVariable Integer userId) {
         try {
-            Optional<Foto> fotoOpt = servicoFotoPerfil.getFotoPerfilByUserId(userId);
+            Optional<Photo> fotoOpt = servicoFotoPerfil.getFotoPerfilByUserId(userId);
             
             Map<String, Object> response = new HashMap<>();
             
             if (fotoOpt.isPresent()) {
-                Foto foto = fotoOpt.get();
+                Photo foto = fotoOpt.get();
                 response.put("sucesso", true);
-                response.put("fotoUrl", foto.getDadosFoto());
-                response.put("tipoMime", foto.getTipoMime());
+                response.put("fotoUrl", foto.getPhotoData());
+                response.put("tipoMime", foto.getMimeType());
             } else {
                 response.put("sucesso", false);
                 response.put("fotoUrl", null);
@@ -527,9 +527,9 @@ public class ProfileController {
                     
                     // Buscar foto do usuário que comentou
                     String fotoUrl = null;
-                    Optional<Foto> fotoOpt = servicoFotoPerfil.getFotoPerfilByUserId(feedback.getUserId());
+                    Optional<Photo> fotoOpt = servicoFotoPerfil.getFotoPerfilByUserId(feedback.getUserId());
                     if (fotoOpt.isPresent()) {
-                        fotoUrl = fotoOpt.get().getDadosFoto();
+                        fotoUrl = fotoOpt.get().getPhotoData();
                         System.out.println("Foto encontrada para usuário: " + usuarioFeedback.getName());
                     } else {
                         System.out.println("Foto NÃO encontrada para usuário: " + usuarioFeedback.getName());
@@ -707,9 +707,9 @@ public class ProfileController {
                         
                         // Buscar foto do profissional
                         try {
-                            Optional<Foto> fotoOpt = servicoFotoPerfil.getFotoPerfilByUserId(professionalUserId);
+                            Optional<Photo> fotoOpt = servicoFotoPerfil.getFotoPerfilByUserId(professionalUserId);
                             if (fotoOpt.isPresent()) {
-                                professionalPhoto = fotoOpt.get().getDadosFoto();
+                                professionalPhoto = fotoOpt.get().getPhotoData();
                                 System.out.println("Foto encontrada para profissional " + professionalUserId);
                             } else {
                                 System.out.println("Nenhuma foto para profissional " + professionalUserId);

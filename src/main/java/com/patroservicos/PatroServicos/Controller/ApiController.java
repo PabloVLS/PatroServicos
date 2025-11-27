@@ -71,6 +71,10 @@ public class ApiController {
         resposta.put("tipoConta", usuario.getTipoConta());
         resposta.put("funcoes", usuario.getRoles());
 
+        // Verifica se o usuário é profissional
+        Optional<Professional> profissionalOpt = repositorioProfissional.findByUserId(usuario.getId());
+        resposta.put("isProfissional", profissionalOpt.isPresent());
+
         // Busca a foto do usuário se existir
         Optional<Photo> fotoOpt = servicoFoto.getPhotoByUserId(usuario.getId());
         if (fotoOpt.isPresent()) {

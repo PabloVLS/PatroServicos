@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.List;
 
-import com.patroservicos.PatroServicos.model.Foto;
-import com.patroservicos.PatroServicos.repository.FotoRepository;
+import com.patroservicos.PatroServicos.model.Photo;
+import com.patroservicos.PatroServicos.repository.PhotoRepository;
 import com.patroservicos.PatroServicos.service.IFotoService;
 
 /**
@@ -16,26 +16,32 @@ import com.patroservicos.PatroServicos.service.IFotoService;
 public class FotoServiceImpl implements IFotoService {
 
     @Autowired
-    private FotoRepository fotoRepository;
+    private PhotoRepository photoRepository;
 
     @Override
-    public Optional<Foto> getFotoPerfilByUserId(Integer userId) {
-        return fotoRepository.findFirstByUserIdOrderByCriadaEmDesc(userId);
+    public Optional<Photo> getFotoPerfilByUserId(Integer userId) {
+        return photoRepository.findFirstByUserIdOrderByCreatedAtDesc(userId);
     }
 
     @Override
-    public Foto salvarFotoPerfil(Integer userId, String dadosFoto, String tipoMime) {
-        Foto foto = new Foto(userId, dadosFoto, tipoMime);
-        return fotoRepository.save(foto);
+    public Photo salvarFotoPerfil(Integer userId, String dadosFoto, String tipoMime) {
+        Photo foto = new Photo();
+        foto.setUserId(userId);
+        foto.setPhotoData(dadosFoto);
+        foto.setMimeType(tipoMime);
+        foto.setCreatedAt(System.currentTimeMillis());
+        return photoRepository.save(foto);
     }
 
     @Override
     public void deletarFoto(Integer fotoId) {
-        fotoRepository.deleteById(fotoId);
+        if (fotoId != null) {
+            photoRepository.deleteById(Long.valueOf(fotoId));
+        }
     }
 
     @Override
-    public List<Foto> getFotosByUserId(Integer userId) {
-        return fotoRepository.findByUserIdOrderByCriadaEmDesc(userId);
+    public List<Photo> getFotosByUserId(Integer userId) {
+        return photoRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 }

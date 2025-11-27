@@ -1,6 +1,6 @@
 package com.patroservicos.PatroServicos.service;
 
-import com.patroservicos.PatroServicos.model.Foto;
+import com.patroservicos.PatroServicos.model.Photo;
 import java.util.Optional;
 import java.util.List;
 
@@ -14,7 +14,7 @@ public interface IFotoService {
      * @param userId ID do usuário
      * @return Optional contendo a foto mais recente
      */
-    Optional<Foto> getFotoPerfilByUserId(Integer userId);
+    Optional<Photo> getFotoPerfilByUserId(Integer userId);
 
     /**
      * Salva uma nova foto de perfil para um usuário.
@@ -23,7 +23,7 @@ public interface IFotoService {
      * @param tipoMime Tipo MIME da foto
      * @return Foto salva
      */
-    Foto salvarFotoPerfil(Integer userId, String dadosFoto, String tipoMime);
+    Photo salvarFotoPerfil(Integer userId, String dadosFoto, String tipoMime);
 
     /**
      * Deleta a foto de um usuário.
@@ -36,5 +36,5 @@ public interface IFotoService {
      * @param userId ID do usuário
      * @return Lista de fotos do usuário
      */
-    List<Foto> getFotosByUserId(Integer userId);
+    List<Photo> getFotosByUserId(Integer userId);
 }

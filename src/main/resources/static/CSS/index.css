@@ -73,7 +73,7 @@ a.logo.navbar-brand:hover {
 }
 
 .banner {
-    background: linear-gradient(120deg, rgba(37, 100, 235, 0.527), rgba(245, 159, 11, 0.541)), url('/IMG/index/trabalhadores.png');
+    background: linear-gradient(120deg, rgba(37, 100, 235, 0.527), rgba(245, 159, 11, 0.541)), url('/img/index/trabalhadores.png');
     background-size: cover;
     background-position: center;
     color: white;

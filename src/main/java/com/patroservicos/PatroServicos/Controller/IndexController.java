@@ -105,9 +105,16 @@ public class IndexController {
         User usuario = usuarioOpt.get();
         modelo.addAttribute("usuario", usuario);
 
-        // Verifica se é profissional
-        boolean isProfissional = servicoProfissional.getProfessionalByUserId(usuario.getId()).isPresent();
-        modelo.addAttribute("isProfissional", isProfissional);
+        // Verifica se é profissional e recupera dados profissionais
+        Optional<com.patroservicos.PatroServicos.model.Professional> profissionalOpt = 
+            servicoProfissional.getProfessionalByUserId(usuario.getId());
+        
+        if (profissionalOpt.isPresent()) {
+            modelo.addAttribute("profissional", profissionalOpt.get());
+            modelo.addAttribute("isProfissional", true);
+        } else {
+            modelo.addAttribute("isProfissional", false);
+        }
 
         return "meuPerfil";
     }
