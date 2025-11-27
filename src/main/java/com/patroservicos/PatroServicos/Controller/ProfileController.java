@@ -17,6 +17,7 @@ import com.patroservicos.PatroServicos.model.Photo;
 import com.patroservicos.PatroServicos.model.Feedback;
 import com.patroservicos.PatroServicos.dto.FeedbackDTO;
 import com.patroservicos.PatroServicos.repository.UserRepository;
+import com.patroservicos.PatroServicos.repository.ProfessionalRepository;
 import com.patroservicos.PatroServicos.service.IPhotoService;
 import com.patroservicos.PatroServicos.service.IProfessionalService;
 import com.patroservicos.PatroServicos.service.IPortfolioPhotoService;
@@ -36,6 +37,9 @@ public class ProfileController {
 
     @Autowired
     private UserRepository repositorioUsuario;
+
+    @Autowired
+    private ProfessionalRepository repositorioProfissional;
 
     @Autowired
     private IPhotoService servicoFoto;
@@ -684,20 +688,19 @@ public class ProfileController {
                 feedbackMap.put("id", feedback.getId());
                 feedbackMap.put("professionalId", feedback.getProfessionalId());
                 
-                // Buscar dados do profissional
-                // IMPORTANTE: professionalId aqui armazena o userId do profissional, não o ID da entidade Professional
-                Integer professionalUserId = feedback.getProfessionalId();
-                
-                @SuppressWarnings("null")
-                Optional<Professional> profOpt = servicoProfissional.getProfessionalByUserId(professionalUserId);
-                System.out.println("Professional encontrado para userId " + professionalUserId + ": " + profOpt.isPresent());
+                // Buscar o profissional pelo ID da entidade Professional
+                Integer professionalId = feedback.getProfessionalId();
+                Optional<Professional> profOpt = repositorioProfissional.findById(professionalId);
+                System.out.println("Professional encontrado com ID " + professionalId + ": " + profOpt.isPresent());
                 
                 String professionalName = "Profissional Desconhecido";
                 String professionalPhoto = null;
                 
                 if (profOpt.isPresent()) {
+                    Professional professional = profOpt.get();
+                    Integer professionalUserId = professional.getUserId();
+                    
                     // Buscar nome do usuário
-                    @SuppressWarnings("null")
                     Optional<User> userOpt = repositorioUsuario.findById(professionalUserId);
                     System.out.println("User encontrado para userId " + professionalUserId + ": " + userOpt.isPresent());
                     
@@ -719,7 +722,7 @@ public class ProfileController {
                         }
                     }
                 } else {
-                    System.out.println("Professional não encontrado para userId: " + professionalUserId);
+                    System.out.println("Professional não encontrado com ID: " + professionalId);
                 }
                 
                 feedbackMap.put("professionalName", professionalName);
@@ -752,13 +755,23 @@ public class ProfileController {
     @GetMapping("/api/profissional/{userId}/avaliacoes")
     public ResponseEntity<Map<String, Object>> obterAvaliacoesProfissional(@PathVariable Integer userId) {
         try {
-            Integer totalAvaliacoes = servicoFeedback.countFeedbacksByProfessionalId(userId);
-            Double mediaAvaliacao = servicoFeedback.getAverageRatingByProfessionalId(userId);
+            // Buscar o profissional pelo userId
+            Optional<Professional> profissionalOpt = servicoProfissional.getProfessionalByUserId(userId);
             
             Map<String, Object> resposta = new HashMap<>();
             resposta.put("sucesso", true);
-            resposta.put("totalAvaliacoes", totalAvaliacoes != null ? totalAvaliacoes : 0);
-            resposta.put("mediaAvaliacao", mediaAvaliacao != null ? mediaAvaliacao : 0.0);
+            
+            if (profissionalOpt.isPresent()) {
+                Integer professionalId = profissionalOpt.get().getId();
+                Integer totalAvaliacoes = servicoFeedback.countFeedbacksByProfessionalId(professionalId);
+                Double mediaAvaliacao = servicoFeedback.getAverageRatingByProfessionalId(professionalId);
+                
+                resposta.put("totalAvaliacoes", totalAvaliacoes != null ? totalAvaliacoes : 0);
+                resposta.put("mediaAvaliacao", mediaAvaliacao != null ? mediaAvaliacao : 0.0);
+            } else {
+                resposta.put("totalAvaliacoes", 0);
+                resposta.put("mediaAvaliacao", 0.0);
+            }
             
             return ResponseEntity.ok(resposta);
         } catch (Exception e) {

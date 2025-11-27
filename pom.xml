@@ -11,7 +11,7 @@
 	<groupId>com.patroservicos</groupId>
 	<artifactId>PatroServicos</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>PatroServicos</name>
+	<name>PatroServicos</name> 
 	<description>Projeto PatroServicos</description>
 	<url/>
 	<licenses>

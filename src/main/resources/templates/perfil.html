@@ -17,7 +17,9 @@
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
 
-    <div class="container" th:data-user-id="${usuario != null ? usuario.id : null}">
+    <div class="container" 
+         th:data-user-id="${usuario != null ? usuario.id : null}"
+         th:data-professional-id="${profissional != null ? profissional.id : null}">
         <div class="profile-wrapper">
             <!-- Sidebar Esquerda -->
             <aside class="profile-sidebar">
@@ -26,22 +28,15 @@
                      class="profile-picture">
                 
                 <h1 class="profile-name" th:text="${usuario != null ? usuario.name : 'Profissional'}">Nome</h1>
-                <div class="profile-title" th:text="${profissional != null ? profissional.areaAtuacao : 'Profissional'}">Profissão</div>
-                <div class="profile-location">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span th:text="${usuario != null && usuario.city != null ? usuario.city : 'Localização não informada'}">Localização não informada</span>
+                
+                <!-- Badge de Verificado -->
+                <div th:if="${profissional != null && profissional.verificado}" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                    <span class="badge bg-success" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">
+                        <i class="fas fa-check-circle me-1"></i> Verificado
+                    </span>
                 </div>
                 
-                <div class="profile-stats">
-                    <div class="stat">
-                        <span class="stat-number" th:text="${profissional != null ? profissional.experiencia : 'N/A'}">Exp</span>
-                        <span class="stat-label">Experiência</span>
-                    </div>
-                    <div class="stat">
-                        <span id="sidebarTotalReviews" class="stat-number">0</span>
-                        <span class="stat-label">Avaliação</span>
-                    </div>
-                </div>
+                <div class="profile-title" th:text="${profissional != null ? profissional.areaAtuacao : 'Profissional'}">Profissão</div>
                 
                 <div class="profile-actions">
                     <a id="whatsapp-btn" 
@@ -51,13 +46,18 @@
                         <i class="fab fa-whatsapp"></i>
                         WhatsApp
                     </a>
-                    <button class="btn btn-primary" id="chat-btn">
+                    <!-- <button class="btn btn-primary" id="chat-btn">
                         <i class="fas fa-comments"></i>
                         Chat
-                    </button>
+                    </button> -->
                     <button class="btn btn-outline" id="favorite-btn">
                         <i class="far fa-heart"></i>
                         Favoritar
+                    </button>
+                    <button class="btn btn-outline" id="denunciar-btn" style="border-color: #dc3545; color: #dc3545;"
+                        data-bs-toggle="modal" data-bs-target="#modalDenuncia">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Denunciar
                     </button>
                 </div>
             </aside>
@@ -184,6 +184,41 @@
     <!-- Não precisa de footer -->
     <!-- <div th:replace="~{fragments/footer :: footer}"></div> -->
 
+    <!-- Modal de Denúncia -->
+    <div class="modal fade" id="modalDenuncia" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="border-bottom: 2px solid #dc3545;">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2" style="color: #dc3545;"></i>Denunciar Profissional
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Sua denúncia é importante!</strong> Descreva detalhadamente o problema para que nossa equipe de moderação possa analisar.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição do Problema</label>
+                        <textarea class="form-control" id="descricaoDenuncia" rows="5"
+                            placeholder="Descreva o motivo da denúncia (violações, comportamento inadequado, conteúdo falso, etc.)"
+                            maxlength="2000"></textarea>
+                        <small class="text-muted d-block mt-2"><span id="charCountDenuncia">0</span>/2000 caracteres</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarDenuncia">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Denunciar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         let profesionalIdGlobal = null;
         let usuarioAtualIdGlobal = null;
@@ -191,22 +226,39 @@
         let temFeedbackAtual = false;
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Obter userId do atributo data
+            // Obter IDs do atributo data
             const container = document.querySelector('[data-user-id]');
             const usuarioId = container?.getAttribute('data-user-id');
+            const professionalId = container?.getAttribute('data-professional-id');
             
-            profesionalIdGlobal = usuarioId;
+            profesionalIdGlobal = professionalId;
             
-            console.log('Página carregada. Professional ID:', usuarioId);
+            console.log('Página carregada. User ID:', usuarioId, 'Professional ID:', professionalId);
 
             // Carregar foto de perfil
             if (usuarioId) {
                 carregarFotoPerfil(usuarioId);
                 carregarPortfolio(usuarioId);
                 // Carregar feedbacks primeiro (sem filtro de usuário)
-                carregarFeedbacks(usuarioId);
+                carregarFeedbacks(professionalId);
                 // Depois verificar se usuário está logado (para mostrar seu próprio feedback e formulário)
                 verificarUsuarioLogado();
+                // Verificar se já denunciou
+                verificarDenuncia(professionalId);
+            }
+
+            // Configurar contador de caracteres da denúncia
+            const textareaDenuncia = document.getElementById('descricaoDenuncia');
+            if (textareaDenuncia) {
+                textareaDenuncia.addEventListener('input', function() {
+                    document.getElementById('charCountDenuncia').textContent = this.value.length;
+                });
+            }
+
+            // Configurar botão de denúncia
+            const btnConfirmarDenuncia = document.getElementById('btnConfirmarDenuncia');
+            if (btnConfirmarDenuncia) {
+                btnConfirmarDenuncia.addEventListener('click', enviarDenuncia);
             }
         });
 
@@ -677,6 +729,73 @@
             // Redirecionar diretamente para o perfil
             // O servidor irá rotar para a página correta (profissional ou usuário comum)
             window.location.href = `/perfil/${userId}`;
+        }
+
+        // Verificar se usuário já denunciou este profissional
+        function verificarDenuncia(professionalId) {
+            fetch(`/api/report/check/${professionalId}`, {
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                const btnDenunciar = document.getElementById('denunciar-btn');
+                if (data.jaDenunciou) {
+                    btnDenunciar.disabled = true;
+                    btnDenunciar.title = 'Você já denunciou este profissional';
+                    btnDenunciar.style.opacity = '0.5';
+                    btnDenunciar.style.cursor = 'not-allowed';
+                }
+            })
+            .catch(error => console.error('Erro ao verificar denúncia:', error));
+        }
+
+        // Enviar denúncia
+        function enviarDenuncia() {
+            const descricao = document.getElementById('descricaoDenuncia').value.trim();
+
+            if (!descricao) {
+                alert('Por favor, descreva o problema que você está denunciando.');
+                return;
+            }
+
+            if (descricao.length < 10) {
+                alert('A descrição deve ter pelo menos 10 caracteres.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('professionalId', profesionalIdGlobal);
+            formData.append('descricao', descricao);
+
+            fetch('/api/report', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso) {
+                    alert(data.mensagem);
+                    // Fechar modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalDenuncia'));
+                    modal.hide();
+                    // Limpar textarea
+                    document.getElementById('descricaoDenuncia').value = '';
+                    document.getElementById('charCountDenuncia').textContent = '0';
+                    // Desabilitar botão
+                    const btnDenunciar = document.getElementById('denunciar-btn');
+                    btnDenunciar.disabled = true;
+                    btnDenunciar.title = 'Você já denunciou este profissional';
+                    btnDenunciar.style.opacity = '0.5';
+                    btnDenunciar.style.cursor = 'not-allowed';
+                } else {
+                    alert('Erro: ' + data.mensagem);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar denúncia:', error);
+                alert('Erro ao enviar denúncia. Tente novamente.');
+            });
         }
     </script>
 </body>

@@ -35,8 +35,12 @@
                         <div class="dropdown-menu-custom" id="menuPerfil">
                             <span style="display: block; padding: 12px 16px; font-weight: bold; color: #333;" id="nomePerfil"></span>
                             <a href="/perfil" class="dropdown-item-custom">
-                                <i class="fas fa-user me-2"></i>Editar Perfil
+                                <i class="fas fa-user me-2"></i>Meu Perfil
                             </a>
+                            <a href="/moderacao" class="dropdown-item-custom" id="linkModerador" style="display: none;">
+                                <i class="fas fa-shield-alt me-2"></i>Painel de Moderação
+                            </a>
+                            <hr style="margin: 8px 0;">
                             <form method="POST" action="/logout" style="margin: 0;">
                                 <button type="submit" class="dropdown-item-custom logout-btn w-100 text-start" style="border: none; background: none; cursor: pointer;">
                                     <i class="fas fa-sign-out-alt me-2"></i>Sair
@@ -64,6 +68,11 @@
                         document.getElementById('botoesSemAutenticacao').style.display = 'none';
                         document.getElementById('perfilAutenticado').style.display = 'block';
                         document.getElementById('nomePerfil').textContent = dados.nome || 'Usuário';
+                        
+                        // Mostrar link de moderação se o usuário é moderador
+                        if (dados.roles && (dados.roles.includes('ROLE_MODERATOR') || dados.roles.includes('ROLE_ADMIN'))) {
+                            document.getElementById('linkModerador').style.display = 'block';
+                        }
                         
                         if (dados.urlFoto) {
                             document.getElementById('fotoAvatar').src = dados.urlFoto;

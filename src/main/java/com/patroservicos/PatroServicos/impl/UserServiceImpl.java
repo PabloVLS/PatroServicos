@@ -12,7 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.patroservicos.PatroServicos.model.User;
@@ -30,7 +30,7 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     private UserRepository userRepo;
 
     @Autowired
-    private BCryptPasswordEncoder codificadorSenha;
+    private PasswordEncoder codificadorSenha;
 
     @Override
     public Integer saveUser(User user) {

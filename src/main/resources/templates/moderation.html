@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Moderação - PatroServiços</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --secondary-color: #6b7280;
+            --light-bg: #f8fafc;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        .container {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header e Título */
+        .d-flex.justify-content-between {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        h1 {
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 2.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h1 i {
+            color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Painel de Ajuda */
+        .alert-info {
+            background: linear-gradient(135deg, #dbeafe, #eff6ff);
+            border: none;
+            border-radius: 16px;
+            border-left: 5px solid var(--primary-color);
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+        }
+
+        .alert-info strong {
+            color: #1e40af;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-info ul {
+            padding-left: 1.5rem;
+        }
+
+        .alert-info li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        /* Campo de Busca */
+        .input-group {
+            box-shadow: var(--card-shadow);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .form-control {
+            border: none;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            background: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #60a5fa);
+            border: none;
+            padding: 0.875rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Estatísticas */
+        .card-status {
+            border: none;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-status::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .card-status:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-hover);
+        }
+
+        .card-status.pendentes::before {
+            background: linear-gradient(90deg, var(--warning-color), #fbbf24);
+        }
+
+        .card-status.aprovados::before {
+            background: linear-gradient(90deg, var(--success-color), #34d399);
+        }
+
+        .card-status.sinalizados::before {
+            background: linear-gradient(90deg, var(--danger-color), #f87171);
+        }
+
+        .card-status.rejeitados::before {
+            background: linear-gradient(90deg, var(--secondary-color), #9ca3af);
+        }
+
+        .card-status .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-status .card-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-status .card-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        /* Abas */
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0;
+        }
+
+        .nav-tabs {
+            border: none;
+            padding: 0.5rem;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin: 0 0.25rem;
+            color: #64748b;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background: #f1f5f9;
+            color: #374151;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-color), #60a5fa);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Cards de Profissionais */
+        .lista-profissionais .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .lista-profissionais .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-hover);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .prof-info {
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+        }
+
+        .prof-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #475569;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .prof-avatar img {
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .prof-name {
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .prof-area {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Badges */
+        .badge-status {
+            padding: 0.625rem 1.25rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge-pending {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+        .badge-approved {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .badge-flagged {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .badge-rejected {
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        /* Botões de Ação */
+        .btn-acao {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0.25rem;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #34d399);
+            border: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #f87171);
+            border: none;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #fbbf24);
+            border: none;
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #06b6d4, #22d3ee);
+            border: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary-color), #9ca3af);
+            border: none;
+        }
+
+        .btn-outline-danger {
+            border: 2px solid var(--danger-color);
+            color: var(--danger-color);
+            background: transparent;
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--danger-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-acao:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        /* Motivo Rejeição */
+        .motivo-rejeicao {
+            margin-top: 1rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+            border-left: 4px solid var(--danger-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .motivo-rejeicao strong {
+            color: var(--danger-color);
+        }
+
+        /* Motivo Sinalização */
+        .motivo-sinalizacao {
+            margin-top: 1rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #fffbeb, #fecaca);
+            border-left: 4px solid #f59e0b;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .motivo-sinalizacao strong {
+            color: #f59e0b;
+        }
+
+        /* Denúncia */
+        .denuncia-item {
+            padding: 1.5rem;
+            border-left: 4px solid #dc3545;
+            background: #fff5f5;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .denuncia-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .denuncia-title {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .denuncia-descricao {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            border-left: 3px solid #dc3545;
+        }
+
+        .denuncia-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .denuncia-badge.pendente {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .denuncia-badge.analisada {
+            background: #dbeafe;
+            color: #0369a1;
+        }
+
+        .denuncia-badge.resolvida {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .denuncia-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0.5rem 0;
+        }
+
+        /* Modal */
+        .modal-content {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-bottom: 1px solid #fecaca;
+            border-radius: 20px 20px 0 0;
+            padding: 1.5rem;
+        }
+
+        .modal-title {
+            color: var(--danger-color);
+            font-weight: 700;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-control {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .prof-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .prof-avatar {
+                align-self: center;
+            }
+
+            .col-md-4.text-end {
+                text-align: center !important;
+                margin-top: 1rem;
+            }
+
+            .btn-acao {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+
+            .nav-tabs .nav-link {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animações suaves */
+        .tab-pane {
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-color), #60a5fa);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="container mt-5 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>
+                <i class="fas fa-shield-alt me-2"></i>Painel de Moderação
+            </h1>
+            <a href="/" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar ao Início
+            </a>
+        </div>
+
+        <!-- Painel de Ajuda -->
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <strong><i class="fas fa-info-circle me-2"></i>Como funciona a moderação:</strong>
+            <ul class="mb-0 mt-2" style="font-size: 0.95rem;">
+                <li><strong>Ver Perfil:</strong> Visualiza o perfil público do profissional</li>
+                <li><strong>Aprovar:</strong> Aprova para ficar visível na plataforma</li>
+                <li><strong>Rejeitar:</strong> Rejeita com motivo</li>
+                <li><strong>Sinalizar:</strong> Move para análise posterior</li>
+                <li><strong>Remover:</strong> <span style="color: #dc2626; font-weight: bold;">DELETA
+                        PERMANENTEMENTE</span></li>
+                <li><strong>Verificado:</strong> Marca o profissional com selo de verificação</li>
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Campo de Busca -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" id="campoBuscaModerador" class="form-control"
+                        placeholder="Buscar profissional por nome ou email...">
+                    <button class="btn btn-primary" type="button" id="botaoBuscaModerador">
+                        <i class="fas fa-search me-2"></i>Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card card-status pendentes">
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-1">Pendentes</p>
+                        <h3 class="card-title mb-0" th:text="${totalPendentes}">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-status aprovados">
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-1">Aprovados</p>
+                        <h3 class="card-title mb-0" th:text="${totalAprovados}">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-status sinalizados">
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-1">Sinalizados</p>
+                        <h3 class="card-title mb-0" th:text="${totalSinalizados}">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-status rejeitados">
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-1">Rejeitados</p>
+                        <h3 class="card-title mb-0" th:text="${totalRejeitados}">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-status denuncias">
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-1">Denúncias</p>
+                        <h3 class="card-title mb-0" th:text="${totalDenuncias}">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Abas -->
+        <div class="card">
+            <div class="card-header bg-white border-bottom">
+                <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pendentes-tab" data-bs-toggle="tab"
+                            data-bs-target="#pendentes" type="button" role="tab">
+                            <i class="fas fa-hourglass-half me-2"></i>Pendentes
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="aprovados-tab" data-bs-toggle="tab" data-bs-target="#aprovados"
+                            type="button" role="tab">
+                            <i class="fas fa-check-circle me-2"></i>Aprovados
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="sinalizados-tab" data-bs-toggle="tab" data-bs-target="#sinalizados"
+                            type="button" role="tab">
+                            <i class="fas fa-flag me-2"></i>Sinalizados
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="rejeitados-tab" data-bs-toggle="tab" data-bs-target="#rejeitados"
+                            type="button" role="tab">
+                            <i class="fas fa-times-circle me-2"></i>Rejeitados
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="denuncias-tab" data-bs-toggle="tab" data-bs-target="#denuncias"
+                            type="button" role="tab">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Denúncias
+                            <span class="badge bg-danger ms-2" th:if="${totalDenunciasPendentes > 0}" th:text="${totalDenunciasPendentes}"></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Aba: Pendentes -->
+                    <div class="tab-pane fade show active" id="pendentes" role="tabpanel">
+                        <div th:if="${pendentes.size() > 0}" class="lista-profissionais">
+                            <div th:each="prof : ${pendentes}" th:id="|prof-${prof.id}|" class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="prof-info">
+                                                <div class="prof-avatar" th:if="!${prof.fotoPerfil}"
+                                                    th:text="${#strings.substring(prof.areaAtuacao, 0, 1)}"></div>
+                                                <img th:if="${prof.fotoPerfil}" th:src="${prof.fotoPerfil}" alt="Foto"
+                                                    class="prof-avatar" style="object-fit: cover;">
+                                                <div>
+                                                    <h5 class="prof-name"
+                                                        th:text="${prof.user != null ? prof.user.name : 'Profissional #' + prof.id}">
+                                                        Profissional</h5>
+                                                    <p class="prof-area" th:text="${prof.areaAtuacao}">Área</p>
+                                                    <p class="prof-email"
+                                                        th:text="${prof.user != null ? prof.user.email : ''}"
+                                                        style="display: none;"></p>
+                                                    <p class="text-muted mb-0"
+                                                        th:text="|Solicitado em: ${#temporals.format(prof.criadoEm, 'dd/MM/yyyy HH:mm')}|">
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <span class="badge-status badge-pending">Pendente</span>
+                                            <div class="mt-3">
+                                                <a th:href="@{/perfil/{userId}(userId=${prof.userId})}"
+                                                    class="btn btn-sm btn-info btn-acao me-2" target="_blank">
+                                                    <i class="fas fa-eye me-1"></i>Ver
+                                                </a>
+                                                <button class="btn btn-sm btn-success btn-acao me-2"
+                                                    th:onclick="|aprovarProfissional(${prof.id})|">
+                                                    <i class="fas fa-check me-1"></i>Aprovar
+                                                </button>
+                                                <button class="btn btn-sm btn-warning btn-acao me-2"
+                                                    data-bs-toggle="modal" data-bs-target="#modalSinalizacao"
+                                                    th:onclick="|abrirModalSinalizacao(${prof.id})|">
+                                                    <i class="fas fa-flag me-1"></i>Sinalizar
+                                                </button>
+                                                <button class="btn btn-sm btn-danger btn-acao"
+                                                    th:onclick="|rejeitarProfissional(${prof.id})|"
+                                                    data-bs-toggle="modal" data-bs-target="#modalRejeicao">
+                                                    <i class="fas fa-times me-1"></i>Rejeitar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${pendentes.size() == 0}" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhum profissional pendente</p>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Aprovados -->
+                    <div class="tab-pane fade" id="aprovados" role="tabpanel">
+                        <div th:if="${aprovados.size() > 0}" class="lista-profissionais">
+                            <div th:each="prof : ${aprovados}" th:id="|prof-${prof.id}|" class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="prof-info">
+                                                <div class="prof-avatar" th:if="!${prof.fotoPerfil}"
+                                                    th:text="${#strings.substring(prof.areaAtuacao, 0, 1)}"></div>
+                                                <img th:if="${prof.fotoPerfil}" th:src="${prof.fotoPerfil}" alt="Foto"
+                                                    class="prof-avatar" style="object-fit: cover;">
+                                                <div>
+                                                    <h5 class="prof-name"
+                                                        th:text="${prof.user != null ? prof.user.name : 'Profissional #' + prof.id}">
+                                                        Profissional</h5>
+                                                    <p class="prof-area" th:text="${prof.areaAtuacao}">Área</p>
+                                                    <p class="prof-email"
+                                                        th:text="${prof.user != null ? prof.user.email : ''}"
+                                                        style="display: none;"></p>
+                                                    <p class="text-muted mb-0"
+                                                        th:text="|Aprovado em: ${#temporals.format(prof.dataAprovacao, 'dd/MM/yyyy HH:mm')}|">
+                                                    </p>
+                                                    <div th:if="${prof.verificado}" style="margin-top: 0.5rem;">
+                                                        <span class="badge bg-success"><i class="fas fa-check"></i>
+                                                            Verificado</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <span class="badge-status badge-approved">Aprovado</span>
+                                            <div class="mt-3">
+                                                <a th:href="@{/perfil/{userId}(userId=${prof.userId})}"
+                                                    class="btn btn-sm btn-info btn-acao me-2" target="_blank">
+                                                    <i class="fas fa-eye me-1"></i>Ver
+                                                </a>
+                                                <button class="btn btn-sm btn-success btn-acao me-2"
+                                                    th:if="!${prof.verificado}"
+                                                    th:onclick="|marcarComoVerificado(${prof.id})|">
+                                                    <i class="fas fa-check me-1"></i>Verificar
+                                                </button>
+                                                <button class="btn btn-sm btn-secondary btn-acao me-2"
+                                                    th:if="${prof.verificado}"
+                                                    th:onclick="|removerVerificacao(${prof.id})|">
+                                                    <i class="fas fa-times me-1"></i>Des-verificar
+                                                </button>
+                                                <button class="btn btn-sm btn-warning btn-acao me-2"
+                                                    data-bs-toggle="modal" data-bs-target="#modalSinalizacao"
+                                                    th:onclick="|abrirModalSinalizacao(${prof.id})|">
+                                                    <i class="fas fa-flag me-1"></i>Sinalizar
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger btn-acao"
+                                                    th:onclick="|removerProfissional(${prof.id})|">
+                                                    <i class="fas fa-trash me-1"></i>Remover
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${aprovados.size() == 0}" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhum profissional aprovado</p>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Sinalizados -->
+                    <div class="tab-pane fade" id="sinalizados" role="tabpanel">
+                        <div th:if="${sinalizados.size() > 0}" class="lista-profissionais">
+                            <div th:each="prof : ${sinalizados}" th:id="|prof-${prof.id}|" class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="prof-info">
+                                                <div class="prof-avatar" th:if="!${prof.fotoPerfil}"
+                                                    th:text="${#strings.substring(prof.areaAtuacao, 0, 1)}"></div>
+                                                <img th:if="${prof.fotoPerfil}" th:src="${prof.fotoPerfil}" alt="Foto"
+                                                    class="prof-avatar" style="object-fit: cover;">
+                                                <div>
+                                                    <h5 class="prof-name"
+                                                        th:text="${prof.user != null ? prof.user.name : 'Profissional #' + prof.id}">
+                                                        Profissional</h5>
+                                                    <p class="prof-area" th:text="${prof.areaAtuacao}">Área</p>
+                                                    <p class="prof-email"
+                                                        th:text="${prof.user != null ? prof.user.email : ''}"
+                                                        style="display: none;"></p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <div th:if="${prof.motivoSinalizacao}" class="motivo-sinalizacao">
+                                                    <strong>Motivo:</strong>
+                                                    <p th:text="${prof.motivoSinalizacao}" class="mb-0"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <span class="badge-status badge-flagged">Sinalizado</span>
+                                            <div class="mt-3">
+                                                <a th:href="@{/perfil/{userId}(userId=${prof.userId})}"
+                                                    class="btn btn-sm btn-info btn-acao me-2" target="_blank">
+                                                    <i class="fas fa-eye me-1"></i>Ver
+                                                </a>
+                                                <button class="btn btn-sm btn-success btn-acao me-2"
+                                                    th:onclick="|aprovarProfissional(${prof.id})|">
+                                                    <i class="fas fa-check me-1"></i>Aprovar
+                                                </button>
+                                                <button class="btn btn-sm btn-danger btn-acao"
+                                                    th:onclick="|rejeitarProfissional(${prof.id})|"
+                                                    data-bs-toggle="modal" data-bs-target="#modalRejeicao">
+                                                    <i class="fas fa-times me-1"></i>Rejeitar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${sinalizados.size() == 0}" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhum profissional sinalizado</p>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Rejeitados -->
+                    <div class="tab-pane fade" id="rejeitados" role="tabpanel">
+                        <div th:if="${rejeitados.size() > 0}" class="lista-profissionais">
+                            <div th:each="prof : ${rejeitados}" th:id="|prof-${prof.id}|" class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="prof-info">
+                                                <div class="prof-avatar" th:if="!${prof.fotoPerfil}"
+                                                    th:text="${#strings.substring(prof.areaAtuacao, 0, 1)}"></div>
+                                                <img th:if="${prof.fotoPerfil}" th:src="${prof.fotoPerfil}" alt="Foto"
+                                                    class="prof-avatar" style="object-fit: cover;">
+                                                <div>
+                                                    <h5 class="prof-name"
+                                                        th:text="${prof.user != null ? prof.user.name : 'Profissional #' + prof.id}">
+                                                        Profissional</h5>
+                                                    <p class="prof-area" th:text="${prof.areaAtuacao}">Área</p>
+                                                    <p class="prof-email"
+                                                        th:text="${prof.user != null ? prof.user.email : ''}"
+                                                        style="display: none;"></p>
+                                                    <p class="text-muted mb-0"
+                                                        th:text="|Rejeitado em: ${#temporals.format(prof.dataRejeicao, 'dd/MM/yyyy HH:mm')}|">
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <div th:if="${prof.motivoRejeicao}" class="motivo-rejeicao">
+                                                    <strong>Motivo:</strong>
+                                                    <p th:text="${prof.motivoRejeicao}" class="mb-0"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <span class="badge-status badge-rejected">Rejeitado</span>
+                                            <div class="mt-3">
+                                                <a th:href="@{/perfil/{userId}(userId=${prof.userId})}"
+                                                    class="btn btn-sm btn-info btn-acao me-2" target="_blank">
+                                                    <i class="fas fa-eye me-1"></i>Ver
+                                                </a>
+                                                <button class="btn btn-sm btn-warning btn-acao me-2"
+                                                    data-bs-toggle="modal" data-bs-target="#modalSinalizacao"
+                                                    th:onclick="|abrirModalSinalizacao(${prof.id})|">
+                                                    <i class="fas fa-flag me-1"></i>Sinalizar
+                                                </button>
+                                                <button class="btn btn-sm btn-success btn-acao"
+                                                    th:onclick="|aprovarProfissional(${prof.id})|">
+                                                    <i class="fas fa-redo me-1"></i>Reconverter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${rejeitados.size() == 0}" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhum profissional rejeitado</p>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Denúncias -->
+                    <div class="tab-pane fade" id="denuncias" role="tabpanel">
+                        <div th:if="${todasDenuncias != null && todasDenuncias.size() > 0}">
+                            <div th:each="denuncia : ${todasDenuncias}" class="denuncia-item">
+                                <div class="denuncia-header">
+                                    <div style="flex: 1;">
+                                        <div class="denuncia-title">
+                                            <i class="fas fa-exclamation-circle" style="color: #dc3545; margin-right: 0.5rem;"></i>
+                                            Denúncia contra: <span th:text="${denuncia.professional != null && denuncia.professional.user != null ? denuncia.professional.user.name : 'Profissional #' + denuncia.professionalId}"></span>
+                                        </div>
+                                        <div class="denuncia-info">
+                                            <strong><i class="fas fa-user me-2"></i>Denunciado por:</strong> <span th:text="${denuncia.reporter != null ? denuncia.reporter.name : 'Usuário #' + denuncia.reporterId}"></span>
+                                        </div>
+                                        <div class="denuncia-info">
+                                            <strong><i class="fas fa-clock me-2"></i>Data:</strong> <span th:text="${#temporals.format(denuncia.criadoEm, 'dd/MM/yyyy HH:mm')}"></span>
+                                        </div>
+                                        <div class="denuncia-info" th:if="${denuncia.status != 'PENDENTE'}">
+                                            <strong><i class="fas fa-user-tie me-2"></i>Analisado por:</strong> <span th:text="${denuncia.moderadorId != null ? 'Moderador #' + denuncia.moderadorId : 'N/A'}"></span>
+                                        </div>
+                                    </div>
+                                    <span class="denuncia-badge" 
+                                        th:classappend="${denuncia.status == 'PENDENTE' ? 'pendente' : denuncia.status == 'ANALISADA' ? 'analisada' : 'resolvida'}"
+                                        th:text="${denuncia.status}"></span>
+                                </div>
+                                <div class="denuncia-descricao">
+                                    <strong><i class="fas fa-align-left me-2"></i>Descrição da Denúncia:</strong>
+                                    <p th:text="${denuncia.descricao}" style="margin-top: 0.5rem; margin-bottom: 0; padding: 1rem; background: #fff5f5; border-left: 3px solid #dc3545; border-radius: 4px;"></p>
+                                </div>
+                                <div th:if="${denuncia.status != 'PENDENTE'}" style="background: #f0f9ff; padding: 1rem; border-radius: 6px; margin-top: 1rem; border-left: 3px solid #0d6efd;">
+                                    <strong><i class="fas fa-reply me-2"></i>Resposta do Moderador:</strong>
+                                    <p th:text="${denuncia.respostaModerador}" style="margin-top: 0.5rem; margin-bottom: 0;"></p>
+                                </div>
+                                <div class="mt-3" style="display: flex; gap: 0.75rem;">
+                                    <a th:if="${denuncia.professional != null}" 
+                                       th:href="|/perfil/${denuncia.professional.userId}|"
+                                       class="btn btn-sm btn-outline-secondary" target="_blank">
+                                        <i class="fas fa-external-link-alt me-1"></i>Ver Perfil do Denunciado
+                                    </a>
+                                    <button th:if="${denuncia.status == 'PENDENTE'}" class="btn btn-sm btn-primary" 
+                                        th:onclick="|abrirModalRespostaDenuncia(${denuncia.id})|"
+                                        data-bs-toggle="modal" data-bs-target="#modalRespostaDenuncia">
+                                        <i class="fas fa-check me-1"></i>Analisar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${todasDenuncias == null || todasDenuncias.size() == 0}" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhuma denúncia registrada</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Rejeição -->
+    <div class="modal fade" id="modalRejeicao" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Rejeitar Profissional</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Motivo da Rejeição</label>
+                        <textarea class="form-control" id="motivoRejeicao" rows="4"
+                            placeholder="Descreva o motivo..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarRejeicao">Rejeitar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Sinalização -->
+    <div class="modal fade" id="modalSinalizacao" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sinalizar Profissional para Verificação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Motivo da Sinalização</label>
+                        <textarea class="form-control" id="motivoSinalizacao" rows="4"
+                            placeholder="Descreva o motivo da sinalização..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" id="btnConfirmarSinalizacao">Sinalizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Resposta de Denúncia -->
+    <div class="modal fade" id="modalRespostaDenuncia" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="border-bottom: 2px solid #dc3545;">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2" style="color: #dc3545;"></i>Responder à Denúncia
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="statusDenuncia">
+                            <option value="ANALISADA">Analisada</option>
+                            <option value="RESOLVIDA">Resolvida</option>
+                            <option value="ARQUIVADA">Arquivada</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Resposta</label>
+                        <textarea class="form-control" id="respostaDenuncia" rows="4"
+                            placeholder="Descreva a ação tomada em relação a esta denúncia..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="btnConfirmarRespostaDenuncia">
+                        <i class="fas fa-check me-1"></i>Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let profesionalIdSelecionado = null;
+        let denunciaIdSelecionada = null;
+
+        function aprovarProfissional(professionalId) {
+            if (confirm('Tem certeza que deseja aprovar este profissional?')) {
+                fetch(`/moderacao/aprovar/${professionalId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.sucesso) {
+                            alert(data.mensagem);
+                            location.reload();
+                        } else {
+                            alert('Erro: ' + data.mensagem);
+                        }
+                    })
+                    .catch(err => {
+                        alert('Erro ao aprovar profissional');
+                        console.error(err);
+                    });
+            }
+        }
+
+        function rejeitarProfissional(professionalId) {
+            profesionalIdSelecionado = professionalId;
+            document.getElementById('motivoRejeicao').value = '';
+        }
+
+        document.getElementById('btnConfirmarRejeicao').addEventListener('click', function () {
+            const motivo = document.getElementById('motivoRejeicao').value;
+            if (!motivo.trim()) {
+                alert('Por favor, insira um motivo para a rejeição');
+                return;
+            }
+
+            fetch(`/moderacao/rejeitar/${profesionalIdSelecionado}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `motivo=${encodeURIComponent(motivo)}`
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        alert(data.mensagem);
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + data.mensagem);
+                    }
+                })
+                .catch(err => {
+                    alert('Erro ao rejeitar profissional');
+                    console.error(err);
+                });
+
+            bootstrap.Modal.getInstance(document.getElementById('modalRejeicao')).hide();
+        });
+
+        function abrirModalSinalizacao(professionalId) {
+            profesionalIdSelecionado = professionalId;
+            document.getElementById('motivoSinalizacao').value = '';
+        }
+
+        document.getElementById('btnConfirmarSinalizacao').addEventListener('click', function () {
+            const motivo = document.getElementById('motivoSinalizacao').value;
+            if (!motivo.trim()) {
+                alert('Por favor, insira um motivo para a sinalização');
+                return;
+            }
+
+            fetch(`/moderacao/sinalizar/${profesionalIdSelecionado}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `motivo=${encodeURIComponent(motivo)}`
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        alert(data.mensagem);
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + data.mensagem);
+                    }
+                })
+                .catch(err => {
+                    alert('Erro ao sinalizar profissional');
+                    console.error(err);
+                });
+
+            bootstrap.Modal.getInstance(document.getElementById('modalSinalizacao')).hide();
+        });
+
+        function removerProfissional(professionalId) {
+            if (confirm('⚠️ ATENÇÃO! Tem certeza que deseja REMOVER PERMANENTEMENTE este profissional da plataforma?\n\nEsta ação é IRREVERSÍVEL e deletará todos os dados.')) {
+                fetch(`/moderacao/remover/${professionalId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.sucesso) {
+                            alert(data.mensagem);
+                            location.reload();
+                        } else {
+                            alert('Erro: ' + data.mensagem);
+                        }
+                    })
+                    .catch(err => {
+                        alert('Erro ao remover profissional');
+                        console.error(err);
+                    });
+            }
+        }
+
+        function marcarComoVerificado(professionalId) {
+            fetch(`/moderacao/verificar/${professionalId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        alert(data.mensagem);
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + data.mensagem);
+                    }
+                })
+                .catch(err => {
+                    alert('Erro ao verificar profissional');
+                    console.error(err);
+                });
+        }
+
+        function removerVerificacao(professionalId) {
+            fetch(`/moderacao/remover-verificacao/${professionalId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        alert(data.mensagem);
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + data.mensagem);
+                    }
+                })
+                .catch(err => {
+                    alert('Erro ao remover verificação');
+                    console.error(err);
+                });
+        }
+
+        // Modal de Resposta de Denúncia
+        function abrirModalRespostaDenuncia(reportId) {
+            denunciaIdSelecionada = reportId;
+            document.getElementById('statusDenuncia').value = 'ANALISADA';
+            document.getElementById('respostaDenuncia').value = '';
+            const modal = new bootstrap.Modal(document.getElementById('modalRespostaDenuncia'));
+            modal.show();
+        }
+
+        document.getElementById('btnConfirmarRespostaDenuncia').addEventListener('click', function () {
+            const status = document.getElementById('statusDenuncia').value;
+            const resposta = document.getElementById('respostaDenuncia').value.trim();
+
+            if (!resposta) {
+                alert('Por favor, descreva a ação tomada');
+                return;
+            }
+
+            fetch(`/moderacao/denuncia/${denunciaIdSelecionada}/status?status=${status}&resposta=${encodeURIComponent(resposta)}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+                .then(r => {
+                    if (r.ok) {
+                        return r.json();
+                    } else {
+                        throw new Error(`HTTP error! status: ${r.status}`);
+                    }
+                })
+                .then(data => {
+                    if (data && data.sucesso) {
+                        alert('Denúncia respondida com sucesso!');
+                        location.reload();
+                    } else {
+                        alert('Erro ao responder denúncia: ' + (data?.mensagem || 'Erro desconhecido'));
+                    }
+                })
+                .catch(err => {
+                    alert('Erro ao enviar resposta');
+                    console.error(err);
+                });
+
+            bootstrap.Modal.getInstance(document.getElementById('modalRespostaDenuncia')).hide();
+        });
+
+        // Busca de profissional na moderação
+        document.addEventListener('DOMContentLoaded', function () {
+            const botaoBusca = document.getElementById('botaoBuscaModerador');
+            const campoBusca = document.getElementById('campoBuscaModerador');
+
+            if (botaoBusca && campoBusca) {
+                botaoBusca.addEventListener('click', function () {
+                    const termo = campoBusca.value.trim().toLowerCase();
+                    if (termo) {
+                        // Filtrar cards de profissionais em todas as abas
+                        const cards = document.querySelectorAll('[id^="prof-"]');
+                        cards.forEach(card => {
+                            const nome = card.querySelector('.prof-name')?.textContent || '';
+                            const email = card.querySelector('.prof-email')?.textContent || '';
+                            const areaAtuacao = card.querySelector('.prof-area')?.textContent || '';
+
+                            const match = nome.toLowerCase().includes(termo) ||
+                                email.toLowerCase().includes(termo) ||
+                                areaAtuacao.toLowerCase().includes(termo);
+
+                            card.style.display = match ? 'block' : 'none';
+                        });
+                    } else {
+                        // Mostrar todos
+                        document.querySelectorAll('[id^="prof-"]').forEach(card => {
+                            card.style.display = 'block';
+                        });
+                    }
+                });
+
+                // Busca ao digitar
+                campoBusca.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        botaoBusca.click();
+                    }
+                });
+            }
+        });
+    </script>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+
+</html>

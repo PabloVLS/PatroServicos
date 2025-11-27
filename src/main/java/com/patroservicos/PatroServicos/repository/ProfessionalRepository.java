@@ -41,4 +41,33 @@ public interface ProfessionalRepository extends JpaRepository<Professional, Inte
      */
     @Query("SELECT p FROM Professional p, User u WHERE u.id = p.userId AND LOWER(u.name) LIKE %:nome%")
     List<Professional> findByUserName(@Param("nome") String nome);
+
+    /**
+     * Busca profissionais por status de moderação
+     */
+    List<Professional> findByStatusModeracao(String statusModeracao);
+
+    /**
+     * Busca profissionais aprovados (status = APPROVED)
+     */
+    @Query("SELECT p FROM Professional p WHERE p.statusModeracao = 'APPROVED'")
+    List<Professional> findApprovedProfessionals();
+
+    /**
+     * Busca profissionais pendentes (status = PENDING)
+     */
+    @Query("SELECT p FROM Professional p WHERE p.statusModeracao = 'PENDING'")
+    List<Professional> findPendingProfessionals();
+
+    /**
+     * Busca profissionais sinalizados (status = FLAGGED)
+     */
+    @Query("SELECT p FROM Professional p WHERE p.statusModeracao = 'FLAGGED'")
+    List<Professional> findFlaggedProfessionals();
+
+    /**
+     * Busca profissionais rejeitados (status = REJECTED)
+     */
+    @Query("SELECT p FROM Professional p WHERE p.statusModeracao = 'REJECTED'")
+    List<Professional> findRejectedProfessionals();
 }

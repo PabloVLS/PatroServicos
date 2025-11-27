@@ -20,7 +20,7 @@ public class PhotoServiceImpl implements IPhotoService {
 
     @Override
     public Photo savePhoto(Integer userId, String fotoData, String mimeType) {
-        Optional<Photo> fotoExistente = photoRepository.findByUserId(userId);
+        Optional<Photo> fotoExistente = photoRepository.findFirstByUserIdOrderByCreatedAtDesc(userId);
         long agora = System.currentTimeMillis();
 
         Photo foto;
@@ -44,12 +44,12 @@ public class PhotoServiceImpl implements IPhotoService {
 
     @Override
     public Optional<Photo> getPhotoByUserId(Integer userId) {
-        return photoRepository.findByUserId(userId);
+        return photoRepository.findFirstByUserIdOrderByCreatedAtDesc(userId);
     }
 
     @Override
     public void deletePhoto(Integer userId) {
-        Optional<Photo> fotoOpt = photoRepository.findByUserId(userId);
+        Optional<Photo> fotoOpt = photoRepository.findFirstByUserIdOrderByCreatedAtDesc(userId);
         if (fotoOpt.isPresent()) {
             photoRepository.delete(fotoOpt.get());
         }

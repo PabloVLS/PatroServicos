@@ -62,6 +62,7 @@
                                 <option value="">Padrão</option>
                                 <option value="rating">Melhor Avaliados</option>
                                 <option value="newest">Mais Recentes</option>
+                                <option value="verificado">Profissionais Verificados</option>
                             </select>
                         </div>
 
@@ -252,26 +253,21 @@
 
         // Criar HTML do card do profissional
         function criarCardProfissional(profissional) {
+            const sloVerificado = profissional.verificado ? '<div class="selo-verificado" title="Profissional verificado"><i class="fas fa-check" style="color: white;"></i></div>' : '<div class="selo-verificado" style="display: none;"></div>';
+            
             return `
                 <div class="col-md-6 col-lg-4">
                     <div class="card-profissional">
                         <div class="container-imagem">
                             <img src="/img/profissionais/default-avatar.jpg" alt="${profissional.nomeUsuario || 'Profissional'}" class="imagem-card" id="img-${profissional.userId}">
-                            <div class="selo-verificado">
-                                <i class="fas fa-check"></i>
-                            </div>
+                            ${sloVerificado}
                         </div>
                         <div class="conteudo-card">
                             <h3 class="nome-profissional">${profissional.nomeUsuario || 'Profissional'}</h3>
                             <span class="categoria-profissional">${profissional.areaAtuacao || 'Serviço'}</span>
 
                             <div class="avaliacao" id="avaliacao-${profissional.userId}">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="far fa-star"></i>
-                                <span class="contador-avaliacoes">(0 avaliações)</span>
+                                <!-- Avaliações carregadas dinamicamente -->
                             </div>
 
                             <div class="info-profissional">
@@ -324,7 +320,10 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.sucesso) {
+                        console.log(`Avaliações para ${userId}:`, data);
                         renderizarAvaliacoes(userId, data.mediaAvaliacao, data.totalAvaliacoes);
+                    } else {
+                        console.warn('Erro ao carregar avaliações:', data);
                     }
                 })
                 .catch(error => console.error('Erro ao carregar avaliações:', error));
@@ -333,14 +332,21 @@
         // Renderizar as estrelas e quantidade de avaliações
         function renderizarAvaliacoes(userId, mediaAvaliacao, totalAvaliacoes) {
             const container = document.getElementById(`avaliacao-${userId}`);
-            if (!container) return;
+            if (!container) {
+                console.warn(`Container não encontrado para userId: ${userId}`);
+                return;
+            }
 
             // Limpar conteúdo anterior
             container.innerHTML = '';
 
+            // Converter para número se vier como string
+            const media = parseFloat(mediaAvaliacao) || 0;
+            const total = parseInt(totalAvaliacoes) || 0;
+
             // Renderizar estrelas cheias e vazias
-            const notaInteira = Math.floor(mediaAvaliacao);
-            const temMeia = mediaAvaliacao % 1 >= 0.5;
+            const notaInteira = Math.floor(media);
+            const temMeia = media % 1 >= 0.5;
 
             for (let i = 1; i <= 5; i++) {
                 const star = document.createElement('i');
@@ -348,22 +354,32 @@
                 if (i <= notaInteira) {
                     // Estrela cheia
                     star.className = 'fas fa-star';
+                    star.style.color = '#ffc107';
                 } else if (i === notaInteira + 1 && temMeia) {
                     // Meia estrela
                     star.className = 'fas fa-star-half-alt';
+                    star.style.color = '#ffc107';
                 } else {
                     // Estrela vazia
                     star.className = 'far fa-star';
+                    star.style.color = '#ffc107';
                 }
 
                 container.appendChild(star);
             }
 
+            // Adicionar espaço entre estrelas e contador
+            const espaco = document.createElement('span');
+            espaco.textContent = ' ';
+            container.appendChild(espaco);
+
             // Adicionar contador de avaliações
             const contador = document.createElement('span');
             contador.className = 'contador-avaliacoes';
-            contador.textContent = `(${totalAvaliacoes} ${totalAvaliacoes === 1 ? 'avaliação' : 'avaliações'})`;
+            contador.textContent = `(${total} ${total === 1 ? 'avaliação' : 'avaliações'})`;
             container.appendChild(contador);
+
+            console.log(`Avaliações renderizadas para ${userId}: ${media} estrelas, ${total} avaliações`);
         }
 
         // Atualizar contador de profissionais

@@ -192,6 +192,8 @@ public class ProfessionalController {
                     profissionais = servicoImpl.sortByRating(profissionais);
                 } else if ("newest".equalsIgnoreCase(sortBy)) {
                     profissionais = servicoImpl.sortByNewest(profissionais);
+                } else if ("verificado".equalsIgnoreCase(sortBy)) {
+                    profissionais = servicoImpl.sortByVerificado(profissionais);
                 }
             }
 

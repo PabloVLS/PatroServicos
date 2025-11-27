@@ -16,6 +16,7 @@ public class ProfessionalDTO {
     private String cidade;
     private Double mediaAvaliacao;
     private Integer totalAvaliacoes;
+    private Boolean verificado;
 
     // Construtores
     public ProfessionalDTO() {
@@ -48,7 +49,7 @@ public class ProfessionalDTO {
 
     public ProfessionalDTO(Integer id, Integer userId, String nomeUsuario, String areaAtuacao, 
                           String descricao, String experiencia, String whatsapp, String email, 
-                          String cidade, Double mediaAvaliacao, Integer totalAvaliacoes) {
+                          String cidade, Double mediaAvaliacao, Integer totalAvaliacoes, Boolean verificado) {
         this.id = id;
         this.userId = userId;
         this.nomeUsuario = nomeUsuario;
@@ -60,6 +61,7 @@ public class ProfessionalDTO {
         this.cidade = cidade;
         this.mediaAvaliacao = mediaAvaliacao;
         this.totalAvaliacoes = totalAvaliacoes;
+        this.verificado = verificado;
     }
 
     // Getters e Setters
@@ -149,5 +151,13 @@ public class ProfessionalDTO {
 
     public void setTotalAvaliacoes(Integer totalAvaliacoes) {
         this.totalAvaliacoes = totalAvaliacoes;
+    }
+
+    public Boolean getVerificado() {
+        return verificado;
+    }
+
+    public void setVerificado(Boolean verificado) {
+        this.verificado = verificado;
     }
 }

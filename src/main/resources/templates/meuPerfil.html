@@ -31,12 +31,31 @@
             <div th:if="${isProfissional}">
                 <div class="professional-badge">
                     <i class="fas fa-briefcase"></i>
-                    Profissional Verificado
+                    <span th:text="${profissional != null && profissional.verificado ? 'Profissional Verificado' : 'Profissional'}"></span>
                 </div>
+            </div>
+            
+            <!-- Status da Moderação na Header -->
+            <div th:if="${isProfissional && profissional != null}" style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                <span th:if="${profissional.statusModeracao == 'PENDING'}" class="badge bg-warning" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">
+                    <i class="fas fa-hourglass-half me-1"></i> Em Análise
+                </span>
+                <span th:if="${profissional.statusModeracao == 'FLAGGED'}" class="badge bg-danger" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">
+                    <i class="fas fa-flag me-1"></i> Sinalizado
+                </span>
+                <span th:if="${profissional.statusModeracao == 'REJECTED'}" class="badge bg-danger" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">
+                    <i class="fas fa-times-circle me-1"></i> Rejeitado
+                </span>
+                <span th:if="${profissional.statusModeracao == 'APPROVED'}" class="badge bg-success" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">
+                    <i class="fas fa-check-circle me-1"></i> Aprovado
+                </span>
+                <span th:if="${profissional.verificado}" class="badge bg-info" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">
+                    <i class="fas fa-badge-check me-1"></i> Identidade Verificada
+                </span>
             </div>
         </div>
 
-        <!-- Alertas -->
+        <!-- Alertas de Sucesso/Erro -->
         <div th:if="${sucesso}" class="alert alert-success" role="alert">
             <i class="fas fa-check-circle me-2"></i>
             <span th:text="${sucesso}"></span>
@@ -44,6 +63,72 @@
         <div th:if="${erro}" class="alert alert-danger" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i>
             <span th:text="${erro}"></span>
+        </div>
+
+        <!-- Alertas de Status da Moderação -->
+        <div th:if="${isProfissional && profissional != null && profissional.statusModeracao == 'PENDING'}" class="alert alert-warning alert-dismissible fade show mb-4" role="alert" style="border-left: 5px solid #ffc107; padding: 1.25rem;">
+            <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                <i class="fas fa-hourglass-half me-2" style="font-size: 1.5rem; margin-top: 0.2rem;"></i>
+                <div style="flex: 1;">
+                    <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.25rem;">Perfil em Análise</strong>
+                    <p class="mb-0">Seu perfil está sendo revisado pela nossa equipe de moderação. Você será notificado quando for aprovado!</p>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${isProfissional && profissional != null && profissional.statusModeracao == 'FLAGGED'}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="border-left: 5px solid #dc3545; padding: 1.25rem;">
+            <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                <i class="fas fa-flag me-2" style="font-size: 1.5rem; margin-top: 0.2rem;"></i>
+                <div style="flex: 1;">
+                    <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.25rem;">Perfil Sinalizado</strong>
+                    <p class="mb-2">Seu perfil foi sinalizado para análise adicional.</p>
+                    <div th:if="${profissional.motivoSinalizacao}" style="background: rgba(255, 255, 255, 0.2); padding: 0.75rem; border-radius: 6px; margin-top: 0.75rem;">
+                        <strong style="display: block; margin-bottom: 0.25rem;">Motivo da sinalização:</strong>
+                        <p class="mb-0" th:text="${profissional.motivoSinalizacao}"></p>
+                    </div>
+                    <p class="mb-0 mt-2">Entre em contato com o suporte se precisar de mais informações.</p>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${isProfissional && profissional != null && profissional.statusModeracao == 'REJECTED'}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="border-left: 5px solid #dc3545; padding: 1.25rem;">
+            <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                <i class="fas fa-times-circle me-2" style="font-size: 1.5rem; margin-top: 0.2rem;"></i>
+                <div style="flex: 1;">
+                    <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.25rem;">Perfil Rejeitado</strong>
+                    <p class="mb-0" th:if="${profissional.motivoRejeicao}">
+                        <strong>Motivo:</strong> <span th:text="${profissional.motivoRejeicao}"></span>
+                    </p>
+                    <p class="mb-0" th:if="!${profissional.motivoRejeicao}">
+                        Seu perfil foi rejeitado. Entre em contato com o suporte para mais detalhes.
+                    </p>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${isProfissional && profissional != null && profissional.statusModeracao == 'APPROVED'}" class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="border-left: 5px solid #28a745; padding: 1.25rem;">
+            <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                <i class="fas fa-check-circle me-2" style="font-size: 1.5rem; margin-top: 0.2rem;"></i>
+                <div style="flex: 1;">
+                    <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.25rem;">Perfil Aprovado!</strong>
+                    <p class="mb-0">Parabéns! Seu perfil foi aprovado e está visível para todos os clientes.</p>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${isProfissional && profissional != null && profissional.verificado}" class="alert alert-info alert-dismissible fade show mb-4" role="alert" style="border-left: 5px solid #17a2b8; padding: 1.25rem;">
+            <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                <i class="fas fa-badge-check me-2" style="font-size: 1.5rem; margin-top: 0.2rem;"></i>
+                <div style="flex: 1;">
+                    <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.25rem;">Identidade Verificada</strong>
+                    <p class="mb-0">Sua identidade foi verificada com sucesso! Você aparecerá como profissional confiável na plataforma.</p>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
 
         <!-- Abas de Navegação -->

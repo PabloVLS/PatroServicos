@@ -10,8 +10,6 @@ import java.util.List;
 @Repository
 public interface PhotoRepository extends JpaRepository<Photo, Long> {
 
-    Optional<Photo> findByUserId(Integer userId);
-
     Optional<Photo> findFirstByUserIdOrderByCreatedAtDesc(Integer userId);
 
     List<Photo> findByUserIdOrderByCreatedAtDesc(Integer userId);

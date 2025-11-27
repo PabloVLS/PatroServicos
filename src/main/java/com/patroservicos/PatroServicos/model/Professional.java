@@ -18,6 +18,10 @@ public class Professional {
     @Column(name = "user_id", nullable = false, unique = true)
     private Integer userId;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
+
     @Column(name = "area_atuacao", nullable = false, length = 255)
     private String areaAtuacao;
 
@@ -29,6 +33,9 @@ public class Professional {
 
     @Column(name = "whatsapp", length = 20)
     private String whatsapp;
+
+    @Column(name = "foto_perfil", length = 500)
+    private String fotoPerfil; // URL ou caminho da foto
 
     // Novos campos solicitados
     @Column(name = "tipo_servico", length = 255)
@@ -56,6 +63,28 @@ public class Professional {
     @Column(name = "verificacao_identidade", length = 255)
     private String verificacaoIdentidade; // nome arquivo ou status
 
+    // Campos de Moderação
+    @Column(name = "status_moderacao", length = 20, nullable = false)
+    private String statusModeracao; // PENDING, APPROVED, REJECTED, FLAGGED
+    
+    @Column(name = "motivo_rejeicao", length = 1000)
+    private String motivoRejeicao; // motivo da rejeição, se houver
+
+    @Column(name = "motivo_sinalizacao", length = 1000)
+    private String motivoSinalizacao; // motivo da sinalização, se houver
+
+    @Column(name = "data_aprovacao")
+    private LocalDateTime dataAprovacao;
+
+    @Column(name = "data_rejeicao")
+    private LocalDateTime dataRejeicao;
+
+    @Column(name = "moderador_id")
+    private Integer moderadorId; // ID do moderador que aprovou/rejeitou
+
+    @Column(name = "verificado")
+    private Boolean verificado = false; // Marca se o profissional foi verificado pelo moderador
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
 
@@ -72,6 +101,7 @@ public class Professional {
         this.descricao = descricao;
         this.experiencia = experiencia;
         this.whatsapp = whatsapp;
+        this.statusModeracao = "PENDING"; // Status inicial
         this.criadoEm = LocalDateTime.now();
         this.atualizadoEm = LocalDateTime.now();
     }
@@ -92,6 +122,9 @@ public class Professional {
     protected void onCreate() {
         criadoEm = LocalDateTime.now();
         atualizadoEm = LocalDateTime.now();
+        if (statusModeracao == null) {
+            statusModeracao = "PENDING";
+        }
     }
 
     /**
@@ -215,6 +248,54 @@ public class Professional {
         this.verificacaoIdentidade = verificacaoIdentidade;
     }
 
+    public String getStatusModeracao() {
+        return statusModeracao;
+    }
+
+    public void setStatusModeracao(String statusModeracao) {
+        this.statusModeracao = statusModeracao;
+    }
+
+    public String getMotivoRejeicao() {
+        return motivoRejeicao;
+    }
+
+    public void setMotivoRejeicao(String motivoRejeicao) {
+        this.motivoRejeicao = motivoRejeicao;
+    }
+
+    public String getMotivoSinalizacao() {
+        return motivoSinalizacao;
+    }
+
+    public void setMotivoSinalizacao(String motivoSinalizacao) {
+        this.motivoSinalizacao = motivoSinalizacao;
+    }
+
+    public LocalDateTime getDataAprovacao() {
+        return dataAprovacao;
+    }
+
+    public void setDataAprovacao(LocalDateTime dataAprovacao) {
+        this.dataAprovacao = dataAprovacao;
+    }
+
+    public LocalDateTime getDataRejeicao() {
+        return dataRejeicao;
+    }
+
+    public void setDataRejeicao(LocalDateTime dataRejeicao) {
+        this.dataRejeicao = dataRejeicao;
+    }
+
+    public Integer getModeradorId() {
+        return moderadorId;
+    }
+
+    public void setModeradorId(Integer moderadorId) {
+        this.moderadorId = moderadorId;
+    }
+
     public LocalDateTime getCriadoEm() {
         return criadoEm;
     }
@@ -231,6 +312,30 @@ public class Professional {
         this.atualizadoEm = atualizadoEm;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
+    }
+
+    public Boolean getVerificado() {
+        return verificado;
+    }
+
+    public void setVerificado(Boolean verificado) {
+        this.verificado = verificado;
+    }
+
     @Override
     public String toString() {
         return "Professional{" +
@@ -240,6 +345,7 @@ public class Professional {
                 ", descricao='" + descricao + '\'' +
                 ", experiencia='" + experiencia + '\'' +
                 ", whatsapp='" + whatsapp + '\'' +
+                ", statusModeracao='" + statusModeracao + '\'' +
                 ", criadoEm=" + criadoEm +
                 ", atualizadoEm=" + atualizadoEm +
                 '}';

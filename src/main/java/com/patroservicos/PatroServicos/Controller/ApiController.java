@@ -10,14 +10,20 @@ import org.springframework.web.bind.annotation.RestController;
 import com.patroservicos.PatroServicos.model.User;
 import com.patroservicos.PatroServicos.model.Photo;
 import com.patroservicos.PatroServicos.model.Professional;
+import com.patroservicos.PatroServicos.model.Report;
 import com.patroservicos.PatroServicos.repository.UserRepository;
 import com.patroservicos.PatroServicos.repository.ProfessionalRepository;
 import com.patroservicos.PatroServicos.service.IPhotoService;
+import com.patroservicos.PatroServicos.service.IReportService;
 
 import java.util.Optional;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api")
@@ -31,6 +37,9 @@ public class ApiController {
 
     @Autowired
     private ProfessionalRepository repositorioProfissional;
+
+    @Autowired
+    private IReportService servicoReport;
 
     /**
      * Retorna os dados do usuário autenticado atualmente.
@@ -70,6 +79,12 @@ public class ApiController {
         resposta.put("cidade", usuario.getCity());
         resposta.put("tipoConta", usuario.getTipoConta());
         resposta.put("funcoes", usuario.getRoles());
+        
+        // Adiciona as roles (autoridades) do Spring Security
+        List<String> roles = autenticacao.getAuthorities().stream()
+            .map(auth -> auth.getAuthority())
+            .collect(Collectors.toList());
+        resposta.put("roles", roles);
 
         // Verifica se o usuário é profissional
         Optional<Professional> profissionalOpt = repositorioProfissional.findByUserId(usuario.getId());
@@ -135,5 +150,113 @@ public class ApiController {
         
         resposta.put("userId", userId);
         return ResponseEntity.ok(resposta);
+    }
+
+    /**
+     * API para criar uma denúncia contra um profissional
+     */
+    @PostMapping("/report")
+    public ResponseEntity<?> criarDenuncia(
+            Authentication autenticacao,
+            @RequestParam(value = "professionalId") Integer professionalId,
+            @RequestParam(value = "descricao") String descricao) {
+
+        Map<String, Object> resposta = new HashMap<>();
+
+        // Verificar se usuário está autenticado
+        if (autenticacao == null || !autenticacao.isAuthenticated()) {
+            resposta.put("sucesso", false);
+            resposta.put("mensagem", "Você precisa estar logado para fazer uma denúncia.");
+            return ResponseEntity.status(401).body(resposta);
+        }
+
+        try {
+            String email = autenticacao.getName();
+            Optional<User> usuarioOpt = repositorioUsuario.findUserByEmail(email);
+
+            if (usuarioOpt.isEmpty()) {
+                resposta.put("sucesso", false);
+                resposta.put("mensagem", "Usuário não encontrado.");
+                return ResponseEntity.status(404).body(resposta);
+            }
+
+            Integer reporterId = usuarioOpt.get().getId();
+
+            // Impedir que um usuário denuncie a si mesmo
+            if (professionalId.equals(reporterId)) {
+                resposta.put("sucesso", false);
+                resposta.put("mensagem", "Você não pode fazer uma denúncia contra você mesmo.");
+                return ResponseEntity.status(400).body(resposta);
+            }
+
+            // Verificar se a descrição não está vazia
+            if (descricao == null || descricao.trim().isEmpty()) {
+                resposta.put("sucesso", false);
+                resposta.put("mensagem", "A descrição da denúncia não pode estar vazia.");
+                return ResponseEntity.status(400).body(resposta);
+            }
+
+            // Verificar se o profissional existe
+            Optional<Professional> professionalOpt = repositorioProfissional.findById(professionalId);
+            if (professionalOpt.isEmpty()) {
+                resposta.put("sucesso", false);
+                resposta.put("mensagem", "Profissional não encontrado.");
+                return ResponseEntity.status(404).body(resposta);
+            }
+
+            // Criar denúncia
+            Report report = servicoReport.createReport(professionalId, reporterId, descricao);
+
+            resposta.put("sucesso", true);
+            resposta.put("mensagem", "Denúncia enviada com sucesso! Nossa equipe analisará e entrará em contato se necessário.");
+            resposta.put("reportId", report.getId());
+            return ResponseEntity.ok(resposta);
+
+        } catch (IllegalArgumentException e) {
+            resposta.put("sucesso", false);
+            resposta.put("mensagem", e.getMessage());
+            return ResponseEntity.status(400).body(resposta);
+        } catch (Exception e) {
+            resposta.put("sucesso", false);
+            resposta.put("mensagem", "Erro ao processar denúncia: " + e.getMessage());
+            return ResponseEntity.status(500).body(resposta);
+        }
+    }
+
+    /**
+     * API para verificar se usuário já denunciou um profissional
+     */
+    @GetMapping("/report/check/{professionalId}")
+    public ResponseEntity<?> verificarDenuncia(
+            Authentication autenticacao,
+            @PathVariable Integer professionalId) {
+
+        Map<String, Object> resposta = new HashMap<>();
+
+        // Verificar se usuário está autenticado
+        if (autenticacao == null || !autenticacao.isAuthenticated()) {
+            resposta.put("jaDenunciou", false);
+            return ResponseEntity.ok(resposta);
+        }
+
+        try {
+            String email = autenticacao.getName();
+            Optional<User> usuarioOpt = repositorioUsuario.findUserByEmail(email);
+
+            if (usuarioOpt.isEmpty()) {
+                resposta.put("jaDenunciou", false);
+                return ResponseEntity.ok(resposta);
+            }
+
+            Integer reporterId = usuarioOpt.get().getId();
+            boolean jaDenunciou = servicoReport.hasUserReportedProfessional(professionalId, reporterId);
+
+            resposta.put("jaDenunciou", jaDenunciou);
+            return ResponseEntity.ok(resposta);
+
+        } catch (Exception e) {
+            resposta.put("jaDenunciou", false);
+            return ResponseEntity.ok(resposta);
+        }
     }
 }

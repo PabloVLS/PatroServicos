@@ -94,13 +94,15 @@ public class ProfessionalServiceImpl implements IProfessionalService {
             usuario != null ? usuario.getEmail() : null,
             usuario != null ? usuario.getCity() : null,
             mediaAvaliacao != null ? mediaAvaliacao : 0.0,
-            totalAvaliacoes != null ? totalAvaliacoes : 0
+            totalAvaliacoes != null ? totalAvaliacoes : 0,
+            prof.getVerificado() != null ? prof.getVerificado() : false
         );
     }
 
     @Override
     public List<ProfessionalDTO> getAllProfessionals() {
-        List<Professional> profissionais = profissionalRepository.findAll();
+        // Buscar apenas profissionais aprovados
+        List<Professional> profissionais = profissionalRepository.findApprovedProfessionals();
         
         return profissionais.stream()
             .map(this::toProfessionalDTO)
@@ -196,4 +198,171 @@ public class ProfessionalServiceImpl implements IProfessionalService {
             .sorted(Comparator.comparing(ProfessionalDTO::getId, Comparator.reverseOrder()))
             .collect(Collectors.toList());
     }
+
+    /**
+     * Ordena profissionais por verificação (verificados primeiro)
+     */
+    public List<ProfessionalDTO> sortByVerificado(List<ProfessionalDTO> profissionais) {
+        return profissionais.stream()
+            .sorted(Comparator.comparing(ProfessionalDTO::getVerificado, Comparator.reverseOrder()))
+            .collect(Collectors.toList());
+    }
+
+    // ===== MÉTODOS DE MODERAÇÃO =====
+
+    /**
+     * Busca todos os profissionais pendentes de aprovação
+     */
+    public List<Professional> getPendingProfessionals() {
+        return profissionalRepository.findPendingProfessionals();
+    }
+
+    /**
+     * Busca todos os profissionais aprovados
+     */
+    public List<Professional> getApprovedProfessionals() {
+        return profissionalRepository.findApprovedProfessionals();
+    }
+
+    /**
+     * Busca todos os profissionais sinalizados
+     */
+    public List<Professional> getFlaggedProfessionals() {
+        return profissionalRepository.findFlaggedProfessionals();
+    }
+
+    /**
+     * Busca todos os profissionais rejeitados
+     */
+    public List<Professional> getRejectedProfessionals() {
+        return profissionalRepository.findRejectedProfessionals();
+    }
+
+    /**
+     * Aprova um profissional
+     * @param professionalId ID do profissional
+     * @param moderadorId ID do moderador que aprovou
+     */
+    public Professional approveProfessional(Integer professionalId, Integer moderadorId) {
+        Optional<Professional> profOpt = profissionalRepository.findById(professionalId);
+        if (profOpt.isPresent()) {
+            Professional prof = profOpt.get();
+            prof.setStatusModeracao("APPROVED");
+            prof.setDataAprovacao(java.time.LocalDateTime.now());
+            prof.setModeradorId(moderadorId);
+            prof.setMotivoRejeicao(null); // Limpar motivo anterior se houver
+            
+            // Atualizar status do usuário para "profissional"
+            Optional<User> usuarioOpt = userRepository.findById(prof.getUserId());
+            if (usuarioOpt.isPresent()) {
+                User usuario = usuarioOpt.get();
+                usuario.setTipoConta("profissional");
+                userRepository.save(usuario);
+            }
+            
+            return profissionalRepository.save(prof);
+        }
+        return null;
+    }
+
+    /**
+     * Rejeita um profissional
+     * @param professionalId ID do profissional
+     * @param motivo Motivo da rejeição
+     * @param moderadorId ID do moderador que rejeitou
+     */
+    public Professional rejectProfessional(Integer professionalId, String motivo, Integer moderadorId) {
+        Optional<Professional> profOpt = profissionalRepository.findById(professionalId);
+        if (profOpt.isPresent()) {
+            Professional prof = profOpt.get();
+            prof.setStatusModeracao("REJECTED");
+            prof.setDataRejeicao(java.time.LocalDateTime.now());
+            prof.setMotivoRejeicao(motivo);
+            prof.setModeradorId(moderadorId);
+            
+            // Reverter status do usuário para "cliente"
+            Optional<User> usuarioOpt = userRepository.findById(prof.getUserId());
+            if (usuarioOpt.isPresent()) {
+                User usuario = usuarioOpt.get();
+                usuario.setTipoConta("cliente");
+                usuario.setProfissionalSolicitado(false);
+                userRepository.save(usuario);
+            }
+            
+            return profissionalRepository.save(prof);
+        }
+        return null;
+    }
+
+    /**
+     * Sinaliza um profissional para verificação
+     * @param professionalId ID do profissional
+     * @param moderadorId ID do moderador que sinalizou
+     * @param motivo Motivo da sinalização
+     */
+    public Professional flagProfessional(Integer professionalId, Integer moderadorId, String motivo) {
+        Optional<Professional> profOpt = profissionalRepository.findById(professionalId);
+        if (profOpt.isPresent()) {
+            Professional prof = profOpt.get();
+            prof.setStatusModeracao("FLAGGED");
+            prof.setModeradorId(moderadorId);
+            if (motivo != null && !motivo.isBlank()) {
+                prof.setMotivoSinalizacao(motivo);
+            } else {
+                prof.setMotivoSinalizacao("Não especificado");
+            }
+            return profissionalRepository.save(prof);
+        }
+        return null;
+    }
+
+    /**
+     * Remove um profissional da plataforma
+     * @param professionalId ID do profissional
+     */
+    public void removeProfessional(Integer professionalId) {
+        Optional<Professional> profOpt = profissionalRepository.findById(professionalId);
+        if (profOpt.isPresent()) {
+            Professional prof = profOpt.get();
+            
+            // Reverter status do usuário para "cliente"
+            Optional<User> usuarioOpt = userRepository.findById(prof.getUserId());
+            if (usuarioOpt.isPresent()) {
+                User usuario = usuarioOpt.get();
+                usuario.setTipoConta("cliente");
+                usuario.setProfissionalSolicitado(false);
+                userRepository.save(usuario);
+            }
+            
+            profissionalRepository.deleteById(professionalId);
+        }
+    }
+
+    /**
+     * Marca um profissional como verificado
+     */
+    public Professional marcarComoVerificado(Integer professionalId) {
+        Optional<Professional> profOpt = profissionalRepository.findById(professionalId);
+        if (profOpt.isPresent()) {
+            Professional prof = profOpt.get();
+            prof.setVerificado(true);
+            return profissionalRepository.save(prof);
+        }
+        return null;
+    }
+
+    /**
+     * Remove a marca de verificado de um profissional
+     */
+    public Professional removerVerificacao(Integer professionalId) {
+        Optional<Professional> profOpt = profissionalRepository.findById(professionalId);
+        if (profOpt.isPresent()) {
+            Professional prof = profOpt.get();
+            prof.setVerificado(false);
+            return profissionalRepository.save(prof);
+        }
+        return null;
+    }
 }
+
+
