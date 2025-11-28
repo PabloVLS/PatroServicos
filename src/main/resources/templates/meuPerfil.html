@@ -440,12 +440,12 @@
                     addImageToPortfolio(data.fotoId, data.fotoUrl, file.name);
                     console.log('Foto enviada com sucesso:', data.fotoId);
                 } else {
-                    alert('Erro ao enviar foto: ' + data.mensagem);
+                    showToast('Erro ao enviar foto: ' + data.mensagem, 'error');
                 }
             })
             .catch(error => {
                 console.error('Erro:', error);
-                alert('Erro ao enviar foto. Tente novamente.');
+                showToast('Erro ao enviar foto. Tente novamente.', 'error');
             });
         }
 
@@ -507,12 +507,12 @@
                         emptyMessage.style.display = 'block';
                     }
                 } else {
-                    alert('Erro ao remover foto: ' + data.mensagem);
+                    showToast('Erro ao remover foto: ' + data.mensagem, 'error');
                 }
             })
             .catch(error => {
                 console.error('Erro:', error);
-                alert('Erro ao remover foto. Tente novamente.');
+                showToast('Erro ao remover foto. Tente novamente.', 'error');
             });
         }
 

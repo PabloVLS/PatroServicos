@@ -181,8 +181,7 @@
             </main>
         </div>
     </div>
-    <!-- Não precisa de footer -->
-    <!-- <div th:replace="~{fragments/footer :: footer}"></div> -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
     <!-- Modal de Denúncia -->
     <div class="modal fade" id="modalDenuncia" tabindex="-1">
@@ -259,6 +258,52 @@
             const btnConfirmarDenuncia = document.getElementById('btnConfirmarDenuncia');
             if (btnConfirmarDenuncia) {
                 btnConfirmarDenuncia.addEventListener('click', enviarDenuncia);
+            }
+
+            // Registrar listener de envio do formulário de feedback (defensivo)
+            const feedbackFormEl = document.getElementById('feedbackForm');
+            if (feedbackFormEl) {
+                feedbackFormEl.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    console.log('Submit do formulário de feedback disparado');
+
+                    const avaliacao = document.querySelector('input[name="avaliacao"]:checked')?.value;
+                    const comentario = document.getElementById('comentarioInput').value;
+
+                    if (!avaliacao) {
+                        showToast('Por favor, selecione uma avaliação.', 'info');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('professionalId', profesionalIdGlobal);
+                    formData.append('avaliacao', avaliacao);
+                    if (comentario) {
+                        formData.append('comentario', comentario);
+                    }
+
+                    fetch('/api/feedback', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.sucesso) {
+                            showToast('Feedback enviado com sucesso!', 'success');
+                            cancelarFeedback();
+                            carregarFeedbacks(profesionalIdGlobal);
+                            obterFeedbackUsuario(profesionalIdGlobal);
+                        } else {
+                            showToast('Erro: ' + data.mensagem, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao enviar feedback:', error);
+                        showToast('Erro ao enviar feedback.', 'error');
+                    });
+                });
             }
         });
 
@@ -598,93 +643,63 @@
         }
 
         // Enviar formulário de feedback
-        document.getElementById('feedbackForm')?.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const avaliacao = document.querySelector('input[name="avaliacao"]:checked')?.value;
-            const comentario = document.getElementById('comentarioInput').value;
-
-            if (!avaliacao) {
-                alert('Por favor, selecione uma avaliação.');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('professionalId', profesionalIdGlobal);
-            formData.append('avaliacao', avaliacao);
-            if (comentario) {
-                formData.append('comentario', comentario);
-            }
-
-            fetch('/api/feedback', {
-                method: 'POST',
-                body: formData,
-                credentials: 'include'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.sucesso) {
-                    alert('Feedback enviado com sucesso!');
-                    cancelarFeedback();
-                    carregarFeedbacks(profesionalIdGlobal);
-                    obterFeedbackUsuario(profesionalIdGlobal);
-                } else {
-                    alert('Erro: ' + data.mensagem);
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao enviar feedback:', error);
-                alert('Erro ao enviar feedback.');
-            });
-        });
 
         // Funcionalidade do botão favoritar
-        document.getElementById('favorite-btn').addEventListener('click', function() {
-            const isActive = this.classList.contains('active');
-            
-            if (isActive) {
-                this.classList.remove('active');
-                this.innerHTML = '<i class="far fa-heart"></i> Favoritar';
-            } else {
-                this.classList.add('active');
-                this.innerHTML = '<i class="fas fa-heart"></i> Favoritado';
-            }
-        });
+        const favBtn = document.getElementById('favorite-btn');
+        if (favBtn) {
+            favBtn.addEventListener('click', function() {
+                const isActive = this.classList.contains('active');
+                
+                if (isActive) {
+                    this.classList.remove('active');
+                    this.innerHTML = '<i class="far fa-heart"></i> Favoritar';
+                } else {
+                    this.classList.add('active');
+                    this.innerHTML = '<i class="fas fa-heart"></i> Favoritado';
+                }
+            });
+        }
 
-        // Funcionalidade do botão de chat
-        document.getElementById('chat-btn').addEventListener('click', function() {
-            alert('Sistema de chat será implementado em breve!');
-        });
+        // Funcionalidade do botão de chat (se existir)
+        const chatBtn = document.getElementById('chat-btn');
+        if (chatBtn) {
+            chatBtn.addEventListener('click', function() {
+                showToast('Sistema de chat será implementado em breve!', 'info');
+            });
+        }
 
-        // Funcionalidade do botão WhatsApp
-        document.getElementById('whatsapp-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const whatsappNumber = this.getAttribute('data-whatsapp');
-            const profissionalNome = this.getAttribute('data-profissional-nome');
-            
-            if (!whatsappNumber || whatsappNumber.trim() === '') {
-                alert('Este profissional não informou um número de WhatsApp.');
-                return;
-            }
-            
-            // Formatar o número: remover caracteres especiais e adicionar código do país (55) se necessário
-            let numero = whatsappNumber.replace(/\D/g, '');
-            
-            // Se não começar com 55 (código do Brasil), adicionar
-            if (!numero.startsWith('55')) {
-                numero = '55' + numero;
-            }
-            
-            // Mensagem de saudação (inclui referência ao PatroServiços)
-            const mensagem = `Olá ${profissionalNome}! Gostaria de mais informações sobre seus serviços.\n\nEnviado via PatroServiços`;
-            
-            // Construir link do WhatsApp
-            const whatsappLink = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
-            
-            // Abrir em nova aba
-            window.open(whatsappLink, '_blank');
-        });
+        // Funcionalidade do botão WhatsApp (se existir)
+        const waBtn = document.getElementById('whatsapp-btn');
+        if (waBtn) {
+            waBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const whatsappNumber = this.getAttribute('data-whatsapp');
+                const profissionalNome = this.getAttribute('data-profissional-nome');
+                
+                if (!whatsappNumber || whatsappNumber.trim() === '') {
+                    showToast('Este profissional não informou um número de WhatsApp.', 'info');
+                    return;
+                }
+                
+                // Formatar o número: remover caracteres especiais e adicionar código do país (55) se necessário
+                let numero = whatsappNumber.replace(/\D/g, '');
+                
+                // Se não começar com 55 (código do Brasil), adicionar
+                if (!numero.startsWith('55')) {
+                    numero = '55' + numero;
+                }
+                
+                // Mensagem de saudação (inclui referência ao PatroServiços)
+                const mensagem = `Olá ${profissionalNome}! Gostaria de mais informações sobre seus serviços.\n\nEnviado via PatroServiços`;
+                
+                // Construir link do WhatsApp
+                const whatsappLink = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
+                
+                // Abrir em nova aba
+                window.open(whatsappLink, '_blank');
+            });
+        }
 
         // Função auxiliar para formatar data
         function formatarData(dataString) {
@@ -754,12 +769,12 @@
             const descricao = document.getElementById('descricaoDenuncia').value.trim();
 
             if (!descricao) {
-                alert('Por favor, descreva o problema que você está denunciando.');
+                showToast('Por favor, descreva o problema que você está denunciando.', 'info');
                 return;
             }
 
             if (descricao.length < 10) {
-                alert('A descrição deve ter pelo menos 10 caracteres.');
+                showToast('A descrição deve ter pelo menos 10 caracteres.', 'info');
                 return;
             }
 
@@ -775,7 +790,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.sucesso) {
-                    alert(data.mensagem);
+                    showToast(data.mensagem, 'success');
                     // Fechar modal
                     const modal = bootstrap.Modal.getInstance(document.getElementById('modalDenuncia'));
                     modal.hide();
@@ -789,12 +804,12 @@
                     btnDenunciar.style.opacity = '0.5';
                     btnDenunciar.style.cursor = 'not-allowed';
                 } else {
-                    alert('Erro: ' + data.mensagem);
+                    showToast('Erro: ' + data.mensagem, 'error');
                 }
             })
             .catch(error => {
                 console.error('Erro ao enviar denúncia:', error);
-                alert('Erro ao enviar denúncia. Tente novamente.');
+                showToast('Erro ao enviar denúncia. Tente novamente.', 'error');
             });
         }
     </script>

@@ -80,8 +80,8 @@ public class ProfessionalServiceImpl implements IProfessionalService {
         Optional<User> usuarioOpt = userRepository.findById(prof.getUserId());
         User usuario = usuarioOpt.orElse(null);
         
-        Double mediaAvaliacao = feedbackService.getAverageRatingByProfessionalId(prof.getUserId());
-        Integer totalAvaliacoes = feedbackService.countFeedbacksByProfessionalId(prof.getUserId());
+        Double mediaAvaliacao = feedbackService.getAverageRatingByProfessionalId(prof.getId());
+        Integer totalAvaliacoes = feedbackService.countFeedbacksByProfessionalId(prof.getId());
         
         return new ProfessionalDTO(
             prof.getId(),
