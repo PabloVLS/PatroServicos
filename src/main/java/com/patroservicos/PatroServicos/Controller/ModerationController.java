@@ -11,9 +11,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.patroservicos.PatroServicos.model.Professional;
 import com.patroservicos.PatroServicos.model.User;
 import com.patroservicos.PatroServicos.model.Report;
-import com.patroservicos.PatroServicos.repository.UserRepository;
 import com.patroservicos.PatroServicos.impl.ProfessionalServiceImpl;
 import com.patroservicos.PatroServicos.service.IReportService;
+import com.patroservicos.PatroServicos.service.IUserProfileService;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +32,7 @@ public class ModerationController {
     private ProfessionalServiceImpl servicoProfissional;
 
     @Autowired
-    private UserRepository repositorioUsuario;
+    private IUserProfileService servicoPerfil;
 
     @Autowired
     private IReportService servicoReport;
@@ -97,7 +97,7 @@ public class ModerationController {
 
         try {
             String email = autenticacao.getName();
-            Optional<User> moderadorOpt = repositorioUsuario.findUserByEmail(email);
+            var moderadorOpt = servicoPerfil.obterUsuarioPorEmail(email);
             Integer moderadorId = moderadorOpt.map(User::getId).orElse(null);
 
             Professional prof = servicoProfissional.approveProfessional(professionalId, moderadorId);
@@ -137,7 +137,7 @@ public class ModerationController {
 
         try {
             String email = autenticacao.getName();
-            Optional<User> moderadorOpt = repositorioUsuario.findUserByEmail(email);
+            var moderadorOpt = servicoPerfil.obterUsuarioPorEmail(email);
             Integer moderadorId = moderadorOpt.map(User::getId).orElse(null);
 
             if (motivo == null || motivo.isBlank()) {
@@ -181,7 +181,7 @@ public class ModerationController {
 
         try {
             String email = autenticacao.getName();
-            Optional<User> moderadorOpt = repositorioUsuario.findUserByEmail(email);
+            var moderadorOpt = servicoPerfil.obterUsuarioPorEmail(email);
             Integer moderadorId = moderadorOpt.map(User::getId).orElse(null);
 
             Professional prof = servicoProfissional.flagProfessional(professionalId, moderadorId, motivo);
@@ -321,7 +321,7 @@ public class ModerationController {
 
         try {
             String email = autenticacao.getName();
-            Optional<User> moderadorOpt = repositorioUsuario.findUserByEmail(email);
+            var moderadorOpt = servicoPerfil.obterUsuarioPorEmail(email);
             Integer moderadorId = moderadorOpt.map(User::getId).orElse(null);
 
             Report report = servicoReport.updateReportStatus(reportId, status, resposta, moderadorId);
@@ -358,7 +358,7 @@ public class ModerationController {
      */
     private List<Professional> enriquecerComDadosUsuario(List<Professional> profissionais) {
         for (Professional prof : profissionais) {
-            Optional<User> usuarioOpt = repositorioUsuario.findById(prof.getUserId());
+            var usuarioOpt = servicoPerfil.obterUsuarioPorId(prof.getUserId());
             // Dados do usuário são acessados via prof.getUserId() quando necessário no template
         }
         return profissionais;

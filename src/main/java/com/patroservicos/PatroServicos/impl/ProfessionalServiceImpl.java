@@ -9,9 +9,11 @@ import java.util.Comparator;
 
 import com.patroservicos.PatroServicos.model.Professional;
 import com.patroservicos.PatroServicos.model.User;
+import com.patroservicos.PatroServicos.model.Report;
 import com.patroservicos.PatroServicos.dto.ProfessionalDTO;
 import com.patroservicos.PatroServicos.repository.ProfessionalRepository;
 import com.patroservicos.PatroServicos.repository.UserRepository;
+import com.patroservicos.PatroServicos.repository.ReportRepository;
 import com.patroservicos.PatroServicos.service.IProfessionalService;
 import com.patroservicos.PatroServicos.service.IFeedbackService;
 
@@ -30,6 +32,9 @@ public class ProfessionalServiceImpl implements IProfessionalService {
 
     @Autowired
     private IFeedbackService feedbackService;
+
+    @Autowired
+    private ReportRepository reportRepository;
 
     @Override
     public Professional saveProfessional(Integer userId, String areaAtuacao, String descricao,
@@ -318,12 +323,19 @@ public class ProfessionalServiceImpl implements IProfessionalService {
 
     /**
      * Remove um profissional da plataforma
+     * Também remove todas as denúncias associadas ao profissional
      * @param professionalId ID do profissional
      */
     public void removeProfessional(Integer professionalId) {
         Optional<Professional> profOpt = profissionalRepository.findById(professionalId);
         if (profOpt.isPresent()) {
             Professional prof = profOpt.get();
+            
+            // Remover todas as denúncias associadas a este profissional
+            List<Report> reports = reportRepository.findByProfessionalId(professionalId);
+            if (reports != null && !reports.isEmpty()) {
+                reportRepository.deleteAll(reports);
+            }
             
             // Reverter status do usuário para "cliente"
             Optional<User> usuarioOpt = userRepository.findById(prof.getUserId());

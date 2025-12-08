@@ -112,7 +112,20 @@
     <script>
         // Carregar profissionais do servidor ao iniciar a página
         document.addEventListener('DOMContentLoaded', function () {
-            carregarProfissionaisDoBanco();
+            // Verificar se há parâmetro de busca na URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const termoBusca = urlParams.get('q');
+            
+            // Se houver termo de busca na URL, preencher o campo e buscar
+            if (termoBusca) {
+                const campoBusca = document.getElementById('campoBusca');
+                if (campoBusca) {
+                    campoBusca.value = decodeURIComponent(termoBusca);
+                }
+                carregarProfissionaisDoBanco();
+            } else {
+                carregarProfissionaisDoBanco();
+            }
 
             // Ligação do botão de busca e tecla Enter
             const botaoBusca = document.getElementById('botaoBusca');

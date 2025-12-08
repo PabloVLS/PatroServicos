@@ -10,9 +10,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.patroservicos.PatroServicos.model.User;
 import com.patroservicos.PatroServicos.dto.ProfessionalDTO;
-import com.patroservicos.PatroServicos.repository.UserRepository;
 import com.patroservicos.PatroServicos.service.IUserService;
 import com.patroservicos.PatroServicos.service.IProfessionalService;
+import com.patroservicos.PatroServicos.service.IUserProfileService;
 import com.patroservicos.PatroServicos.impl.ProfessionalServiceImpl;
 import java.util.Optional;
 import java.util.List;
@@ -30,7 +30,7 @@ public class ProfessionalController {
     private IUserService servicoUsuario;
 
     @Autowired
-    private UserRepository repositorioUsuario;
+    private IUserProfileService servicoPerfil;
 
     @Autowired
     private IProfessionalService servicoProfissional;
@@ -70,7 +70,7 @@ public class ProfessionalController {
         }
 
         // Buscar usuário pelo email
-        Optional<User> usuarioOpt = repositorioUsuario.findUserByEmail(email);
+        var usuarioOpt = servicoPerfil.obterUsuarioPorEmail(email);
         if (usuarioOpt.isEmpty()) {
             System.out.println("Usuário não encontrado para email: " + email);
             atributosRedirecionamento.addFlashAttribute("erro", "Usuário não encontrado.");

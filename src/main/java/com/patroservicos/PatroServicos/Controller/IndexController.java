@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.patroservicos.PatroServicos.model.User;
-import com.patroservicos.PatroServicos.repository.UserRepository;
 import com.patroservicos.PatroServicos.service.IUserService;
+import com.patroservicos.PatroServicos.service.IUserProfileService;
 import com.patroservicos.PatroServicos.service.IProfessionalService;
 
 import java.util.Optional;
@@ -23,7 +23,7 @@ public class IndexController {
     private IUserService servicoUsuario;
 
     @Autowired
-    private UserRepository repositorioUsuario;
+    private IUserProfileService servicoPerfil;
 
     @Autowired
     private IProfessionalService servicoProfissional;
@@ -96,7 +96,7 @@ public class IndexController {
         }
 
         String email = autenticacao.getName();
-        Optional<User> usuarioOpt = repositorioUsuario.findUserByEmail(email);
+        var usuarioOpt = servicoPerfil.obterUsuarioPorEmail(email);
 
         if (usuarioOpt.isEmpty()) {
             return "redirect:/login";
@@ -148,7 +148,7 @@ public class IndexController {
         }
 
         String email = autenticacao.getName();
-        Optional<User> usuarioOpt = repositorioUsuario.findUserByEmail(email);
+        var usuarioOpt = servicoPerfil.obterUsuarioPorEmail(email);
 
         if (usuarioOpt.isEmpty()) {
             atributosRedirecionamento.addFlashAttribute("erro", "Usuário não encontrado.");
@@ -164,7 +164,7 @@ public class IndexController {
         // Aqui você pode armazenar os dados profissionais em uma entidade separada (ex: ProfessionalProfile)
         // Por enquanto, estamos apenas marcando como profissional
         
-        repositorioUsuario.save(usuario);
+        servicoPerfil.salvarUsuario(usuario);
         atributosRedirecionamento.addFlashAttribute("sucesso", "Sua solicitação de cadastro como profissional foi recebida. Aguarde aprovação.");
         return "redirect:/perfil";
     }

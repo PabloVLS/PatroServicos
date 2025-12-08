@@ -23,6 +23,7 @@ import com.patroservicos.PatroServicos.service.IProfessionalService;
 import com.patroservicos.PatroServicos.service.IPortfolioPhotoService;
 import com.patroservicos.PatroServicos.service.IFotoService;
 import com.patroservicos.PatroServicos.service.IFeedbackService;
+import com.patroservicos.PatroServicos.service.IUserProfileService;
 
 import java.util.Base64;
 import java.io.IOException;
@@ -36,10 +37,7 @@ import java.util.ArrayList;
 public class ProfileController {
 
     @Autowired
-    private UserRepository repositorioUsuario;
-
-    @Autowired
-    private ProfessionalRepository repositorioProfissional;
+    private IUserProfileService servicoPerfil;
 
     @Autowired
     private IPhotoService servicoFoto;
@@ -63,7 +61,7 @@ public class ProfileController {
     @GetMapping("/perfil/{userId}")
     public String visualizarPerfilPublico(@PathVariable Integer userId, Model modelo) {
         try {
-            Optional<User> opcaoUsuario = repositorioUsuario.findById(userId);
+            var opcaoUsuario = servicoPerfil.obterUsuarioPorId(userId);
 
             if (opcaoUsuario.isEmpty()) {
                 modelo.addAttribute("erro", "Usuário não encontrado");
@@ -127,7 +125,7 @@ public class ProfileController {
         }
 
         String email = autenticacao.getName();
-        Optional<User> opcaoUsuario = repositorioUsuario.findUserByEmail(email);
+        var opcaoUsuario = servicoPerfil.obterUsuarioPorEmail(email);
 
         if (opcaoUsuario.isEmpty()) {
             return "redirect:/login";
@@ -179,7 +177,7 @@ public class ProfileController {
             }
         }
 
-        repositorioUsuario.save(usuario);
+        servicoPerfil.salvarUsuario(usuario);
         atributosRedirecionamento.addFlashAttribute("sucesso", "Perfil atualizado com sucesso.");
         return "redirect:/perfil";
     }
@@ -202,7 +200,7 @@ public class ProfileController {
         }
 
         String email = autenticacao.getName();
-        Optional<User> opcaoUsuario = repositorioUsuario.findUserByEmail(email);
+        var opcaoUsuario = servicoPerfil.obterUsuarioPorEmail(email);
 
         if (opcaoUsuario.isEmpty()) {
             resposta.put("sucesso", false);
@@ -277,7 +275,7 @@ public class ProfileController {
         }
 
         String email = autenticacao.getName();
-        Optional<User> opcaoUsuario = repositorioUsuario.findUserByEmail(email);
+        var opcaoUsuario = servicoPerfil.obterUsuarioPorEmail(email);
 
         if (opcaoUsuario.isEmpty()) {
             resposta.put("sucesso", false);
@@ -312,7 +310,7 @@ public class ProfileController {
         }
 
         String email = autenticacao.getName();
-        Optional<User> opcaoUsuario = repositorioUsuario.findUserByEmail(email);
+        var opcaoUsuario = servicoPerfil.obterUsuarioPorEmail(email);
 
         if (opcaoUsuario.isEmpty()) {
             resposta.put("sucesso", false);
@@ -352,7 +350,7 @@ public class ProfileController {
     @GetMapping("/profissional/{userId}")
     public String visualizarPerfilProfissional(@PathVariable Integer userId, Model modelo) {
         try {
-            Optional<User> opcaoUsuario = repositorioUsuario.findById(userId);
+            var opcaoUsuario = servicoPerfil.obterUsuarioPorId(userId);
             
             if (opcaoUsuario.isEmpty()) {
                 return "redirect:/profissionais";
@@ -455,7 +453,7 @@ public class ProfileController {
         }
 
         String email = autenticacao.getName();
-        Optional<User> opcaoUsuario = repositorioUsuario.findUserByEmail(email);
+        var opcaoUsuario = servicoPerfil.obterUsuarioPorEmail(email);
 
         if (opcaoUsuario.isEmpty()) {
             resposta.put("sucesso", false);
@@ -525,7 +523,7 @@ public class ProfileController {
             List<FeedbackDTO> feedbacksDTO = new ArrayList<>();
             for (Feedback feedback : feedbacks) {
                 @SuppressWarnings("null")
-                Optional<User> usuarioOpt = repositorioUsuario.findById(feedback.getUserId());
+                var usuarioOpt = servicoPerfil.obterUsuarioPorId(feedback.getUserId());
                 if (usuarioOpt.isPresent()) {
                     User usuarioFeedback = usuarioOpt.get();
                     
@@ -583,7 +581,7 @@ public class ProfileController {
         }
 
         String email = autenticacao.getName();
-        Optional<User> opcaoUsuario = repositorioUsuario.findUserByEmail(email);
+        var opcaoUsuario = servicoPerfil.obterUsuarioPorEmail(email);
 
         if (opcaoUsuario.isEmpty()) {
             resposta.put("sucesso", false);
@@ -630,7 +628,7 @@ public class ProfileController {
         }
 
         String email = autenticacao.getName();
-        Optional<User> opcaoUsuario = repositorioUsuario.findUserByEmail(email);
+        var opcaoUsuario = servicoPerfil.obterUsuarioPorEmail(email);
 
         if (opcaoUsuario.isEmpty()) {
             resposta.put("sucesso", false);
@@ -690,7 +688,7 @@ public class ProfileController {
                 
                 // Buscar o profissional pelo ID da entidade Professional
                 Integer professionalId = feedback.getProfessionalId();
-                Optional<Professional> profOpt = repositorioProfissional.findById(professionalId);
+                var profOpt = servicoProfissional.getProfessionalById(professionalId);
                 System.out.println("Professional encontrado com ID " + professionalId + ": " + profOpt.isPresent());
                 
                 String professionalName = "Profissional Desconhecido";
@@ -701,7 +699,7 @@ public class ProfileController {
                     Integer professionalUserId = professional.getUserId();
                     
                     // Buscar nome do usuário
-                    Optional<User> userOpt = repositorioUsuario.findById(professionalUserId);
+                    var userOpt = servicoPerfil.obterUsuarioPorId(professionalUserId);
                     System.out.println("User encontrado para userId " + professionalUserId + ": " + userOpt.isPresent());
                     
                     if (userOpt.isPresent()) {
