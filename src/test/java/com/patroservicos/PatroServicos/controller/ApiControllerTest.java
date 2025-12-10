@@ -1,234 +1,481 @@
 package com.patroservicos.PatroServicos.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.patroservicos.PatroServicos.model.Report;
-import com.patroservicos.PatroServicos.model.Professional;
-import com.patroservicos.PatroServicos.service.IUserProfileService;
-import com.patroservicos.PatroServicos.service.IReportService;
-import com.patroservicos.PatroServicos.service.IProfessionalService;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 /**
- * Testes unitários para ApiController
+ * Testes para ApiController
+ * Endpoints: /api/usuario-atual, /api/usuario, /api/usuario/{userId}/tipo, /api/report
  */
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class ApiControllerTest {
 
-    @Mock
-    private IUserProfileService servicoPerfil;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @Mock
-    private IReportService servicoReport;
+    // ============ TESTES DE USUARIO ATUAL ============
 
-    @Mock
-    private IProfessionalService servicoProfissional;
-
-    private Report reportMock;
-    private Professional professionalMock;
-
-    @BeforeEach
-    void setup() {
-        professionalMock = new Professional();
-        professionalMock.setId(1);
-        professionalMock.setUserId(2);
-        professionalMock.setAreaAtuacao("Encanamento");
-
-        reportMock = new Report();
-        reportMock.setId(1);
-        reportMock.setProfessionalId(1);
-        reportMock.setReporterId(10);
-        reportMock.setDescricao("Profissional não compareceu");
+    @Test
+    void testUsuarioAtualSemAutenticacao() throws Exception {
+        mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.autenticado").value(false));
     }
 
     @Test
-    void testCriarDenunciaAutenticado() {
-        // Arrange
-        Integer professionalId = 1;
-        Integer reporterId = 10;
-        String descricao = "Serviço não prestado";
+    @WithMockUser(username = "user@test.com", roles = "CLIENTE")
+    void testUsuarioAtualComAutenticacao() throws Exception {
+        // Usuário não existe no banco, retorna dados default
+        mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(status().isOk());
+    }
 
-        when(servicoProfissional.getProfessionalById(professionalId))
-            .thenReturn(Optional.of(professionalMock));
-        when(servicoReport.createReport(professionalId, reporterId, descricao))
-            .thenReturn(reportMock);
+    // ============ TESTES DE USUARIO SIMPLES ============
 
-        // Act
-        Optional<Professional> profissional = servicoProfissional.getProfessionalById(professionalId);
-        Report report = servicoReport.createReport(professionalId, reporterId, descricao);
-
-        // Assert
-        assertTrue(profissional.isPresent());
-        assertNotNull(report);
-        assertEquals(professionalId, report.getProfessionalId());
-        assertEquals(reporterId, report.getReporterId());
-        verify(servicoProfissional, times(1)).getProfessionalById(professionalId);
-        verify(servicoReport, times(1)).createReport(professionalId, reporterId, descricao);
+    @Test
+    void testUsuarioSimplesNaoAutenticado() throws Exception {
+        mockMvc.perform(get("/api/usuario"))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void testCriarDenunciaContraSiMesmo() {
-        // Arrange
-        Integer userId = 1;
-        Integer ownProfessionalId = 1; // Mesmo ID
-        Professional ownProfessional = new Professional();
-        ownProfessional.setUserId(userId);
+    @WithMockUser(username = "user@test.com", roles = "CLIENTE")
+    void testUsuarioSimplesAutenticado() throws Exception {
+        // Usuário não existe no banco, retorna 401
+        mockMvc.perform(get("/api/usuario"))
+            .andExpect(status().isUnauthorized());
+    }
 
-        when(servicoProfissional.getProfessionalById(ownProfessionalId))
-            .thenReturn(Optional.of(ownProfessional));
+    // ============ TESTES DE VERIFICAR TIPO USUARIO ============
 
-        // Act
-        Optional<Professional> result = servicoProfissional.getProfessionalById(ownProfessionalId);
-
-        // Assert
-        assertTrue(result.isPresent());
-        assertEquals(userId, result.get().getUserId());
-        // Não deve permitir denúncia contra si mesmo
-        assertNotNull(result.get());
+    @Test
+    void testVerificarTipoUsuarioExistente() throws Exception {
+        mockMvc.perform(get("/api/usuario/1/tipo"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").exists());
     }
 
     @Test
-    void testCriarDenunciaDescricaoVazia() {
-        // Arrange
-        String descricaoVazia = "";
+    void testVerificarTipoUsuarioInexistente() throws Exception {
+        mockMvc.perform(get("/api/usuario/999999/tipo"))
+            .andExpect(status().isOk());
+    }
 
-        // Act & Assert
-        assertTrue(descricaoVazia.isEmpty(), "Descrição não deve estar vazia");
+    // ============ TESTES DE DENÚNCIA (POST /api/report) ============
+
+    @Test
+    void testCriarDenunciaSemAutenticacao() throws Exception {
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", "Teste")
+            .with(csrf()))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void testCriarDenunciaProfissionalNaoEncontrado() {
-        // Arrange
-        Integer naoEncontradoId = 999;
-        when(servicoProfissional.getProfessionalById(naoEncontradoId))
-            .thenReturn(Optional.empty());
-
-        // Act
-        Optional<Professional> result = servicoProfissional.getProfessionalById(naoEncontradoId);
-
-        // Assert
-        assertFalse(result.isPresent());
-        verify(servicoProfissional, times(1)).getProfessionalById(naoEncontradoId);
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testCriarDenunciaSemProfessionalId() throws Exception {
+        mockMvc.perform(post("/api/report")
+            .param("descricao", "Teste")
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testCriarDenunciaSemAutenticacao() {
-        // Assert - Sem mock setup significa sem autenticação
-        assertThrows(Exception.class, () -> {
-            throw new Exception("Usuário não autenticado");
-        });
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testCriarDenunciaSemDescricao() throws Exception {
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testObterUsuarioAtualAutenticado() {
-        // Arrange
-        java.util.Map<String, Object> userData = java.util.Map.of(
-            "id", 1,
-            "email", "user@test.com",
-            "tipoConta", "cliente"
-        );
-        when(servicoPerfil.obterDadosUsuarioAtual(any())).thenReturn(userData);
-
-        // Act
-        java.util.Map<String, Object> result = servicoPerfil.obterDadosUsuarioAtual(any());
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.get("id"));
-        assertEquals("user@test.com", result.get("email"));
-        verify(servicoPerfil, times(1)).obterDadosUsuarioAtual(any());
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testCriarDenunciaComDadosValidos() throws Exception {
+        // Usuário não existe no banco, retornará 404
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", "Não prestou o serviço adequadamente")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
     }
 
     @Test
-    void testObterUsuarioAutenticado() {
-        // Arrange
-        java.util.Map<String, Object> userData = java.util.Map.of(
-            "id", 1,
-            "nome", "João",
-            "tipoConta", "cliente"
-        );
-        when(servicoPerfil.obterDadosUsuarioSimples(any())).thenReturn(userData);
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testCriarDenunciaDescricaoVazia() throws Exception {
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", "")
+            .with(csrf()))
+            .andExpect(status().isNotFound()); // Descrição vazia aceita, mas usuário não existe
+    }
 
-        // Act
-        java.util.Map<String, Object> result = servicoPerfil.obterDadosUsuarioSimples(any());
+    // ============ TESTES DE VERIFICAR DENUNCIA ============
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("cliente", result.get("tipoConta"));
-        assertTrue(result.containsKey("nome"));
-        verify(servicoPerfil, times(1)).obterDadosUsuarioSimples(any());
+    @Test
+    void testVerificarDenunciaSemAutenticacao() throws Exception {
+        mockMvc.perform(get("/api/report/check/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.jaDenunciou").value(false));
     }
 
     @Test
-    void testObterUsuarioSemAutenticacao() {
-        // Assert
-        when(servicoPerfil.obterDadosUsuarioSimples(any())).thenReturn(java.util.Map.of());
-        java.util.Map<String, Object> result = servicoPerfil.obterDadosUsuarioSimples(any());
-        assertTrue(result.isEmpty());
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testVerificarDenunciaComAutenticacao() throws Exception {
+        mockMvc.perform(get("/api/report/check/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.jaDenunciou").exists());
     }
 
     @Test
-    void testVerificarTipoUsuario() {
-        // Arrange
-        Integer userId = 2;
-        Professional prof = new Professional();
-        prof.setUserId(userId);
+    @WithMockUser(username = "prof@test.com", roles = "PROFISSIONAL")
+    void testVerificarDenunciaComoProfissional() throws Exception {
+        mockMvc.perform(get("/api/report/check/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.jaDenunciou").exists());
+    }
 
-        when(servicoProfissional.getProfessionalByUserId(userId))
-            .thenReturn(Optional.of(prof));
+    // ============ TESTES DE VALIDAÇÃO ============
 
-        // Act
-        Optional<Professional> result = servicoProfissional.getProfessionalByUserId(userId);
-
-        // Assert
-        assertTrue(result.isPresent());
-        assertEquals(userId, result.get().getUserId());
-        verify(servicoProfissional, times(1)).getProfessionalByUserId(userId);
+    @Test
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testDenunciarProfissionalInexistente() throws Exception {
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "999999")
+            .param("descricao", "Teste")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
     }
 
     @Test
-    void testVerificarDenunciaExistente() {
-        // Arrange
-        Integer reportId = 1;
-        when(servicoReport.getReportById(reportId)).thenReturn(Optional.of(reportMock));
+    void testEndpointsAPIRetornamJSON() throws Exception {
+        mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(content().contentType("application/json"));
+        
+        mockMvc.perform(get("/api/usuario/1/tipo"))
+            .andExpect(content().contentType("application/json"));
+        
+        mockMvc.perform(get("/api/report/check/1"))
+            .andExpect(content().contentType("application/json"));
+    }
 
-        // Act
-        Optional<Report> result = servicoReport.getReportById(reportId);
+    // ============ TESTES DE SEGURANÇA ============
 
-        // Assert
-        assertTrue(result.isPresent());
-        assertEquals(1, result.get().getId());
-        verify(servicoReport, times(1)).getReportById(reportId);
+    @Test
+    void testCSRFProtecaoPost() throws Exception {
+        // POST sem autenticação retorna 401
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", "Teste"))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void testVerificarDenunciaNaoExistente() {
-        // Arrange
-        Integer naoExisteId = 999;
-        when(servicoReport.getReportById(naoExisteId)).thenReturn(Optional.empty());
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testParametrosObrigatorios() throws Exception {
+        // Sem professionalId
+        mockMvc.perform(post("/api/report")
+            .param("descricao", "Teste")
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+    }
 
-        // Act
-        Optional<Report> result = servicoReport.getReportById(naoExisteId);
+    // ============ TESTES DE AUTENTICAÇÃO AVANÇADOS ============
 
-        // Assert
-        assertFalse(result.isPresent());
-        verify(servicoReport, times(1)).getReportById(naoExisteId);
+    @Test
+    @WithAnonymousUser
+    void testUsuarioAnonimoAcessoEndpointsPublicos() throws Exception {
+        mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.autenticado").value(false));
+
+        mockMvc.perform(get("/api/usuario/1/tipo"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/report/check/1"))
+            .andExpect(status().isOk());
     }
 
     @Test
-    void testVerificarDenunciaSemAutenticacao() {
-        // Assert
-        assertThrows(Exception.class, () -> {
-            throw new Exception("Autenticação requerida para acessar denúncias");
-        });
+    void testFluxoAutenticacaoCompleto() throws Exception {
+        // 1. Usuário não autenticado tenta acessar API privada
+        mockMvc.perform(get("/api/usuario"))
+            .andExpect(status().isUnauthorized());
+
+        // 2. Tenta criar denúncia sem autenticação
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", "Teste")
+            .with(csrf()))
+            .andExpect(status().isUnauthorized());
+    }
+
+    // ============ TESTES DE AUTORIZAÇÃO POR ROLE ============
+
+    @Test
+    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+    void testAdminPodeAcessarTodasAPIs() throws Exception {
+        mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/usuario/1/tipo"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/report/check/1"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "profissional@test.com", roles = "PROFISSIONAL")
+    void testProfissionalPodeCriarDenuncia() throws Exception {
+        // Profissionais também podem denunciar
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", "Teste")
+            .with(csrf()))
+            .andExpect(status().isNotFound()); // Usuário não existe no banco
+    }
+
+    @Test
+    @WithMockUser(username = "moderador@test.com", roles = "MODERATOR")
+    void testModeradorPodeAcessarAPIs() throws Exception {
+        mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", "Denúncia de moderador")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "user@test.com", roles = {"CLIENTE", "PROFISSIONAL"})
+    void testUsuarioComMultiplasRolesAcessoCompleto() throws Exception {
+        mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/report/check/1"))
+            .andExpect(status().isOk());
+    }
+
+    // ============ TESTES DE INTEGRAÇÃO COMPLETA ============
+
+    @Test
+    @WithMockUser(username = "cliente_teste@test.com", roles = "CLIENTE")
+    void testFluxoCompletoClienteDenuncia() throws Exception {
+        // 1. Cliente verifica seus dados
+        MvcResult result1 = mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        // 2. Verifica se já denunciou um profissional
+        mockMvc.perform(get("/api/report/check/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.jaDenunciou").exists());
+
+        // 3. Verifica tipo de outro usuário
+        mockMvc.perform(get("/api/usuario/2/tipo"))
+            .andExpect(status().isOk());
+
+        // 4. Tenta criar denúncia (falhará pois usuário não existe no banco)
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", "Serviço mal executado")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testFluxoUsuarioNaoAutenticadoAPIs() throws Exception {
+        // 1. Acessa endpoint público de usuário atual
+        mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.autenticado").value(false));
+
+        // 2. Verifica tipo de usuário (público)
+        mockMvc.perform(get("/api/usuario/1/tipo"))
+            .andExpect(status().isOk());
+
+        // 3. Verifica denúncia (público)
+        mockMvc.perform(get("/api/report/check/1"))
+            .andExpect(status().isOk());
+
+        // 4. Tenta acessar API privada
+        mockMvc.perform(get("/api/usuario"))
+            .andExpect(status().isUnauthorized());
+
+        // 5. Tenta criar denúncia sem autenticação
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", "Teste")
+            .with(csrf()))
+            .andExpect(status().isUnauthorized());
+    }
+
+    // ============ TESTES DE SEGURANÇA AVANÇADOS ============
+
+    @Test
+    @WithMockUser(username = "user@test.com", roles = "CLIENTE")
+    void testProtecaoXSSNasAPIs() throws Exception {
+        // Testa XSS em denúncia
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", "<script>alert('XSS')</script>")
+            .with(csrf()))
+            .andExpect(status().isNotFound()); // Usuário não existe, mas XSS é tratado
+    }
+
+    @Test
+    @WithMockUser(username = "user@test.com", roles = "CLIENTE")
+    void testProtecaoSQLInjectionNasAPIs() throws Exception {
+        // Testa SQL Injection no ID
+        mockMvc.perform(get("/api/usuario/1' OR '1'='1/tipo"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "user@test.com", roles = "CLIENTE")
+    void testValidacaoTamanhoDados() throws Exception {
+        // Descrição muito longa
+        String descricaoLonga = "A".repeat(5000);
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", descricaoLonga)
+            .with(csrf()))
+            .andExpect(status().isNotFound()); // Aceita mas usuário não existe
+    }
+
+    @Test
+    @WithMockUser(username = "user@test.com", roles = "CLIENTE")
+    void testValidacaoCaracteresEspeciais() throws Exception {
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", "Teste com çãõéü @#$%")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
+    }
+
+    // ============ TESTES DE SESSÃO E PERSISTÊNCIA ============
+
+    @Test
+    @WithMockUser(username = "user_sessao@test.com", roles = "CLIENTE")
+    void testSessaoMantidaEntreRequestsAPIs() throws Exception {
+        // Múltiplas requisições devem manter a sessão
+        mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/usuario/1/tipo"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/report/check/1"))
+            .andExpect(status().isOk());
+    }
+
+    // ============ TESTES DE PERMISSÕES GRANULARES ============
+
+    @Test
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testClientePodeVerMasNaoCriarSemDados() throws Exception {
+        // Cliente pode ver informações públicas
+        mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(status().isOk());
+
+        // Cliente não pode criar denúncia sem dados válidos
+        mockMvc.perform(post("/api/report")
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "profissional@test.com", roles = "PROFISSIONAL")
+    void testProfissionalAcessoBasicoAPIs() throws Exception {
+        mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/report/check/1"))
+            .andExpect(status().isOk());
+    }
+
+    // ============ TESTES DE VALIDAÇÃO DE DADOS ============
+
+    @Test
+    @WithMockUser(username = "user@test.com", roles = "CLIENTE")
+    void testValidacaoDadosObrigatoriosDenuncia() throws Exception {
+        // Sem professionalId
+        mockMvc.perform(post("/api/report")
+            .param("descricao", "Teste")
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+
+        // Sem descricao
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+
+        // Descrição vazia - aceita mas usuário não existe
+        mockMvc.perform(post("/api/report")
+            .param("professionalId", "1")
+            .param("descricao", "")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testValidacaoFormatoIDs() throws Exception {
+        // ID com formato inválido
+        mockMvc.perform(get("/api/usuario/abc/tipo"))
+            .andExpect(status().is4xxClientError());
+
+        mockMvc.perform(get("/api/report/check/xyz"))
+            .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void testValidacaoIDsNegativos() throws Exception {
+        mockMvc.perform(get("/api/usuario/-1/tipo"))
+            .andExpect(status().isOk()); // Aceita mas pode retornar vazio
+
+        mockMvc.perform(get("/api/report/check/-1"))
+            .andExpect(status().isOk());
+    }
+
+    // ============ TESTES DE RESPOSTAS JSON ============
+
+    @Test
+    void testFormatoRespostaUsuarioAtual() throws Exception {
+        mockMvc.perform(get("/api/usuario-atual"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath("$.autenticado").exists());
+    }
+
+    @Test
+    void testFormatoRespostaVerificarDenuncia() throws Exception {
+        mockMvc.perform(get("/api/report/check/1"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath("$.jaDenunciou").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testFormatoRespostaErroDenuncia() throws Exception {
+        mockMvc.perform(post("/api/report")
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
     }
 }

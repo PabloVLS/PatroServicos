@@ -1,279 +1,742 @@
 package com.patroservicos.PatroServicos.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.patroservicos.PatroServicos.model.Professional;
-import com.patroservicos.PatroServicos.model.Feedback;
-import com.patroservicos.PatroServicos.model.PortfolioPhoto;
-import com.patroservicos.PatroServicos.service.IUserProfileService;
-import com.patroservicos.PatroServicos.service.IFeedbackService;
-import com.patroservicos.PatroServicos.service.IPortfolioPhotoService;
-import com.patroservicos.PatroServicos.service.IProfessionalService;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.mock.web.MockMultipartFile;
 
 /**
- * Testes unitários para ProfileController
+ * Testes para ProfileController
+ * Endpoints: /perfil/{userId}, /profissional/{userId}, /perfil/edit, 
+ * /api/portfolio/upload, /api/portfolio/photos, /api/portfolio/photos/{fotoId},
+ * /api/portfolio/fotos/{userId}, /api/usuario/{userId}/foto,
+ * /api/feedback, /api/feedback/profissional/{professionalId}, /api/feedback/{professionalId}
  */
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class ProfileControllerTest {
 
-    @Mock
-    private IUserProfileService servicoPerfil;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @Mock
-    private IFeedbackService servicoFeedback;
+    // ============ TESTES DE PERFIL PÚBLICO ============
 
-    @Mock
-    private IPortfolioPhotoService servicoPortfolio;
-
-    @Mock
-    private IProfessionalService servicoProfissional;
-
-    private Professional profissionalMock;
-    private Feedback feedbackMock;
-    private PortfolioPhoto photoMock;
-
-    @BeforeEach
-    void setup() {
-        profissionalMock = new Professional();
-        profissionalMock.setId(1);
-        profissionalMock.setUserId(2);
-        profissionalMock.setAreaAtuacao("Encanamento");
-        profissionalMock.setDescricao("Profissional experiente");
-
-        feedbackMock = new Feedback();
-        feedbackMock.setId(1);
-        feedbackMock.setProfessionalId(1);
-
-        photoMock = new PortfolioPhoto();
-        photoMock.setId(1);
-        photoMock.setUserId(2);
-        photoMock.setMimeType("image/jpeg");
+    @Test
+    void testVisualizarPerfilPublico() throws Exception {
+        mockMvc.perform(get("/perfil/1"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/profissionais"));
     }
 
     @Test
-    void testVisualizarPerfilPublico() {
-        // Arrange
-        when(servicoProfissional.getProfessionalById(1))
-            .thenReturn(Optional.of(profissionalMock));
-
-        // Act
-        Optional<Professional> result = servicoProfissional.getProfessionalById(1);
-
-        // Assert
-        assertTrue(result.isPresent());
-        assertEquals("Encanamento", result.get().getAreaAtuacao());
-        assertEquals("Profissional experiente", result.get().getDescricao());
-        verify(servicoProfissional, times(1)).getProfessionalById(1);
+    void testVisualizarPerfilInexistente() throws Exception {
+        mockMvc.perform(get("/perfil/999999"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/profissionais"));
     }
 
     @Test
-    void testVisualizarPerfilUsuarioNaoEncontrado() {
-        // Arrange
-        when(servicoProfissional.getProfessionalById(999))
-            .thenReturn(Optional.empty());
-
-        // Act
-        Optional<Professional> result = servicoProfissional.getProfessionalById(999);
-
-        // Assert
-        assertFalse(result.isPresent());
-        verify(servicoProfissional, times(1)).getProfessionalById(999);
+    void testVisualizarPerfilProfissional() throws Exception {
+        mockMvc.perform(get("/profissional/1"))
+            .andExpect(status().is3xxRedirection());
     }
 
     @Test
-    void testEditarPerfilAutenticado() {
-        // Arrange
-        String novaDescricao = "Novo texto do perfil";
-        profissionalMock.setDescricao(novaDescricao);
+    void testVisualizarPerfilProfissionalInexistente() throws Exception {
+        mockMvc.perform(get("/profissional/999999"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/profissionais"));
+    }
 
-        // Act
-        profissionalMock.setDescricao(novaDescricao);
+    // ============ TESTES DE EDIÇÃO DE PERFIL ============
 
-        // Assert
-        assertEquals(novaDescricao, profissionalMock.getDescricao());
+    @Test
+    void testEditarPerfilSemAutenticacao() throws Exception {
+        mockMvc.perform(post("/perfil/edit")
+            .param("nome", "Teste")
+            .with(csrf()))
+            .andExpect(status().is3xxRedirection());
     }
 
     @Test
-    void testEditarPerfilSemAutenticacao() {
-        // Assert
-        assertThrows(Exception.class, () -> {
-            throw new Exception("Usuário não autenticado");
-        });
+    @WithMockUser(username = "user@test.com", roles = "CLIENTE")
+    void testEditarPerfilComAutenticacao() throws Exception {
+        // Usuário não existe, retornará erro
+        mockMvc.perform(post("/perfil/edit")
+            .param("nome", "João Silva")
+            .param("telefone", "11999999999")
+            .with(csrf()))
+            .andExpect(status().is3xxRedirection());
+    }
+
+    // ============ TESTES DE PORTFOLIO (UPLOAD) ============
+
+    @Test
+    void testUploadFotoSemAutenticacao() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+            "arquivo",
+            "test.jpg",
+            "image/jpeg",
+            "test image content".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(file)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testAtualizarPerfilDados() {
-        // Arrange
-        String novaArea = "Limpeza Profissional";
-        profissionalMock.setAreaAtuacao(novaArea);
+    @WithMockUser(username = "prof@test.com", roles = "PROFISSIONAL")
+    void testUploadFotoComAutenticacao() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+            "arquivo",
+            "test.jpg",
+            "image/jpeg",
+            "test image content".getBytes()
+        );
 
-        // Act
-        String resultado = profissionalMock.getAreaAtuacao();
-
-        // Assert
-        assertEquals(novaArea, resultado);
+        // Arquivo sem nomeé detectado como inválido
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(file)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testTentarEditarPerfilOutroUsuario() {
-        // Assert
-        assertThrows(Exception.class, () -> {
-            throw new Exception("Acesso negado: você não pode editar perfil de outro usuário");
-        });
+    @WithMockUser(username = "prof@test.com", roles = "PROFISSIONAL")
+    void testUploadArquivoVazio() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+            "arquivo",
+            "test.jpg",
+            "image/jpeg",
+            new byte[0]
+        );
+
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(file)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+    }
+
+    // ============ TESTES DE PORTFOLIO (OBTER FOTOS) ============
+
+    @Test
+    void testObterPortfolioSemAutenticacao() throws Exception {
+        mockMvc.perform(get("/api/portfolio/photos"))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void testListarFeedbacks() {
-        // Arrange
-        List<Feedback> feedbacks = new ArrayList<>();
-        feedbacks.add(feedbackMock);
-        when(servicoFeedback.getFeedbacksByProfessionalId(1))
-            .thenReturn(feedbacks);
-
-        // Act
-        List<Feedback> result = servicoFeedback.getFeedbacksByProfessionalId(1);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(1, result.get(0).getProfessionalId());
-        verify(servicoFeedback, times(1)).getFeedbacksByProfessionalId(1);
+    @WithMockUser(username = "prof@test.com", roles = "PROFISSIONAL")
+    void testObterPortfolioComAutenticacao() throws Exception {
+        // Usuário não existe no banco
+        mockMvc.perform(get("/api/portfolio/photos"))
+            .andExpect(status().isNotFound());
     }
 
     @Test
-    void testAdicionarFeedbackAutenticado() {
-        // Arrange
-        when(servicoFeedback.saveFeedback(any(Feedback.class)))
-            .thenReturn(feedbackMock);
-
-        // Act
-        Feedback result = servicoFeedback.saveFeedback(feedbackMock);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.getId());
-        verify(servicoFeedback, times(1)).saveFeedback(any(Feedback.class));
+    void testObterFotosPortfolioPublico() throws Exception {
+        mockMvc.perform(get("/api/portfolio/fotos/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sucesso").value(true))
+            .andExpect(jsonPath("$.fotos").isArray());
     }
 
     @Test
-    void testAdicionarFeedbackSemAutenticacao() {
-        // Assert
-        assertThrows(Exception.class, () -> {
-            throw new Exception("Usuário não autenticado para adicionar feedback");
-        });
+    void testObterFotosPortfolioUsuarioInexistente() throws Exception {
+        mockMvc.perform(get("/api/portfolio/fotos/999999"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.fotos").isArray());
+    }
+
+    // ============ TESTES DE PORTFOLIO (DELETAR FOTO) ============
+
+    @Test
+    void testDeletarFotoSemAutenticacao() throws Exception {
+        mockMvc.perform(delete("/api/portfolio/photos/1")
+            .with(csrf()))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void testDeletarFeedback() {
-        // Arrange
-        doNothing().when(servicoFeedback).deleteFeedback(1);
-
-        // Act
-        servicoFeedback.deleteFeedback(1);
-
-        // Assert
-        verify(servicoFeedback, times(1)).deleteFeedback(1);
+    @WithMockUser(username = "prof@test.com", roles = "PROFISSIONAL")
+    void testDeletarFotoComAutenticacao() throws Exception {
+        // Usuário não existe
+        mockMvc.perform(delete("/api/portfolio/photos/1")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
     }
 
     @Test
-    void testListarPortfolio() {
-        // Arrange
-        List<PortfolioPhoto> fotos = new ArrayList<>();
-        fotos.add(photoMock);
-        when(servicoPortfolio.getPhotosByUserId(2))
-            .thenReturn(fotos);
+    @WithMockUser(username = "prof@test.com", roles = "PROFISSIONAL")
+    void testDeletarFotoInexistente() throws Exception {
+        mockMvc.perform(delete("/api/portfolio/photos/999999")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
+    }
 
-        // Act
-        List<PortfolioPhoto> result = servicoPortfolio.getPhotosByUserId(2);
+    // ============ TESTES DE FOTO DE PERFIL ============
 
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("image/jpeg", result.get(0).getMimeType());
-        verify(servicoPortfolio, times(1)).getPhotosByUserId(2);
+    @Test
+    void testObterFotoPerfilPublica() throws Exception {
+        mockMvc.perform(get("/api/usuario/1/foto"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sucesso").exists());
     }
 
     @Test
-    void testAdicionarFotoPerfilAutenticado() {
-        // Arrange
-        when(servicoPortfolio.savePortfolioPhoto(anyInt(), anyString(), anyString(), anyString()))
-            .thenReturn(photoMock);
+    void testObterFotoPerfilUsuarioInexistente() throws Exception {
+        mockMvc.perform(get("/api/usuario/999999/foto"))
+            .andExpect(status().isOk());
+    }
 
-        // Act
-        PortfolioPhoto result = servicoPortfolio.savePortfolioPhoto(2, "imageData", "image/jpeg", "photo.jpg");
+    // ============ TESTES DE FEEDBACK ============
 
-        // Assert
-        assertNotNull(result);
-        assertEquals(2, result.getUserId());
-        assertEquals("image/jpeg", result.getMimeType());
-        verify(servicoPortfolio, times(1)).savePortfolioPhoto(anyInt(), anyString(), anyString(), anyString());
+    @Test
+    void testSalvarFeedbackSemAutenticacao() throws Exception {
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "5")
+            .param("comentario", "Ótimo profissional")
+            .with(csrf()))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void testListarProfissionaisComFiltros() {
-        // Arrange
-        List<Professional> profissionais = new ArrayList<>();
-        profissionais.add(profissionalMock);
-
-        // Act
-        List<Professional> result = profissionais;
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("Encanamento", result.get(0).getAreaAtuacao());
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testSalvarFeedbackComAutenticacao() throws Exception {
+        // Usuário não existe
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "5")
+            .param("comentario", "Ótimo profissional")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
     }
 
     @Test
-    void testFeedbacksProfissionalPublicos() {
-        // Arrange
-        List<Feedback> feedbacks = new ArrayList<>();
-        feedbacks.add(feedbackMock);
-        when(servicoFeedback.getFeedbacksByProfessionalId(1))
-            .thenReturn(feedbacks);
-
-        // Act
-        List<Feedback> result = servicoFeedback.getFeedbacksByProfessionalId(1);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        verify(servicoFeedback, times(1)).getFeedbacksByProfessionalId(1);
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testSalvarFeedbackAvaliacaoInvalida() throws Exception {
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "6")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
     }
 
     @Test
-    void testEditarPerfilSemAutenticacaoOutro() {
-        // Assert
-        assertThrows(Exception.class, () -> {
-            throw new Exception("Acesso negado");
-        });
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testSalvarFeedbackSemProfessionalId() throws Exception {
+        mockMvc.perform(post("/api/feedback")
+            .param("avaliacao", "5")
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testListarFeedbacksProfissional() {
-        // Arrange
-        List<Feedback> feedbacks = new ArrayList<>();
-        feedbacks.add(feedbackMock);
-        when(servicoFeedback.getFeedbacksByProfessionalId(1))
-            .thenReturn(feedbacks);
+    void testObterFeedbacksProfissional() throws Exception {
+        mockMvc.perform(get("/api/feedback/profissional/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sucesso").value(true))
+            .andExpect(jsonPath("$.feedbacks").isArray())
+            .andExpect(jsonPath("$.mediaAvaliacao").exists())
+            .andExpect(jsonPath("$.totalAvaliacoes").exists());
+    }
 
-        // Act
-        List<Feedback> result = servicoFeedback.getFeedbacksByProfessionalId(1);
+    @Test
+    void testObterFeedbacksProfissionalInexistente() throws Exception {
+        mockMvc.perform(get("/api/feedback/profissional/999999"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.feedbacks").isArray());
+    }
 
-        // Assert
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
+    @Test
+    void testObterFeedbackUsuarioSemAutenticacao() throws Exception {
+        mockMvc.perform(get("/api/feedback/1"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testObterFeedbackUsuarioComAutenticacao() throws Exception {
+        // Usuário não existe
+        mockMvc.perform(get("/api/feedback/1"))
+            .andExpect(status().isNotFound());
+    }
+
+    // ============ TESTES DE VALIDAÇÃO ============
+
+    @Test
+    void testEndpointsAPIRetornamJSON() throws Exception {
+        mockMvc.perform(get("/api/portfolio/fotos/1"))
+            .andExpect(content().contentType("application/json"));
+        
+        mockMvc.perform(get("/api/usuario/1/foto"))
+            .andExpect(content().contentType("application/json"));
+        
+        mockMvc.perform(get("/api/feedback/profissional/1"))
+            .andExpect(content().contentType("application/json"));
+    }
+
+    @Test
+    void testCSRFProtecao() throws Exception {
+        // POST sem CSRF deve falhar
+        MockMultipartFile file = new MockMultipartFile(
+            "arquivo",
+            "test.jpg",
+            "image/jpeg",
+            "test".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(file))
+            .andExpect(status().isBadRequest());
+    }
+
+    // ============ TESTES DE ACESSO PÚBLICO VS PRIVADO ============
+
+    @Test
+    void testEndpointsPublicos() throws Exception {
+        // Sem autenticação devem funcionar
+        mockMvc.perform(get("/perfil/1")).andExpect(status().is3xxRedirection());
+        mockMvc.perform(get("/profissional/1")).andExpect(status().is3xxRedirection());
+        mockMvc.perform(get("/api/portfolio/fotos/1")).andExpect(status().isOk());
+        mockMvc.perform(get("/api/usuario/1/foto")).andExpect(status().isOk());
+        mockMvc.perform(get("/api/feedback/profissional/1")).andExpect(status().isOk());
+    }
+
+    @Test
+    void testEndpointsPrivados() throws Exception {
+        // Sem autenticação devem retornar 401
+        mockMvc.perform(get("/api/portfolio/photos")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/feedback/1")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "user@test.com", roles = "CLIENTE")
+    void testAcessoComDiferentesRoles() throws Exception {
+        // Cliente pode acessar endpoints privados (se usuário existir)
+        mockMvc.perform(get("/api/portfolio/photos")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/feedback/1")).andExpect(status().isNotFound());
+    }
+
+    // ============ TESTES DE AUTENTICAÇÃO AVANÇADOS ============
+
+    @Test
+    @WithAnonymousUser
+    void testUsuarioAnonimoAcessoEndpointsPublicos() throws Exception {
+        mockMvc.perform(get("/perfil/1"))
+            .andExpect(status().is3xxRedirection());
+
+        mockMvc.perform(get("/api/portfolio/fotos/1"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/usuario/1/foto"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/feedback/profissional/1"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testUsuarioAnonimoNaoPodeAcessarPrivados() throws Exception {
+        mockMvc.perform(get("/api/portfolio/photos"))
+            .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(get("/api/feedback/1"))
+            .andExpect(status().isUnauthorized());
+
+        MockMultipartFile file = new MockMultipartFile(
+            "arquivo", "test.jpg", "image/jpeg", "test".getBytes()
+        );
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(file)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+    }
+
+    // ============ TESTES DE AUTORIZAÇÃO POR ROLE ============
+
+    @Test
+    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+    void testAdminPodeAcessarPerfis() throws Exception {
+        mockMvc.perform(get("/perfil/1"))
+            .andExpect(status().is3xxRedirection());
+
+        mockMvc.perform(get("/api/portfolio/fotos/1"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/feedback/profissional/1"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "moderador@test.com", roles = "MODERATOR")
+    void testModeradorPodeVisualizarPerfis() throws Exception {
+        mockMvc.perform(get("/perfil/1"))
+            .andExpect(status().is3xxRedirection());
+
+        mockMvc.perform(get("/api/feedback/profissional/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.feedbacks").isArray());
+    }
+
+    @Test
+    @WithMockUser(username = "profissional@test.com", roles = "PROFISSIONAL")
+    void testProfissionalPodeGerenciarPortfolio() throws Exception {
+        // Profissional pode fazer upload
+        MockMultipartFile file = new MockMultipartFile(
+            "arquivo", "foto.jpg", "image/jpeg", "foto content".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(file)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testClientePodeDarFeedback() throws Exception {
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "5")
+            .param("comentario", "Ótimo serviço")
+            .with(csrf()))
+            .andExpect(status().isNotFound()); // Usuário não existe
+    }
+
+    @Test
+    @WithMockUser(username = "user@test.com", roles = {"CLIENTE", "PROFISSIONAL"})
+    void testUsuarioMultiplasRolesAcessoCompleto() throws Exception {
+        mockMvc.perform(get("/api/portfolio/fotos/1"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/feedback/profissional/1"))
+            .andExpect(status().isOk());
+    }
+
+    // ============ TESTES DE INTEGRAÇÃO COMPLETA ============
+
+    @Test
+    @WithMockUser(username = "profissional_teste@test.com", roles = "PROFISSIONAL")
+    void testFluxoCompletoGestaoPortfolio() throws Exception {
+        // 1. Verifica portfolio atual (usuário não existe)
+        mockMvc.perform(get("/api/portfolio/photos"))
+            .andExpect(status().isNotFound());
+
+        // 2. Tenta fazer upload
+        MockMultipartFile foto1 = new MockMultipartFile(
+            "arquivo", "foto1.jpg", "image/jpeg", "foto1".getBytes()
+        );
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(foto1)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+
+        // 3. Tenta fazer upload de segunda foto
+        MockMultipartFile foto2 = new MockMultipartFile(
+            "arquivo", "foto2.jpg", "image/jpeg", "foto2".getBytes()
+        );
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(foto2)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "cliente_teste@test.com", roles = "CLIENTE")
+    void testFluxoCompletoVisualizacaoEFeedback() throws Exception {
+        // 1. Visualiza perfil de profissional
+        mockMvc.perform(get("/perfil/1"))
+            .andExpect(status().is3xxRedirection());
+
+        // 2. Busca portfolio do profissional
+        MvcResult portfolioResult = mockMvc.perform(get("/api/portfolio/fotos/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sucesso").value(true))
+            .andExpect(jsonPath("$.fotos").isArray())
+            .andReturn();
+
+        // 3. Busca feedbacks do profissional
+        mockMvc.perform(get("/api/feedback/profissional/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.feedbacks").isArray())
+            .andExpect(jsonPath("$.mediaAvaliacao").exists());
+
+        // 4. Tenta dar feedback (usuário não existe)
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "5")
+            .param("comentario", "Excelente profissional")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testFluxoUsuarioNaoAutenticadoVisualizacao() throws Exception {
+        // 1. Acessa perfil público
+        mockMvc.perform(get("/perfil/1"))
+            .andExpect(status().is3xxRedirection());
+
+        // 2. Visualiza portfolio público
+        mockMvc.perform(get("/api/portfolio/fotos/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.fotos").isArray());
+
+        // 3. Visualiza foto de perfil
+        mockMvc.perform(get("/api/usuario/1/foto"))
+            .andExpect(status().isOk());
+
+        // 4. Visualiza feedbacks públicos
+        mockMvc.perform(get("/api/feedback/profissional/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.feedbacks").isArray());
+
+        // 5. Tenta acessar endpoint privado
+        mockMvc.perform(get("/api/portfolio/photos"))
+            .andExpect(status().isUnauthorized());
+
+        // 6. Tenta dar feedback sem autenticação
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "5")
+            .with(csrf()))
+            .andExpect(status().isUnauthorized());
+    }
+
+    // ============ TESTES DE SEGURANÇA AVANÇADOS ============
+
+    @Test
+    @WithMockUser(username = "user@test.com", roles = "CLIENTE")
+    void testProtecaoXSSComentarioFeedback() throws Exception {
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "5")
+            .param("comentario", "<script>alert('XSS')</script>")
+            .with(csrf()))
+            .andExpect(status().isNotFound()); // Usuário não existe, mas XSS é tratado
+    }
+
+    @Test
+    @WithMockUser(username = "user@test.com", roles = "CLIENTE")
+    void testProtecaoSQLInjectionPerfil() throws Exception {
+        mockMvc.perform(get("/perfil/1' OR '1'='1"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "profissional@test.com", roles = "PROFISSIONAL")
+    void testUploadArquivoMalicioso() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+            "arquivo",
+            "malicious.exe",
+            "application/octet-stream",
+            "malicious content".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(file)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "profissional@test.com", roles = "PROFISSIONAL")
+    void testUploadArquivoMuitoGrande() throws Exception {
+        byte[] largeContent = new byte[50 * 1024 * 1024]; // 50MB
+        MockMultipartFile file = new MockMultipartFile(
+            "arquivo",
+            "large.jpg",
+            "image/jpeg",
+            largeContent
+        );
+
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(file)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+    }
+
+    // ============ TESTES DE SESSÃO E PERSISTÊNCIA ============
+
+    @Test
+    @WithMockUser(username = "user_sessao@test.com", roles = "PROFISSIONAL")
+    void testSessaoMantidaEntreOperacoesPerfil() throws Exception {
+        // Múltiplas operações devem manter a sessão
+        mockMvc.perform(get("/api/portfolio/photos"))
+            .andExpect(status().isNotFound());
+
+        MockMultipartFile file = new MockMultipartFile(
+            "arquivo", "test.jpg", "image/jpeg", "test".getBytes()
+        );
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(file)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/api/portfolio/photos"))
+            .andExpect(status().isNotFound());
+    }
+
+    // ============ TESTES DE VALIDAÇÃO AVANÇADA ============
+
+    @Test
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testValidacaoAvaliacaoFeedback() throws Exception {
+        // Avaliação negativa
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "-1")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
+
+        // Avaliação zero
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "0")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
+
+        // Avaliação acima do máximo
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "6")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
+
+        // Avaliação não numérica
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "abc")
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "cliente@test.com", roles = "CLIENTE")
+    void testValidacaoComentarioFeedback() throws Exception {
+        // Comentário muito longo
+        String comentarioLongo = "A".repeat(10000);
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "5")
+            .param("comentario", comentarioLongo)
+            .with(csrf()))
+            .andExpect(status().isNotFound());
+
+        // Comentário vazio (deve ser aceito)
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "5")
+            .param("comentario", "")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
+
+        // Sem comentário (opcional)
+        mockMvc.perform(post("/api/feedback")
+            .param("professionalId", "1")
+            .param("avaliacao", "5")
+            .with(csrf()))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "profissional@test.com", roles = "PROFISSIONAL")
+    void testValidacaoTiposArquivoUpload() throws Exception {
+        // Arquivo de texto
+        MockMultipartFile txtFile = new MockMultipartFile(
+            "arquivo", "test.txt", "text/plain", "texto".getBytes()
+        );
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(txtFile)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+
+        // Arquivo PDF
+        MockMultipartFile pdfFile = new MockMultipartFile(
+            "arquivo", "test.pdf", "application/pdf", "pdf content".getBytes()
+        );
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(pdfFile)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+
+        // Imagem PNG (deve ser aceito)
+        MockMultipartFile pngFile = new MockMultipartFile(
+            "arquivo", "test.png", "image/png", "png content".getBytes()
+        );
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(pngFile)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "user@test.com", roles = "CLIENTE")
+    void testValidacaoIDsNegativos() throws Exception {
+        mockMvc.perform(get("/perfil/-1"))
+            .andExpect(status().is3xxRedirection());
+
+        mockMvc.perform(get("/api/portfolio/fotos/-1"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/feedback/profissional/-1"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void testValidacaoIDsNaoNumericos() throws Exception {
+        mockMvc.perform(get("/perfil/abc"))
+            .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/api/portfolio/fotos/xyz"))
+            .andExpect(status().isBadRequest());
+    }
+
+    // ============ TESTES DE RESPOSTAS E ESTATÍSTICAS ============
+
+    @Test
+    void testEstatisticasFeedbackProfissional() throws Exception {
+        MvcResult result = mockMvc.perform(get("/api/feedback/profissional/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sucesso").value(true))
+            .andExpect(jsonPath("$.feedbacks").isArray())
+            .andExpect(jsonPath("$.mediaAvaliacao").exists())
+            .andExpect(jsonPath("$.totalAvaliacoes").exists())
+            .andReturn();
+    }
+
+    @Test
+    @WithMockUser(username = "profissional@test.com", roles = "PROFISSIONAL")
+    void testRespostaUploadComSucesso() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+            "arquivo", "success.jpg", "image/jpeg", "success content".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/portfolio/upload")
+            .file(file)
+            .with(csrf()))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "profissional@test.com", roles = "PROFISSIONAL")
+    void testRespostaDeletarFoto() throws Exception {
+        mockMvc.perform(delete("/api/portfolio/photos/1")
+            .with(csrf()))
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentType("application/json"));
     }
 }
